@@ -1,0 +1,6 @@
+*un~
+.ycm_extra_conf*
+*.seq
+*o
+results/*
+*.bin
