@@ -11,13 +11,18 @@
 #pragma once
 
 #include <cstdlib>
+#include <string>
 
 class node_t{
     public:
         node_t(): _parent(0), _weight(0.0) {};
         node_t(size_t s, float w): _parent(s), _weight(w){};
+        std::string _label;
         size_t _parent;
         float _weight;
+        size_t _lchild;
+        size_t _rchild;
+        bool _children;
 };
 
 class tree_t{
@@ -27,6 +32,7 @@ class tree_t{
             _tree = new node_t[_size];
         };
         tree_t(const tree_t&);
+        tree_t(const std::string&);
         ~tree_t();
         tree_t& operator=(const tree_t&);
     private:
