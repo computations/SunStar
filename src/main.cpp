@@ -6,6 +6,8 @@ using std::cin;
 
 
 int main(){
-    tree_t("(a,b);");
+    tree_t t("(a,b);");
+    auto lm = t.make_label_map();
+    t.calc_distance_matrix(lm);
     return 0;
 }

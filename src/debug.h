@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdio>
+#include <cstdlib>
+#include <cassert>
 #include <execinfo.h>
 
 #ifdef DEBUG
@@ -21,5 +23,12 @@
         for(int i=0;i<frames;++i){\
             fprintf(stderr, "%s\n", bt_symbols[i]);\
         }\
+    }\
+}
+
+#define assert_string(cond, comment) {\
+    if(!(cond)){\
+        fprintf(stderr, "assertion \"%s\" failed: file: %s, line: %d, comment: %s\n",#cond, __FILE__, __LINE__, comment);\
+        abort();\
     }\
 }
