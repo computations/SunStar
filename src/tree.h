@@ -17,8 +17,10 @@
 
 class node_t{
     public:
-        node_t(): _parent(0), _weight(0.0) {};
+        node_t(): _parent(0), _weight(0.0), _lchild(0), _rchild(0), _children(false) {};
         node_t(size_t s, float w): _parent(s), _weight(w){};
+
+        std::string to_string(node_t*);
 
         std::string _label;
         size_t _parent;
@@ -40,6 +42,9 @@ class tree_t{
         tree_t& operator=(const tree_t&);
 
         std::vector<size_t> get_parents_of(size_t);
+
+        std::string to_string();
+        std::string print_labels();
 
         float* calc_distance_matrix(const std::unordered_map<std::string, size_t>&);
         void calc_distance_matrix(const std::unordered_map<std::string, size_t>&, float*);

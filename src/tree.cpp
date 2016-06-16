@@ -7,6 +7,8 @@ using std::string;
 using std::unordered_map;
 #include<vector>
 using std::vector;
+#include <sstream>
+using std::ostringstream;
 #include <cassert>
 
 tree_t::tree_t(const tree_t& t){
@@ -140,4 +142,30 @@ float tree_t::parent_distance(size_t child, size_t parent){
         child = _tree[child]._parent;
     }
     return distance;
+}
+
+string node_t::to_string(node_t* root){
+    ostringstream ret;
+    if(_children){
+        ret<<"("<<(root+_lchild)->to_string(root)
+            <<","<<(root+_rchild)->to_string(root)<<")"
+            <<_label<<":"<<_weight;
+    }
+    else{
+        ret<<_label<<":"<<_weight;
+    }
+    return ret.str();
+}
+
+string tree_t::to_string(){
+    return _tree->to_string(_tree);
+}
+
+string tree_t::print_labels(){
+    ostringstream ret;
+    for(size_t i=0;i<_size;++i){
+        ret<<_tree[i]._label<< "(" <<_tree[i]._lchild<<","<<_tree[i]._rchild<<")";
+        if(i!=_size-1) ret<<" | ";
+    }
+    return ret.str();
 }

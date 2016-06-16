@@ -2,12 +2,13 @@
 #include "debug.h"
 #include <iostream>
 using std::cout;
-using std::cin;
+using std::endl;
 
 
 int main(){
-    tree_t t("(a,b);");
+    tree_t t("(a,b)k;");
     auto lm = t.make_label_map();
-    t.calc_distance_matrix(lm);
+    cout<<t.to_string()<<endl;
+
     return 0;
 }
