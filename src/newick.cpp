@@ -10,72 +10,72 @@ using std::string;
 #include <memory>
 using std::shared_ptr;
 
-struct ptr_node_t{
-    ptr_node_t* _lchild;
-    ptr_node_t* _rchild;
-    string _label;
-    float _weight;
-    ptr_node_t(): _lchild(0), _rchild(0) {}
-    size_t count_leaves() const{
-        if(!_lchild && !_rchild) return 1;
-        return _lchild->count_leaves() + _rchild->count_leaves()+1;
-    }
-    ~ptr_node_t(){
-        if(_lchild && _rchild){
-            delete _lchild;
-            delete _rchild;
-        }
-    }
-};
-
 inline size_t skip_whitespace(const string& s, size_t index){
     while(isspace(s[index])!=0 && index < s.size()) index++;
     return index;
 }
 
-void copy_to_node(ptr_node_t* t, node_t* n){
-    n->_weight = t->_weight;
+size_t scan_nodes(const string& s){
+    size_t n_nodes=0;
+    for(size_t i=0;i<s.size();++i){
+        if(s[i]==',') n_nodes++;
+        else if(s[i]==')') n_nodes+=2;
+    }
+    return n_nodes;
 }
 
-void set_childen(node_t* n, size_t i, size_t j){
-    n->_children = true;
-    n->_lchild = i;
-    n->_rchild = j;
-}
-
-node_t* convert_to_packed_tree(ptr_node_t* root, size_t& s){
-    size_t size = root->count_leaves();
-    s = size;
-    size_t current_index=0;
-    node_t* tree = new node_t[size];
-    copy_to_node(root, tree+(current_index++));
-
-    stack<ptr_node_t*> ptr_node_stack;
-    ptr_node_stack.push(root);
+//Currently, there needs to be a tree on each string line for this parser to work
+//If you put multiple trees in, then it has undefined behavior
+node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
+    tree_size = scan_nodes(newick_string);
+    node_t* tree = new node_t[tree_size];
     stack<node_t*> node_stack;
-    node_stack.push(tree+0);
-    while(!node_stack.empty()){
-        ptr_node_t* current_ptr_node = ptr_node_stack.top(); ptr_node_stack.pop();
-        node_t* current_node = node_stack.top(); node_stack.pop();
-        if(current_ptr_node->_lchild&&current_ptr_node->_rchild){
-            size_t lchild_index = current_index;
-            size_t rchild_index = current_index+1;
-            current_index+=2;
-            copy_to_node(current_ptr_node->_lchild, tree+lchild_index);
-            copy_to_node(current_ptr_node->_rchild, tree+rchild_index);
-            set_childen(current_node, lchild_index, rchild_index);
-            ptr_node_stack.push(current_ptr_node->_lchild);
-            ptr_node_stack.push(current_ptr_node->_rchild);
-            node_stack.push(tree+lchild_index);
-            node_stack.push(tree+rchild_index);
+
+    size_t idx=0;
+    size_t current_node = 0;
+    while(idx < newick_string.size()){
+        if(newick_string[idx] == '(' || newick_string[idx] == ','){
+            node_stack.push(tree+current_node);
+            current_node++; idx++;
+        }
+        else if(newick_string[idx] == ')'){
+            node_t* tmp1 = node_stack.top(); node_stack.pop();
+            node_t* tmp2 = node_stack.top(); node_stack.pop();
+            node_stack.top()->_lchild = tmp1 - tree;
+            node_stack.top()->_rchild = tmp2 - tree;
+            node_stack.top()->_children = true;
+            idx++;
+        }
+        else if(newick_string[idx] == ';'){
+            break;
         }
         else{
-            current_node->_children=false;
+            idx = skip_whitespace(newick_string, idx);           
+            size_t j = idx;
+            while(j<newick_string.size() 
+                    && newick_string[j] != ','
+                    && newick_string[j] != ':'){ 
+                j++;
+            }
+            node_stack.top()->_label = newick_string.substr(idx, j-idx);
+            idx = j = j+1;
+            while(j < newick_string.size() 
+                    && (isdigit(newick_string[j] != 0 || newick_string[j]=='.'))){
+                ++j;
+            }
+            if(idx != j)
+                node_stack.top()->_weight = stof(newick_string.substr(idx, j-idx));
+            idx = j;
         }
     }
+
+    assert_string(node_stack.size()==1, "There was a parse error");
+    assert_string(node_stack.top() == tree, "the root wasn't the top of the stack");
+
+    //if the root isn't at the front, we need to make it that way
     return tree;
 }
-
+/*
 node_t* make_tree_from_newick(const string& s, size_t& tree_size){
     stack<ptr_node_t*> node_stack;
     node_stack.push(new ptr_node_t);
@@ -117,4 +117,4 @@ node_t* make_tree_from_newick(const string& s, size_t& tree_size){
     node_stack.top()->_weight = 0;
 
     return convert_to_packed_tree(node_stack.top(), tree_size);
-}
+}*/
