@@ -39,6 +39,8 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
     size_t current_node = 1;
     debug_string("starting newick parse| while loop");
     while(idx < newick_string.size()){
+        debug_print("current character: %c", newick_string[idx]);
+
         if(newick_string[idx] == '(' || newick_string[idx] == ','){
             debug_string("found new taxa, pushing new node");
             node_stack.push(tree+current_node);
@@ -57,8 +59,7 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
             break;
         }
         else{
-            debug_string("something else, should be an id");
-            idx = skip_whitespace(newick_string, idx);           
+            idx = skip_whitespace(newick_string, idx);
             size_t j = idx;
             while(j<newick_string.size() 
                     && newick_string[j] != ','
@@ -68,16 +69,16 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
                 j++;
             }
             node_stack.top()->_label = newick_string.substr(idx, j-idx);
-            debug_print("parsed label: %s", node_stack.top()->_label.c_str());
             idx = j;
             if(newick_string[idx] == ':'){
-                j = idx++;
+                j = ++idx;
+                debug_print("parsing number: current character: %c", newick_string[idx]);
                 while(j < newick_string.size() 
-                        && (isdigit(newick_string[j] != 0 || newick_string[j]=='.'))){
+                        && (isdigit(newick_string[j]) != 0 || newick_string[j]=='.')){
                     ++j;
                 }
-                if(idx != j)
-                    node_stack.top()->_weight = stof(newick_string.substr(idx, j-idx));
+                debug_print("parsed number: %s" ,newick_string.substr(idx,j-idx).c_str());
+                node_stack.top()->_weight = stof(newick_string.substr(idx, j-idx));
                 idx = j;
             }
             else{

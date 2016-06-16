@@ -66,7 +66,7 @@ void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& labe
     //because i is unsigned, when we go negative, we actually go up to 2^64-1.
     //fortunatly, that is always going to be larger than the size of the array
     //so, we check to see if i<_size, just like a regular for loop
-    for(size_t i=_size; i<_size; --i){
+    for(size_t i=_size-1; i<_size; --i){
         for(size_t j=i; j<_size; --j){
             dists[row_size*i+j] = dists[row_size*j+i];
         }
@@ -105,14 +105,18 @@ float tree_t::calc_distance(size_t src, size_t dst){
 
     size_t src_index = src_list.size()-1;
     size_t dst_index = dst_list.size()-1;
+    debug_print("src_list size: %lu | dst_list size: %lu", src_list.size(), dst_list.size());
 
 
     //walk through the list until the lists diverge
     while(true){
-        assert_string( (src_index >= src_list.size() || dst_index >= dst_list.size())
+        debug_print("src_index: %lu | dst_index : %lu" , src_index, dst_index);
+        debug_print("current src node: %lu | current dst node: %lu" , src_list[src_index], dst_list[dst_index]);
+        assert_string((src_index < src_list.size() || dst_index < dst_list.size())
                 , "Parent lists don't converge, but not same index");
+
         if(src_list[src_index] != dst_list[dst_index]){
-            src_index--; dst_index--;//need to back up a step
+            src_index++; dst_index++;//need to back up a step
             break;
         }
         src_index--; dst_index--;
@@ -127,6 +131,7 @@ float tree_t::calc_distance(size_t src, size_t dst){
 
 vector<size_t> tree_t::get_parents_of(size_t index){
     vector<size_t> parent_list;
+    parent_list.push_back(index);
 
     while(_tree[index]._parent != index){
         parent_list.push_back(_tree[index]._parent);
