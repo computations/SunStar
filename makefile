@@ -6,7 +6,7 @@ IFLAGS=
 OBJDIR=obj
 SRCDIR=src
 
-OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o)
+OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o)
 
 all: debug
 
@@ -28,6 +28,9 @@ $(OBJDIR)/tree.o: $(SRCDIR)/tree.cpp | $(OBJDIR)
 	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
 
 $(OBJDIR)/newick.o: $(SRCDIR)/newick.cpp | $(OBJDIR)
+	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
+
+$(OBJDIR)/star.o: $(SRCDIR)/star.cpp | $(OBJDIR)
 	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
 
 $(OBJDIR):
