@@ -42,6 +42,7 @@ class tree_t{
         std::vector<size_t> get_parents_of(size_t);
 
         float* calc_distance_matrix(const std::unordered_map<std::string, size_t>&);
+        void calc_distance_matrix(const std::unordered_map<std::string, size_t>&, float*);
         std::unordered_map<std::string, size_t> make_label_map();
         float calc_distance(size_t, size_t);
         float parent_distance(size_t child, size_t parent);

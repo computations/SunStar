@@ -40,16 +40,22 @@ tree_t& tree_t::operator=(const tree_t& t){
 //this is so we can do a blind average later on, and not have to worry about the ordering of the array
 float* tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& label_map){
     size_t row_size = label_map.size();
-    float* distances = new float[row_size*row_size];
+    float* dists = new float[row_size*row_size];
+    calc_distance_matrix(label_map, dists);
+    return dists;
+}
+
+void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& label_map, float* dists){
+    size_t row_size = label_map.size();
     for(size_t i=0;i<_size;++i){
         //if the node has no children, then it is a leaf, and we need to find distances
         if(!_tree[i]._children){
             size_t matrix_index = label_map.at(_tree[i]._label);
-            distances[matrix_index*row_size] = 0;
+            dists[matrix_index*row_size] = 0;
             for(size_t j=i+1;j<_size;++j){
                 if(!_tree[j]._children){
                     size_t dest_matrix_index = label_map.at(_tree[j]._label);
-                    distances[row_size*matrix_index+dest_matrix_index] = calc_distance(i,j);
+                    dists[row_size*matrix_index+dest_matrix_index] = calc_distance(i,j);
                 }
             }
         }
@@ -60,11 +66,11 @@ float* tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& la
     //so, we check to see if i<_size, just like a regular for loop
     for(size_t i=_size; i<_size; --i){
         for(size_t j=i; j<_size; --j){
-            distances[row_size*i+j] = distances[row_size*j+i];
+            dists[row_size*i+j] = dists[row_size*j+i];
         }
     }
-    return distances;
 }
+
 
 //need to make a map of labels to indices, but the order doesnt really matter
 //so, this is inteded to be called for on the first tree, and never again
