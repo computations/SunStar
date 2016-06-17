@@ -6,8 +6,12 @@ using std::endl;
 
 
 int main(){
-    tree_t t("(a:1.0,b:1.0);");
+    tree_t t("((a:1.0,b:1.0),(c:4.0,d:1.0));");
     auto lm = t.make_label_map();
+    for(auto & k : lm){
+        cout<<k.first<<" | ";
+    }
+    cout<<endl;
     cout<<t.to_string()<<endl;
     cout<<t.print_labels()<<endl;
     size_t row_size = lm.size();

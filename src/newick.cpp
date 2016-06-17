@@ -16,10 +16,10 @@ inline size_t skip_whitespace(const string& s, size_t index){
 }
 
 size_t scan_nodes(const string& s){
-    size_t n_nodes=0;
+    size_t n_nodes=1;
     for(size_t i=0;i<s.size();++i){
         if(s[i]==',') n_nodes++;
-        else if(s[i]==')') n_nodes+=2;
+        else if(s[i]==')') n_nodes++;
     }
     return n_nodes;
 }
@@ -29,6 +29,7 @@ size_t scan_nodes(const string& s){
 node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
     debug_string("starting newick parse");
     tree_size = scan_nodes(newick_string);
+    debug_print("tree size: %lu", tree_size);
     node_t* tree = new node_t[tree_size];
     stack<node_t*> node_stack;
     node_stack.push(tree);
