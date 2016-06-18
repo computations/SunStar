@@ -14,6 +14,9 @@ using std::ostringstream;
 tree_t::tree_t(const tree_t& t){
     _size = t._size;
     _tree = new node_t[_size];
+    for(size_t i =0;i<_size;++i){
+        _tree[i] = t._tree[i];
+    }
 }
 
 //takes a tree specified by newick notation, and makes a tree_t
@@ -54,9 +57,11 @@ void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& labe
         if(!_tree[i]._children){
             size_t matrix_index = label_map.at(_tree[i]._label);
             dists[matrix_index*row_size] = 0;
-            for(size_t j=i+1;j<_size;++j){
+            for(size_t j=0;j<_size;++j){
                 if(!_tree[j]._children){
                     size_t dest_matrix_index = label_map.at(_tree[j]._label);
+                    debug_print("calculating distance for (%lu,%lu), putting in: (%lu,%lu)", 
+                            i, j, matrix_index,dest_matrix_index);
                     dists[row_size*matrix_index+dest_matrix_index] = calc_distance(i,j);
                 }
             }
@@ -66,11 +71,6 @@ void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& labe
     //because i is unsigned, when we go negative, we actually go up to 2^64-1.
     //fortunatly, that is always going to be larger than the size of the array
     //so, we check to see if i<_size, just like a regular for loop
-    for(size_t i=_size-1; i<_size; --i){
-        for(size_t j=i; j<_size; --j){
-            dists[row_size*i+j] = dists[row_size*j+i];
-        }
-    }
 }
 
 
@@ -97,7 +97,10 @@ std::unordered_map<string, size_t> tree_t::make_label_map(){
 //  when those lists diverge, thats the common parent
 float tree_t::calc_distance(size_t src, size_t dst){
 
-    if(src==dst) return 0.0;
+    if(src==dst){
+        debug_string("src and dst are the same, returning zero");
+        return 0.0;
+    }
     auto src_list = get_parents_of(src);
     auto dst_list = get_parents_of(dst);
 
@@ -105,13 +108,10 @@ float tree_t::calc_distance(size_t src, size_t dst){
 
     size_t src_index = src_list.size()-1;
     size_t dst_index = dst_list.size()-1;
-    debug_print("src_list size: %lu | dst_list size: %lu", src_list.size(), dst_list.size());
 
 
     //walk through the list until the lists diverge
     while(true){
-        debug_print("src_index: %lu | dst_index : %lu" , src_index, dst_index);
-        debug_print("current src node: %lu | current dst node: %lu" , src_list[src_index], dst_list[dst_index]);
         assert_string((src_index < src_list.size() || dst_index < dst_list.size())
                 , "Parent lists don't converge, but not same index");
 
@@ -126,7 +126,9 @@ float tree_t::calc_distance(size_t src, size_t dst){
     size_t common_parent = src_list[src_index];
 
     //calculating common parent can be faster, since I have a list of parents already, but this is fine
-    return parent_distance(src, common_parent) + parent_distance(dst,common_parent);
+    float ret =  parent_distance(src, common_parent) + parent_distance(dst,common_parent);
+    debug_print("returning the distance %f", ret);
+    return ret;
 }
 
 vector<size_t> tree_t::get_parents_of(size_t index){
@@ -169,7 +171,7 @@ string tree_t::to_string(){
 string tree_t::print_labels(){
     ostringstream ret;
     for(size_t i=0;i<_size;++i){
-        ret<<_tree[i]._label<< "(" <<_tree[i]._lchild<<","<<_tree[i]._rchild<<")";
+        ret<<_tree[i]._label<< "(" << _tree[i]._parent <<"," <<_tree[i]._lchild<<","<<_tree[i]._rchild<<")";
         if(i!=_size-1) ret<<" | ";
     }
     return ret.str();

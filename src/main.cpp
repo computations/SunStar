@@ -1,31 +1,34 @@
 #include "tree.h"
+#include "star.h"
 #include "debug.h"
 #include <iostream>
 using std::cout;
 using std::endl;
+#include <vector>
+using std::vector;
 
 
 int main(){
-    tree_t t("((a:1.0,b:1.0),(c:4.0,d:1.0));");
-    auto lm = t.make_label_map();
-    for(auto & k : lm){
-        cout<<k.first<<" | ";
-    }
-    cout<<endl;
-    cout<<t.to_string()<<endl;
-    cout<<t.print_labels()<<endl;
-    size_t row_size = lm.size();
-    size_t matrix_size  = row_size*row_size;
-    float* dists = new float[matrix_size];
-    for(size_t i=0; i<matrix_size; ++i){
-        dists[i] = 0.0;
-    }
-    t.calc_distance_matrix(lm, dists);
-    for(size_t i=0;i<row_size;++i){
-        for(size_t j=0;j<row_size;++j){
-            cout<<dists[i*row_size+j]<<" ";
+    tree_t t1("((a:1.0,b:1.0),(c:1.0,d:1.0));");
+    tree_t t2("((a:1.0,d:1.0),(c:1.0,b:1.0));");
+
+    cout<<t1.to_string()<<endl;
+    cout<<t1.print_labels()<<endl;
+    cout<<t2.to_string()<<endl;
+    cout<<t2.print_labels()<<endl;
+
+    vector<tree_t> tree_vector;
+    tree_vector.push_back(t1);
+    tree_vector.push_back(t2);
+
+    auto dists = calc_average_distances(tree_vector);
+    for(size_t i = 0; i < 4; ++i){
+        for(size_t j = 0; j < 4; ++j){
+            cout<<dists[i*4+j]<<" ";
         }
-        cout<<'\n';
+        cout<<endl;
     }
+
+
     return 0;
 }
