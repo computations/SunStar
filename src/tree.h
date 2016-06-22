@@ -14,6 +14,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <functional>
 
 class node_t{
     public:
@@ -51,6 +52,8 @@ class tree_t{
         std::unordered_map<std::string, size_t> make_label_map();
         float calc_distance(size_t, size_t);
         float parent_distance(size_t child, size_t parent);
+        void set_weights(const std::vector<float>&);
+        void set_weights(std::function<float(size_t)>);
 
     private:
         node_t* _tree;

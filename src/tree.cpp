@@ -7,8 +7,12 @@ using std::string;
 using std::unordered_map;
 #include<vector>
 using std::vector;
+#include <stack>
+using std::stack;
 #include <sstream>
 using std::ostringstream;
+#include <functional>
+using std::function;
 #include <cassert>
 
 tree_t::tree_t(const tree_t& t){
@@ -175,4 +179,33 @@ string tree_t::print_labels(){
         if(i!=_size-1) ret<<" | ";
     }
     return ret.str();
+}
+
+void tree_t::set_weights(function<float(size_t)> w_func){
+    stack<size_t> node_stack;
+    stack<size_t> depth_stack;
+    node_stack.push(0);
+    depth_stack.push(0);
+    //preorder traversial of the tree
+    while(!node_stack.empty()){
+        node_t* current_node = _tree+node_stack.top();
+        node_stack.pop();
+        size_t depth = depth_stack.top();
+        depth_stack.pop();
+        current_node->_weight = w_func(depth);
+        if(current_node->_children){
+            node_stack.push(current_node->_lchild);
+            depth_stack.push(depth+1);
+            node_stack.push(current_node->_rchild);
+            depth_stack.push(depth+1);
+        }
+    }
+}
+
+void tree_t::set_weights(const vector<float>& w_vec){
+    set_weights([&w_vec](size_t d){
+            assert_string(d < w_vec.size(), "out of bounds for passed float vector");
+            if(d == 0) return 0.0f;
+            return w_vec[d-1];
+    });
 }
