@@ -15,11 +15,27 @@ using std::ostringstream;
 using std::function;
 #include <cassert>
 
+void node_t::set_weights(function<float(size_t)> w_func, size_t depth){
+    _weight = w_func(depth);
+    if(_children){
+        _lchild->set_weights(w_func, depth+1);
+        _rchild->set_weights(w_func, depth+1);
+    }
+}
+
 tree_t::tree_t(const tree_t& t){
     _size = t._size;
     _tree = new node_t[_size];
+    //need to update lineage
+    //i feel dirty
+    long int offset = _tree - t._tree;
     for(size_t i =0;i<_size;++i){
         _tree[i] = t._tree[i];
+    }
+    for(size_t i=0;i<_size;++i){
+        _tree[i]._parent += offset;
+        _tree[i]._lchild += offset;
+        _tree[i]._rchild += offset;
     }
 }
 
@@ -66,7 +82,7 @@ void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& labe
                     size_t dest_matrix_index = label_map.at(_tree[j]._label);
                     debug_print("calculating distance for (%lu,%lu), putting in: (%lu,%lu)", 
                             i, j, matrix_index,dest_matrix_index);
-                    dists[row_size*matrix_index+dest_matrix_index] = calc_distance(i,j);
+                    dists[row_size*matrix_index+dest_matrix_index] = calc_distance(_tree+i,_tree+j);
                 }
             }
         }
@@ -99,8 +115,8 @@ std::unordered_map<string, size_t> tree_t::make_label_map(){
 //  make a list of parents for each node
 //  compare those lists from the back (ie, root first)
 //  when those lists diverge, thats the common parent
-float tree_t::calc_distance(size_t src, size_t dst){
-
+float tree_t::calc_distance(node_t* src, node_t* dst){
+    debug_print("calculating distance between (%p, %p)", src, dst);
     if(src==dst){
         debug_string("src and dst are the same, returning zero");
         return 0.0;
@@ -127,7 +143,7 @@ float tree_t::calc_distance(size_t src, size_t dst){
     }
 
     assert_string((src_list[src_index] == dst_list[dst_index]), "parents don't equal each other");
-    size_t common_parent = src_list[src_index];
+    node_t* common_parent = src_list[src_index];
 
     //calculating common parent can be faster, since I have a list of parents already, but this is fine
     float ret =  parent_distance(src, common_parent) + parent_distance(dst,common_parent);
@@ -135,22 +151,24 @@ float tree_t::calc_distance(size_t src, size_t dst){
     return ret;
 }
 
-vector<size_t> tree_t::get_parents_of(size_t index){
-    vector<size_t> parent_list;
-    parent_list.push_back(index);
+vector<node_t*> tree_t::get_parents_of(node_t* cur_node){
+    debug_print("getting the parents of %p", cur_node);
+    vector<node_t*> parent_list;
+    parent_list.push_back(cur_node);
 
-    while(_tree[index]._parent != index){
-        parent_list.push_back(_tree[index]._parent);
-        index = _tree[index]._parent;
+    while(cur_node->_parent != cur_node){
+        debug_print("current node: %p", cur_node);
+        parent_list.push_back(cur_node->_parent);
+        cur_node = cur_node->_parent;
     }
     return parent_list;
 }
 
-float tree_t::parent_distance(size_t child, size_t parent){
+float tree_t::parent_distance(node_t* child, node_t* parent){
     float distance = 0;
     while(child!=parent){
-        distance+=_tree[child]._weight;
-        child = _tree[child]._parent;
+        distance+=child->_weight;
+        child = child->_parent;
     }
     return distance;
 }
@@ -158,8 +176,8 @@ float tree_t::parent_distance(size_t child, size_t parent){
 string node_t::to_string(node_t* root){
     ostringstream ret;
     if(_children){
-        ret<<"("<<(root+_lchild)->to_string(root)
-            <<","<<(root+_rchild)->to_string(root)<<")"
+        ret<<"("<<_lchild->to_string(root)
+            <<","<<_rchild->to_string(root)<<")"
             <<_label<<":"<<_weight;
     }
     else{
@@ -182,24 +200,7 @@ string tree_t::print_labels(){
 }
 
 void tree_t::set_weights(function<float(size_t)> w_func){
-    stack<size_t> node_stack;
-    stack<size_t> depth_stack;
-    node_stack.push(0);
-    depth_stack.push(0);
-    //preorder traversial of the tree
-    while(!node_stack.empty()){
-        node_t* current_node = _tree+node_stack.top();
-        node_stack.pop();
-        size_t depth = depth_stack.top();
-        depth_stack.pop();
-        current_node->_weight = w_func(depth);
-        if(current_node->_children){
-            node_stack.push(current_node->_lchild);
-            depth_stack.push(depth+1);
-            node_stack.push(current_node->_rchild);
-            depth_stack.push(depth+1);
-        }
-    }
+    _tree->set_weights(w_func, 0);
 }
 
 void tree_t::set_weights(const vector<float>& w_vec){

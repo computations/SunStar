@@ -33,7 +33,7 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
     node_t* tree = new node_t[tree_size];
     stack<node_t*> node_stack;
     node_stack.push(tree);
-    tree[0]._parent = 0;
+    tree[0]._parent = tree;
 
     debug_print("tree size is : %lu", tree_size);
 
@@ -52,10 +52,10 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
             debug_string("closing a subtree");
             node_t* tmp1 = node_stack.top(); node_stack.pop();
             node_t* tmp2 = node_stack.top(); node_stack.pop();
-            node_stack.top()->_lchild = tmp1 - tree;
-            node_stack.top()->_rchild = tmp2 - tree;
-            tmp1->_parent = node_stack.top() - tree;
-            tmp2->_parent = node_stack.top() - tree;
+            node_stack.top()->_lchild = tmp1;
+            node_stack.top()->_rchild = tmp2;
+            tmp1->_parent = node_stack.top();
+            tmp2->_parent = node_stack.top();
             idx++;
         }
         else if(newick_string[idx] == ';'){
