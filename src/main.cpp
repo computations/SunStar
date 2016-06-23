@@ -1,6 +1,7 @@
 #include "tree.h"
 #include "star.h"
 #include "debug.h"
+#include "nj.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -9,8 +10,9 @@ using std::vector;
 
 
 int main(){
-    tree_t t1("((a:1.0,b:1.0),(c:1.0,d:1.0));");
-    tree_t t2("(((a:1.0,d:1.0),c:1.0),d:1.0);");
+
+    tree_t t1("((a:1.0,b:1.0):1.0,(c:1.0,d:1.0):1.0);");
+    tree_t t2("(((a:1.0,b:1.0):1.0,c:1.0):1.0,d:1.0);");
 
     cout<<t1.to_string()<<endl;
     cout<<t1.print_labels()<<endl;

@@ -152,11 +152,11 @@ float tree_t::calc_distance(node_t* src, node_t* dst){
 }
 
 vector<node_t*> tree_t::get_parents_of(node_t* cur_node){
-    debug_print("getting the parents of %p", cur_node);
+    debug_print("getting the parents of %s", cur_node->_label.c_str());
     vector<node_t*> parent_list;
     parent_list.push_back(cur_node);
 
-    while(cur_node->_parent != cur_node){
+    while(cur_node->_parent != cur_node && cur_node->_parent!=0){
         debug_print("current node: %p", cur_node);
         parent_list.push_back(cur_node->_parent);
         cur_node = cur_node->_parent;
