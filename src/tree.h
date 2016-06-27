@@ -58,6 +58,11 @@ class tree_t{
         void set_weights(std::function<float(size_t)>);
 
     private:
+        //for unrooted trees, we can thing of them as being 3 unrooted trees
+        //we join them together in a vector
+        //this intersection is the new root of an unrooted tree
+        //hence, the unroot
+        std::vector<node_t*> _unroot;
         node_t* _tree;
         size_t _size;
 };

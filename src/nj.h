@@ -19,6 +19,7 @@ class nj_t{
 
         void find_pair();
         void join_pair();
+        void join_final_pair();
 
         //these vectors need to stay in "lock step"
         //each entry needs to corrispond to a specific entry in another

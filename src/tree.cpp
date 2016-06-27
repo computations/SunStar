@@ -37,6 +37,10 @@ tree_t::tree_t(const tree_t& t){
         _tree[i]._lchild += offset;
         _tree[i]._rchild += offset;
     }
+    _unroot = t._unroot;
+    for(size_t i=0;i<t._unroot.size();++i){
+        _unroot[i] += offset;
+    }
 }
 
 //takes a tree specified by newick notation, and makes a tree_t
@@ -50,13 +54,28 @@ tree_t::~tree_t(){
 }
 
 tree_t& tree_t::operator=(const tree_t& t){
-    if(_tree)
+    //resize the tree array if we need to
+    if(_tree && _size != t._size){
+        _size = t._size;
         delete[] _tree;
+        _tree = new node_t[_size];
+    }
     
-    _size = t._size;
-    _tree = new node_t[_size];
     for(size_t i=0;i<_size;++i){
         _tree[i] = t._tree[i];
+    }
+    long int offset = _tree - t._tree;
+    for(size_t i =0;i<_size;++i){
+        _tree[i] = t._tree[i];
+    }
+    for(size_t i=0;i<_size;++i){
+        _tree[i]._parent += offset;
+        _tree[i]._lchild += offset;
+        _tree[i]._rchild += offset;
+    }
+    _unroot = t._unroot;
+    for(size_t i=0;i<t._unroot.size();++i){
+        _unroot[i] += offset;
     }
     return *this;
 }
@@ -124,8 +143,6 @@ float tree_t::calc_distance(node_t* src, node_t* dst){
     auto src_list = get_parents_of(src);
     auto dst_list = get_parents_of(dst);
 
-    assert_string(src_list.back() == dst_list.back(), "leaves don't share a root");
-
     size_t src_index = src_list.size()-1;
     size_t dst_index = dst_list.size()-1;
 
@@ -142,11 +159,8 @@ float tree_t::calc_distance(node_t* src, node_t* dst){
         src_index--; dst_index--;
     }
 
-    assert_string((src_list[src_index] == dst_list[dst_index]), "parents don't equal each other");
-    node_t* common_parent = src_list[src_index];
-
     //calculating common parent can be faster, since I have a list of parents already, but this is fine
-    float ret =  parent_distance(src, common_parent) + parent_distance(dst,common_parent);
+    float ret =  parent_distance(src, src_list[src_index]) + parent_distance(dst,dst_list[dst_index]);
     debug_print("returning the distance %f", ret);
     return ret;
 }
@@ -200,7 +214,9 @@ string tree_t::print_labels(){
 }
 
 void tree_t::set_weights(function<float(size_t)> w_func){
-    _tree->set_weights(w_func, 0);
+    for(auto n : _unroot){
+        n->set_weights(w_func, 0);
+    }
 }
 
 void tree_t::set_weights(const vector<float>& w_vec){

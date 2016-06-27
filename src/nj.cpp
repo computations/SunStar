@@ -18,6 +18,10 @@ nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
     for(size_t i=0;i<_row_size;++i){
         _tree[i]->_label = labels[i];
     }
+
+    while(_row_size>=3){
+        join_pair();
+    }
 }
 
 void nj_t::compute_r(){
@@ -46,11 +50,16 @@ void nj_t::compute_q(){
 }
 
 void nj_t::find_pair(){
+    //compute the matrix Q, which is put into a private data member
     compute_q();
+
+    //find the smallest entry in Q
+    //that i,j is the pair we join
+    //the way this loop is structured, i>j
     size_t low_i = 0;
     size_t low_j = 0;
     for(size_t i=0;i<_row_size;++i){
-        for(size_t j=i+1;j<_row_size;++j){
+        for(size_t j=0;j<i;++j){
             if(_q_vec[i*_row_size+j] <= _q_vec[low_i*_row_size+low_j]){
                 low_i = i;
                 low_j = j;
