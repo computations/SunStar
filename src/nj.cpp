@@ -5,7 +5,15 @@
 using std::vector;
 #include <string>
 using std::string;
+#include <queue>
+using std::queue;
+#include <stack>
+using std::stack;
+#include <unordered_map>
+using std::unordered_map;
 #include <cmath>
+
+typedef unordered_map<node_t*, node_t*> node_map;
 
 nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
     _dists = dists;
@@ -22,6 +30,7 @@ nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
     while(_row_size>=3){
         join_pair();
     }
+    join_final();
 }
 
 void nj_t::compute_r(){
@@ -118,4 +127,46 @@ void nj_t::join_pair(){
     }
 
     _dists.swap(tmp_dists);
+}
+
+void nj_t::join_final(){
+    assert_string(_row_size == 3, "the row size is wrong for the final join");
+    
+}
+
+void nj_t::flatten_tree(){
+    //need a stack and a queue to flatten this tree
+    std::queue<node_t*> node_q;
+    std::stack<node_t*> node_stack;
+    
+    for(auto n : _tree){
+        node_stack.push(n);
+        node_q.push(n);
+    }
+
+    while(!node_stack.empty()){
+        auto tmp_node = node_stack.top(); node_stack.pop();
+        if(tmp_node->_children){
+            node_stack.push(tmp_node->_lchild);
+            node_stack.push(tmp_node->_rchild);
+            node_q.push(tmp_node->_lchild);
+            node_q.push(tmp_node->_rchild);
+        }
+    }
+
+    _tree_size = node_q.size();
+    _flat_tree = new node_t[_tree_size];
+
+    node_map nm;
+
+    for(size_t i=0;i<_tree_size;++i){
+        _flat_tree[i] = *(node_q.front());
+        nm[node_q.front()] = _flat_tree+i;
+    }
+
+    for(size_t i=0;i<_tree_size;++i){
+        _flat_tree[i]._parent = nm[_flat_tree[i]._parent];
+        _flat_tree[i]._lchild = nm[_flat_tree[i]._lchild];
+        _flat_tree[i]._rchild = nm[_flat_tree[i]._rchild];
+    }
 }

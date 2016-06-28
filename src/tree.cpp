@@ -43,6 +43,10 @@ tree_t::tree_t(const tree_t& t){
     }
 }
 
+tree_t::tree_t(node_t* tree, size_t size, const vector<node_t*>& unroots){
+    
+}
+
 //takes a tree specified by newick notation, and makes a tree_t
 tree_t::tree_t(const string& newick){
     _tree = make_tree_from_newick(newick, _size);
@@ -201,7 +205,20 @@ string node_t::to_string(node_t* root){
 }
 
 string tree_t::to_string(){
-    return _tree->to_string(_tree);
+    ostringstream ret;
+
+    if(_unroot.size()>1)
+        ret<<"(";
+
+    for(size_t i=0;i<_unroot.size();++i){
+        ret<<_unroot[i]->to_string(_tree);
+        if(i!=_unroot.size()-1)
+            ret<<",";
+    }
+    if(_unroot.size()>1)
+        ret<<")";
+
+    return ret.str();
 }
 
 string tree_t::print_labels(){
