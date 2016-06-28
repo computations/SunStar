@@ -7,6 +7,7 @@
 class nj_t{
     public:
         nj_t(const std::vector<float> &, const std::vector<std::string>&);
+        ~nj_t();
         tree_t neighbor_join(std::vector<float>);
         
     private:
@@ -17,6 +18,7 @@ class nj_t{
         void find_pair();
         void join_pair();
         void join_final();
+        void make_tree();
         void flatten_tree();
 
         //these vectors need to stay in "lock step"
@@ -34,4 +36,6 @@ class nj_t{
 
         size_t _tree_size;
         node_t* _flat_tree;
+
+        tree_t _final_tree;
 };

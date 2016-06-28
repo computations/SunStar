@@ -31,6 +31,11 @@ nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
         join_pair();
     }
     join_final();
+    make_tree();
+}
+
+nj_t::~nj_t(){
+    if(_flat_tree) delete[] _flat_tree;
 }
 
 void nj_t::compute_r(){
@@ -131,7 +136,34 @@ void nj_t::join_pair(){
 
 void nj_t::join_final(){
     assert_string(_row_size == 3, "the row size is wrong for the final join");
+
+    /**
+     * join the last 3
+     *  to do that we need to use the three distance formulas 
+     *    for a graph like
+     *        x
+     *        |
+     *        r
+     *       / \
+     *      y   z
+     *  We can calculate the x-r (d_xr) distance by calculating the following
+     *     d_xr = (d_yx + d_yx - d_yz)/2
+     *  and we can calculate the other d_ir for i in {x,y,z} the same way 
+     */
     
+    for(size_t i=0;i<_row_size;++i){
+        size_t x,y,z;
+        x = i;
+        y = (i+1)%3;
+        z = (i+2)%3;
+        _tree[i]->_weight = .5 * 
+            (_dists[x*_row_size + y] + _dists[x*_row_size + z] - _dists[y*_row_size+z]);
+    }
+}
+
+void nj_t::make_tree(){
+    flatten_tree();
+    _final_tree = tree_t(_flat_tree, _tree_size, _tree);
 }
 
 void nj_t::flatten_tree(){

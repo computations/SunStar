@@ -43,8 +43,23 @@ tree_t::tree_t(const tree_t& t){
     }
 }
 
-tree_t::tree_t(node_t* tree, size_t size, const vector<node_t*>& unroots){
+tree_t::tree_t(node_t* tree, size_t size, const vector<node_t*>& unroot){
+    _size = size;
+    _tree = new node_t[_size];
+    long int offset = _tree - tree;
+    for(size_t i=0;i<_size;++i){
+        _tree[i] = tree[i];
+    }
+    for(size_t i=0;i<_size;++i){
+        _tree[i]._parent += offset;
+        _tree[i]._lchild += offset;
+        _tree[i]._rchild += offset;
+    }
     
+    _unroot = unroot;
+    for(auto &&i: _unroot){
+        i += offset;
+    }
 }
 
 //takes a tree specified by newick notation, and makes a tree_t
