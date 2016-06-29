@@ -202,3 +202,17 @@ void nj_t::flatten_tree(){
         _flat_tree[i]._rchild = nm[_flat_tree[i]._rchild];
     }
 }
+
+void delete_node(node_t* n){
+    if(n->_children){
+        delete_node(n->_lchild);
+        delete_node(n->_rchild);
+    }
+    delete n;
+}
+
+void nj_t::clean_up(){
+    for(auto n : _tree){
+        delete_node(n);
+    }
+}
