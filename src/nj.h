@@ -8,7 +8,7 @@ class nj_t{
     public:
         nj_t(const std::vector<float> &, const std::vector<std::string>&);
         ~nj_t();
-        tree_t neighbor_join(std::vector<float>);
+        tree_t get_tree();
         
     private:
         void compute_q();

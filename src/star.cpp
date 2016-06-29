@@ -1,10 +1,13 @@
 #include "star.h"
 #include "tree.h"
+#include "nj.h"
 #include "debug.h"
 #include <vector>
 using std::vector;
 #include <string>
 using std::string;
+#include <unordered_map>
+using std::unordered_map;
 #include <iostream>
 
 inline void init_array(float* v, size_t s){
@@ -20,6 +23,7 @@ star_t::star_t(const vector<string>& newick_trees){
         trees.emplace_back(s);
     }
     calc_average_distances(trees);
+    make_tree();
 }
 
 void star_t::calc_average_distances(std::vector<tree_t>& tree_vector){
@@ -49,4 +53,26 @@ void star_t::calc_average_distances(std::vector<tree_t>& tree_vector){
     for(size_t i=0; i<row_size*row_size;++i){
         _avg_dists[i]/=(float)tree_vector.size();
     }
+}
+
+vector<string> invert_label_map(unordered_map<string, size_t> lm){
+    vector<string> ret;
+    ret.resize(lm.size());
+    for(auto &&kv_pair : lm){
+        ret[kv_pair.second] = kv_pair.first;
+    }
+
+    return ret;
+}
+
+void star_t::make_tree(){
+    //I should probably store the label map instead of calculating it twice, but whatever
+    auto lm = _final_tree.make_label_map();
+
+    nj_t nj(_avg_dists, invert_label_map(lm));
+    _final_tree = nj.get_tree();
+}
+
+tree_t star_t::get_tree(){
+    return _final_tree;
 }

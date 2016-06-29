@@ -38,6 +38,10 @@ nj_t::~nj_t(){
     if(_flat_tree) delete[] _flat_tree;
 }
 
+tree_t nj_t::get_tree(){
+    return _final_tree;
+}
+
 void nj_t::compute_r(){
     //if the row size is the same as the vec size, then we have already calculated this vector
     //so skip it
