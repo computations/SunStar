@@ -47,12 +47,13 @@ class tree_t{
 
         std::vector<node_t*> get_parents_of(node_t*);
 
-        std::string to_string();
-        std::string print_labels();
+        std::string to_string() const;
+        std::string print_labels() const;
+
+        std::unordered_map<std::string, size_t> make_label_map();
 
         float* calc_distance_matrix(const std::unordered_map<std::string, size_t>&);
         void calc_distance_matrix(const std::unordered_map<std::string, size_t>&, float*);
-        std::unordered_map<std::string, size_t> make_label_map();
         float calc_distance(node_t*, node_t*);
         float parent_distance(node_t* child, node_t* parent);
         void set_weights(const std::vector<float>&);

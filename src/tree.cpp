@@ -219,7 +219,7 @@ string node_t::to_string(node_t* root){
     return ret.str();
 }
 
-string tree_t::to_string(){
+string tree_t::to_string() const{
     ostringstream ret;
 
     if(_unroot.size()>1)
@@ -236,7 +236,7 @@ string tree_t::to_string(){
     return ret.str();
 }
 
-string tree_t::print_labels(){
+string tree_t::print_labels() const{
     ostringstream ret;
     for(size_t i=0;i<_size;++i){
         ret<<_tree[i]._label<< "(" << _tree[i]._parent <<"," <<_tree[i]._lchild<<","<<_tree[i]._rchild<<")";
