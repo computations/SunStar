@@ -21,6 +21,8 @@ class nj_t{
         void make_tree();
         void flatten_tree();
 
+        void clean_up();
+
         //these vectors need to stay in "lock step"
         //each entry needs to corrispond to a specific entry in another
         //these vectors are "flat"
