@@ -27,6 +27,7 @@ class nj_t{
         //each entry needs to corrispond to a specific entry in another
         //these vectors are "flat"
         std::vector<node_t*> _tree;
+        std::vector<node_t*> _unroot;
         std::vector<float> _r_vec;
 
         //these vectors are "square"

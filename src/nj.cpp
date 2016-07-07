@@ -11,11 +11,14 @@ using std::queue;
 using std::stack;
 #include <unordered_map>
 using std::unordered_map;
+#include <utility>
 #include <cmath>
 
 typedef unordered_map<node_t*, node_t*> node_map;
 
 nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
+    debug_string("");
+    _flat_tree = 0;
     _dists = dists;
     //because dists is a square matrix, we need to compute the row size.
     //furthemore, since it is a square matrix, the sqrt of the size should an integer
@@ -23,18 +26,24 @@ nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
     //so any number that I would need to calculate this for should work
     _row_size = sqrt(dists.size());
     _tree.resize(_row_size);
+    debug_print("assigning labels to nodes, row_size: %lu, lables.size(): %lu", _row_size, labels.size());
     for(size_t i=0;i<_row_size;++i){
+        _tree[i] = new node_t;
+        debug_print("i: %lu, _tree[i] : %p", i, _tree[i]);
         _tree[i]->_label = labels[i];
     }
 
-    while(_row_size>=3){
+    debug_string("starting to join pairs");
+    while(_row_size>3){
         join_pair();
     }
+    debug_string("done joining");
     join_final();
     make_tree();
 }
 
 nj_t::~nj_t(){
+    debug_print("_flat_tree:%p, _tree_size: %lu", _flat_tree, _tree_size);
     if(_flat_tree) delete[] _flat_tree;
 }
 
@@ -43,23 +52,29 @@ tree_t nj_t::get_tree(){
 }
 
 void nj_t::compute_r(){
-    //if the row size is the same as the vec size, then we have already calculated this vector
-    //so skip it
-    if(_row_size == _r_vec.size()) return;
+    debug_string("");
+
+    debug_string("resizing the _r_vec");
     _r_vec.resize(_row_size, 0.0);
+    debug_string("computing r");
+    debug_print("_dists.size() : %lu, _row_size: %lu", _dists.size(), _row_size);
     for(size_t i=0;i<_row_size;++i){
         for(size_t j=0;j<_row_size;++j){
+            debug_print("i*_row_size+j: %lu",i*_row_size+j);
             _r_vec[i] += _dists[i*_row_size+j];
         }
     }
 }
 
 void nj_t::compute_q(){
+    debug_string("");
     //need the r_vec to compute q_vec, so make sure its updated
     compute_r();
 
     //now to compute the new matrix of values to determine cherry picking
+    debug_string("resizing q");
     _q_vec.resize(_row_size*_row_size, 0.0);
+    debug_string("computing q");
     for(size_t i=0;i<_row_size;++i){
         for(size_t j=0;j<_row_size;++j){
             _q_vec[i*_row_size+j] = (_row_size-2)*_dists[i*_row_size+j] - _r_vec[i] - _r_vec[j];
@@ -68,16 +83,19 @@ void nj_t::compute_q(){
 }
 
 void nj_t::find_pair(){
+    debug_string("");
     //compute the matrix Q, which is put into a private data member
     compute_q();
+    debug_string("done computing q");
 
     //find the smallest entry in Q
     //that i,j is the pair we join
     //the way this loop is structured, i>j
     size_t low_i = 0;
-    size_t low_j = 0;
+    size_t low_j = 1;
     for(size_t i=0;i<_row_size;++i){
         for(size_t j=0;j<i;++j){
+            if(i==j) continue;
             if(_q_vec[i*_row_size+j] <= _q_vec[low_i*_row_size+low_j]){
                 low_i = i;
                 low_j = j;
@@ -91,19 +109,33 @@ void nj_t::find_pair(){
 //in this funciton, I modify the size of _tree and _dists.
 //furthermore, _row_size's value changes to keep up.
 void nj_t::join_pair(){
+    debug_string("");
     find_pair();
+    debug_print("_i:%lu, _j:%lu", _i,_j);
+    debug_string("done finding a pair");
     //make a temp vector
     std::vector<node_t*> tmp_tree;
     for(size_t i=0;i<_row_size;++i){
         if(i==_i || i==_j) continue;
         tmp_tree.push_back(_tree[i]);
     }
+    debug_print("tmp_tree.size(): %lu", tmp_tree.size());
     //join nodes and push onto the vector
+    debug_string("joining nodes and pushing onto the tmp vector");
+
+
     node_t* tmp = new node_t;
     tmp->_lchild = _tree[_i];
     tmp->_rchild = _tree[_j];
+    assert_string(tmp->_lchild && tmp->_rchild, "both children are not set");
+    tmp->_children = true;
+    _tree[_i]->_parent = tmp;
+    _tree[_j]->_parent = tmp;
     tmp_tree.push_back(tmp);
-    _tree.swap(tmp_tree);
+    debug_string("swapping tmp and _tree");
+    std::swap(_tree,tmp_tree);
+    debug_print("_tree.size(): %lu", _tree.size());
+
 
     //need to calculate new distances for the new node
     //equation boosted from https://en.wikipedia.org/wiki/Neighbor_joining
@@ -114,7 +146,8 @@ void nj_t::join_pair(){
     tmp->_rchild->_weight = _dists[_i*_row_size+_j] - tmp->_lchild->_weight;
 
     //integrate the new node into the distance table
-    std::vector<float> tmp_dists((_row_size-1)*(_row_size-1),0.0);
+    debug_string("making tmp_dists");
+    vector<float> tmp_dists((_row_size-1)*(_row_size-1));
 
     for(size_t i=0;i<_row_size;++i){
         if(i==_i || i==_j) continue;
@@ -135,10 +168,13 @@ void nj_t::join_pair(){
             (_dists[i*_row_size+_i] + _dists[i*_row_size+_j] - _dists[_i*_row_size + _j]);
     }
 
+    debug_string("swapping tmp_dists and _dists");
     _dists.swap(tmp_dists);
+    _row_size--;
 }
 
 void nj_t::join_final(){
+    debug_string("");
     assert_string(_row_size == 3, "the row size is wrong for the final join");
 
     /**
@@ -162,18 +198,25 @@ void nj_t::join_final(){
         z = (i+2)%3;
         _tree[i]->_weight = .5 * 
             (_dists[x*_row_size + y] + _dists[x*_row_size + z] - _dists[y*_row_size+z]);
+        debug_print("setting last weight to : %f", _tree[i]->_weight);
     }
 }
 
 void nj_t::make_tree(){
+    debug_string("");
     flatten_tree();
-    _final_tree = tree_t(_flat_tree, _tree_size, _tree);
+    _final_tree = tree_t(_flat_tree, _tree_size, _unroot);
 }
 
 void nj_t::flatten_tree(){
+    debug_string("");
     //need a stack and a queue to flatten this tree
     std::queue<node_t*> node_q;
     std::stack<node_t*> node_stack;
+
+    _unroot = _tree;
+
+    debug_print("_tree.size(): %lu", _tree.size());
     
     for(auto n : _tree){
         node_stack.push(n);
@@ -182,6 +225,7 @@ void nj_t::flatten_tree(){
 
     while(!node_stack.empty()){
         auto tmp_node = node_stack.top(); node_stack.pop();
+        debug_print("tmp_node->_children %i", tmp_node->_children);
         if(tmp_node->_children){
             node_stack.push(tmp_node->_lchild);
             node_stack.push(tmp_node->_rchild);
@@ -192,22 +236,39 @@ void nj_t::flatten_tree(){
 
     _tree_size = node_q.size();
     _flat_tree = new node_t[_tree_size];
+    for(size_t i=0;i<_tree_size;++i){
+        _flat_tree[i] = node_t();
+    }
 
     node_map nm;
 
     for(size_t i=0;i<_tree_size;++i){
-        _flat_tree[i] = *(node_q.front());
+        debug_print("current temp node weight: %f", node_q.front()->_weight);
+        _flat_tree[i] = *node_q.front();
         nm[node_q.front()] = _flat_tree+i;
+        node_q.pop();
     }
 
     for(size_t i=0;i<_tree_size;++i){
-        _flat_tree[i]._parent = nm[_flat_tree[i]._parent];
-        _flat_tree[i]._lchild = nm[_flat_tree[i]._lchild];
-        _flat_tree[i]._rchild = nm[_flat_tree[i]._rchild];
+        debug_print("checking nm for %p", _flat_tree[i]._parent);
+        debug_print("checking weight: %f", _flat_tree[i]._weight);
+        if(_flat_tree[i]._parent != NULL)
+            _flat_tree[i]._parent = nm.at(_flat_tree[i]._parent);
+        if(_flat_tree[i]._lchild && _flat_tree[i]._rchild){
+            debug_print("checking nm for children: %p", _flat_tree[i]._lchild);
+            _flat_tree[i]._lchild = nm.at(_flat_tree[i]._lchild);
+            _flat_tree[i]._rchild = nm.at(_flat_tree[i]._rchild);
+        }
+    }
+    //update the unroot
+    for(size_t i=0;i<_unroot.size();++i){
+        _unroot[i] = nm.at(_unroot[i]);
+        debug_print("unroot weight: %f", _unroot[i]->_weight);
     }
 }
 
 void delete_node(node_t* n){
+    debug_string("");
     if(n->_children){
         delete_node(n->_lchild);
         delete_node(n->_rchild);
@@ -216,6 +277,7 @@ void delete_node(node_t* n){
 }
 
 void nj_t::clean_up(){
+    debug_string("");
     for(auto n : _tree){
         delete_node(n);
     }

@@ -15,6 +15,18 @@ using std::ostringstream;
 using std::function;
 #include <cassert>
 
+/*
+node_t& node_t::operator=(const node_t& n){
+    debug_string("");
+    _children = n._children;
+    _lchild = n._lchild;
+    _rchild = n._rchild;
+    _label = n._label;
+    _weight = n._weight;
+    _parent = n._parent;
+    return *this;
+}*/
+
 void node_t::set_weights(function<float(size_t)> w_func, size_t depth){
     _weight = w_func(depth);
     if(_children){
@@ -36,6 +48,9 @@ tree_t::tree_t(const tree_t& t){
         _tree[i]._parent += offset;
         _tree[i]._lchild += offset;
         _tree[i]._rchild += offset;
+        assert_string( (_tree[i]._lchild && _tree[i]._rchild) 
+                    || (_tree[i]._lchild == NULL && _tree[i]._rchild == NULL),
+                    "invalid children state");
     }
     _unroot = t._unroot;
     for(size_t i=0;i<t._unroot.size();++i){
@@ -47,18 +62,26 @@ tree_t::tree_t(node_t* tree, size_t size, const vector<node_t*>& unroot){
     _size = size;
     _tree = new node_t[_size];
     long int offset = _tree - tree;
+    debug_print("offset: %li", offset);
     for(size_t i=0;i<_size;++i){
         _tree[i] = tree[i];
     }
     for(size_t i=0;i<_size;++i){
-        _tree[i]._parent += offset;
-        _tree[i]._lchild += offset;
-        _tree[i]._rchild += offset;
+        if(_tree[i]._parent)
+            _tree[i]._parent += offset;
+        if(_tree[i]._children){
+            _tree[i]._lchild += offset;
+            _tree[i]._rchild += offset;
+        }
+        assert_string( (_tree[i]._lchild && _tree[i]._rchild) 
+                    || (_tree[i]._lchild == NULL && _tree[i]._rchild == NULL),
+                    "invalid children state");
     }
     
     _unroot = unroot;
-    for(auto &&i: _unroot){
-        i += offset;
+    for(size_t i=0;i<_unroot.size();++i){
+        _unroot[i]+=offset;
+        debug_print("unroot wieght: %f", _unroot[i]->_weight);
     }
 }
 
@@ -206,11 +229,11 @@ float tree_t::parent_distance(node_t* child, node_t* parent){
     return distance;
 }
 
-string node_t::to_string(node_t* root){
+string node_t::to_string(){
     ostringstream ret;
-    if(_children){
-        ret<<"("<<_lchild->to_string(root)
-            <<","<<_rchild->to_string(root)<<")"
+    if(_lchild && _rchild){
+        ret<<"("<<_lchild->to_string()
+            <<","<<_rchild->to_string()<<")"
             <<_label<<":"<<_weight;
     }
     else{
@@ -226,7 +249,7 @@ string tree_t::to_string() const{
         ret<<"(";
 
     for(size_t i=0;i<_unroot.size();++i){
-        ret<<_unroot[i]->to_string(_tree);
+        ret<<_unroot[i]->to_string();
         if(i!=_unroot.size()-1)
             ret<<",";
     }

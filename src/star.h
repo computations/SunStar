@@ -8,6 +8,7 @@
 #include "tree.h"
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 class star_t{
     public:
@@ -19,4 +20,5 @@ class star_t{
 
         tree_t _final_tree;
         std::vector<float> _avg_dists;
+        std::unordered_map<std::string, size_t> _label_map;
 };
