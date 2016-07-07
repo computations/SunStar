@@ -10,7 +10,7 @@ OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o nj.o)
 
 all: debug
 
-debug: CFLAGS+= -DDEBUG -g -Og
+debug: CFLAGS+= -DDEBUG -g -O0
 debug: gstar
 
 release: CFLAGS+= -DRELEASE -O2
