@@ -204,8 +204,7 @@ void nj_t::join_final(){
 
 void nj_t::make_tree(){
     debug_string("");
-    flatten_tree();
-    _final_tree = tree_t(_flat_tree, _tree_size, _unroot);
+    _final_tree = tree_t(_unroot);
 }
 
 void nj_t::flatten_tree(){

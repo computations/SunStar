@@ -9,23 +9,31 @@ using std::unordered_map;
 using std::vector;
 #include <stack>
 using std::stack;
+#include <queue>
+using std::queue;
 #include <sstream>
 using std::ostringstream;
 #include <functional>
 using std::function;
 #include <cassert>
 
-/*
-node_t& node_t::operator=(const node_t& n){
-    debug_string("");
-    _children = n._children;
-    _lchild = n._lchild;
-    _rchild = n._rchild;
-    _label = n._label;
-    _weight = n._weight;
-    _parent = n._parent;
-    return *this;
-}*/
+size_t node_t::count_nodes(){
+    size_t children = 0;
+    if(_children){
+        children += _lchild->count_nodes();
+        children += _rchild->count_nodes();
+    }
+    return children+1;
+}
+
+void node_t::update_children(const unordered_map<node_t*, node_t*> node_map){
+    if(_children){
+        _lchild = node_map.at(_lchild);
+        _rchild = node_map.at(_lchild);
+        _lchild->update_children(node_map);
+        _rchild->update_children(node_map);
+    }
+}
 
 void node_t::set_weights(function<float(size_t)> w_func, size_t depth){
     _weight = w_func(depth);
@@ -58,6 +66,45 @@ tree_t::tree_t(const tree_t& t){
     }
 }
 
+tree_t::tree_t(const vector<node_t*>& unroot){
+    unordered_map<node_t*, node_t*> node_map;
+    stack<node_t*> node_stack;
+    queue<node_t*> node_q; //too many ueue to type each time
+    
+    for(size_t i=0;i<unroot.size(); ++i){
+        node_stack.push(unroot[i]);
+        node_q.push(unroot[i]);
+    }
+
+    while(!node_stack.empty()){
+        node_t* cur = node_stack.top(); node_stack.pop();
+        if(cur->_children){
+            node_stack.push(cur->_lchild);
+            node_stack.push(cur->_rchild);
+            node_q.push(cur->_lchild);
+            node_q.push(cur->_rchild);
+        }
+    }
+
+    _size = node_q.size();
+    _tree = new node_t[_size];
+    size_t cur_index = 0;
+
+    while(!node_q.empty()){
+        node_t* cur = node_q.front(); node_q.pop();
+        _tree[cur_index] = *cur;
+        node_map[cur] = _tree+cur_index;
+        cur_index++;
+    }
+
+    for(auto &i:unroot){
+        _unroot.push_back(node_map.at(i));
+        _unroot.back()->update_children(node_map);
+    }
+}
+
+//this is not needed anymore
+/*
 tree_t::tree_t(node_t* tree, size_t size, const vector<node_t*>& unroot){
     _size = size;
     _tree = new node_t[_size];
@@ -84,6 +131,7 @@ tree_t::tree_t(node_t* tree, size_t size, const vector<node_t*>& unroot){
         debug_print("unroot wieght: %f", _unroot[i]->_weight);
     }
 }
+*/
 
 //takes a tree specified by newick notation, and makes a tree_t
 tree_t::tree_t(const string& newick){
@@ -91,6 +139,7 @@ tree_t::tree_t(const string& newick){
 }
 
 tree_t::~tree_t(){
+    debug_print("_tree: %p", _tree);
     if(_tree)
         delete[] _tree;
 }

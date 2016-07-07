@@ -26,6 +26,9 @@ class node_t{
         std::string to_string();
 
         void set_weights(std::function<float(size_t)>, size_t);
+        void update_children(std::unordered_map<node_t*, node_t*>);
+
+        size_t count_nodes();
 
         std::string _label;
         node_t* _parent;
@@ -41,7 +44,8 @@ class tree_t{
         tree_t(size_t s): _size(s){
             _tree = new node_t[_size];
         };
-        tree_t(node_t*,size_t, const std::vector<node_t*>&);
+        tree_t(const std::vector<node_t*>&);
+        //tree_t(node_t*,size_t, const std::vector<node_t*>&);
         tree_t(const tree_t&);
         tree_t(const std::string&);
         ~tree_t();
