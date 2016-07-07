@@ -20,7 +20,8 @@ class node_t{
     public:
         node_t(): _parent(0), _weight(0.0), _lchild(0), _rchild(0), _children(false) {};
         node_t(node_t* s, float w): _parent(s), _weight(w){};
-        //node_t& operator=(const node_t&);
+        node_t(const node_t&);
+        node_t& operator=(const node_t&);
 
 
         std::string to_string();
@@ -49,7 +50,7 @@ class tree_t{
         tree_t(const tree_t&);
         tree_t(const std::string&);
         ~tree_t();
-        tree_t& operator=(const tree_t&);
+        tree_t& operator=(tree_t);
 
         std::vector<node_t*> get_parents_of(node_t*);
 
@@ -66,6 +67,9 @@ class tree_t{
         void set_weights(std::function<float(size_t)>);
 
     private:
+        
+        void make_flat_tree(const std::vector<node_t*>&);
+
         //for unrooted trees, we can thing of them as being 3 unrooted trees
         //we join them together in a vector
         //this intersection is the new root of an unrooted tree

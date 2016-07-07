@@ -14,11 +14,8 @@ using std::unordered_map;
 #include <utility>
 #include <cmath>
 
-typedef unordered_map<node_t*, node_t*> node_map;
-
 nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
     debug_string("");
-    _flat_tree = 0;
     _dists = dists;
     //because dists is a square matrix, we need to compute the row size.
     //furthemore, since it is a square matrix, the sqrt of the size should an integer
@@ -40,11 +37,6 @@ nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
     debug_string("done joining");
     join_final();
     make_tree();
-}
-
-nj_t::~nj_t(){
-    debug_print("_flat_tree:%p, _tree_size: %lu", _flat_tree, _tree_size);
-    if(_flat_tree) delete[] _flat_tree;
 }
 
 tree_t nj_t::get_tree(){
@@ -112,19 +104,19 @@ void nj_t::join_pair(){
     debug_string("");
     find_pair();
     debug_print("_i:%lu, _j:%lu", _i,_j);
-    debug_string("done finding a pair");
     //make a temp vector
     std::vector<node_t*> tmp_tree;
     for(size_t i=0;i<_row_size;++i){
         if(i==_i || i==_j) continue;
         tmp_tree.push_back(_tree[i]);
     }
-    debug_print("tmp_tree.size(): %lu", tmp_tree.size());
     //join nodes and push onto the vector
     debug_string("joining nodes and pushing onto the tmp vector");
 
 
     node_t* tmp = new node_t;
+
+    debug_print("new node pointer: %p", tmp);
     tmp->_lchild = _tree[_i];
     tmp->_rchild = _tree[_j];
     assert_string(tmp->_lchild && tmp->_rchild, "both children are not set");
@@ -132,9 +124,7 @@ void nj_t::join_pair(){
     _tree[_i]->_parent = tmp;
     _tree[_j]->_parent = tmp;
     tmp_tree.push_back(tmp);
-    debug_string("swapping tmp and _tree");
     std::swap(_tree,tmp_tree);
-    debug_print("_tree.size(): %lu", _tree.size());
 
 
     //need to calculate new distances for the new node
@@ -204,9 +194,10 @@ void nj_t::join_final(){
 
 void nj_t::make_tree(){
     debug_string("");
-    _final_tree = tree_t(_unroot);
+    _final_tree = tree_t(_tree);
 }
 
+/*
 void nj_t::flatten_tree(){
     debug_string("");
     //need a stack and a queue to flatten this tree
@@ -265,6 +256,7 @@ void nj_t::flatten_tree(){
         debug_print("unroot weight: %f", _unroot[i]->_weight);
     }
 }
+*/
 
 void delete_node(node_t* n){
     debug_string("");

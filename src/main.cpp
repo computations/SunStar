@@ -35,6 +35,7 @@ int main(){
     star_t star(tree_strings);
     auto t = star.get_tree();
 
+    cout<<t.print_labels()<<endl;
     cout<<t.to_string()<<endl;
 
     return 0;

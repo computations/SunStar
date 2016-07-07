@@ -17,6 +17,38 @@ using std::ostringstream;
 using std::function;
 #include <cassert>
 
+#include <iostream>
+
+node_t::node_t(const node_t& n){
+    _label = string(n._label);
+    _weight = n._weight;
+    if(n._children){
+        _lchild = n._lchild;
+        _rchild = n._rchild;
+        _children = n._children;
+    }
+    else{
+        _children=false;
+        _lchild = _rchild = NULL;
+    }
+}
+
+node_t& node_t::operator=(const node_t& n){
+    //make a new string
+    _label = string(n._label);
+    _weight = n._weight;
+    if(n._children){
+        _lchild = n._lchild;
+        _rchild = n._rchild;
+        _children = n._children;
+    }
+    else{
+        _children=false;
+        _lchild = _rchild = NULL;
+    }
+    return *this;
+}
+
 size_t node_t::count_nodes(){
     size_t children = 0;
     if(_children){
@@ -27,9 +59,11 @@ size_t node_t::count_nodes(){
 }
 
 void node_t::update_children(const unordered_map<node_t*, node_t*> node_map){
+    if(_parent)
+        _parent = node_map.at(_parent);
     if(_children){
         _lchild = node_map.at(_lchild);
-        _rchild = node_map.at(_lchild);
+        _rchild = node_map.at(_rchild);
         _lchild->update_children(node_map);
         _rchild->update_children(node_map);
     }
@@ -44,29 +78,10 @@ void node_t::set_weights(function<float(size_t)> w_func, size_t depth){
 }
 
 tree_t::tree_t(const tree_t& t){
-    _size = t._size;
-    _tree = new node_t[_size];
-    //need to update lineage
-    //i feel dirty
-    long int offset = _tree - t._tree;
-    for(size_t i =0;i<_size;++i){
-        _tree[i] = t._tree[i];
-    }
-    for(size_t i=0;i<_size;++i){
-        _tree[i]._parent += offset;
-        _tree[i]._lchild += offset;
-        _tree[i]._rchild += offset;
-        assert_string( (_tree[i]._lchild && _tree[i]._rchild) 
-                    || (_tree[i]._lchild == NULL && _tree[i]._rchild == NULL),
-                    "invalid children state");
-    }
-    _unroot = t._unroot;
-    for(size_t i=0;i<t._unroot.size();++i){
-        _unroot[i] += offset;
-    }
+    make_flat_tree(t._unroot);
 }
 
-tree_t::tree_t(const vector<node_t*>& unroot){
+void tree_t::make_flat_tree(const vector<node_t*>& unroot){
     unordered_map<node_t*, node_t*> node_map;
     stack<node_t*> node_stack;
     queue<node_t*> node_q; //too many ueue to type each time
@@ -75,9 +90,11 @@ tree_t::tree_t(const vector<node_t*>& unroot){
         node_stack.push(unroot[i]);
         node_q.push(unroot[i]);
     }
+    debug_print("node_stack.size(): %lu", node_stack.size());
 
     while(!node_stack.empty()){
         node_t* cur = node_stack.top(); node_stack.pop();
+        debug_string(cur->to_string().c_str());
         if(cur->_children){
             node_stack.push(cur->_lchild);
             node_stack.push(cur->_rchild);
@@ -91,16 +108,25 @@ tree_t::tree_t(const vector<node_t*>& unroot){
     size_t cur_index = 0;
 
     while(!node_q.empty()){
+        debug_print("current_index: %lu, _size: %lu", cur_index, _size);
         node_t* cur = node_q.front(); node_q.pop();
-        _tree[cur_index] = *cur;
+        _tree[cur_index] = node_t(*cur);
+        debug_string(_tree[cur_index]._label.c_str());
         node_map[cur] = _tree+cur_index;
         cur_index++;
     }
 
     for(auto &i:unroot){
+        debug_string("updating children")
         _unroot.push_back(node_map.at(i));
         _unroot.back()->update_children(node_map);
+        debug_string(_unroot.back()->to_string().c_str());
     }
+    debug_print("_tree pointer: %p", _tree);
+}
+
+tree_t::tree_t(const vector<node_t*>& unroot){
+    make_flat_tree(unroot);
 }
 
 //this is not needed anymore
@@ -144,30 +170,10 @@ tree_t::~tree_t(){
         delete[] _tree;
 }
 
-tree_t& tree_t::operator=(const tree_t& t){
-    //resize the tree array if we need to
-    if(_tree && _size != t._size){
-        _size = t._size;
-        delete[] _tree;
-        _tree = new node_t[_size];
-    }
-    
-    for(size_t i=0;i<_size;++i){
-        _tree[i] = t._tree[i];
-    }
-    long int offset = _tree - t._tree;
-    for(size_t i =0;i<_size;++i){
-        _tree[i] = t._tree[i];
-    }
-    for(size_t i=0;i<_size;++i){
-        _tree[i]._parent += offset;
-        _tree[i]._lchild += offset;
-        _tree[i]._rchild += offset;
-    }
-    _unroot = t._unroot;
-    for(size_t i=0;i<t._unroot.size();++i){
-        _unroot[i] += offset;
-    }
+tree_t& tree_t::operator=(tree_t t){
+    std::swap(_tree, t._tree);
+    std::swap(_unroot, t._unroot);
+    std::swap(_size, t._size);
     return *this;
 }
 
@@ -208,6 +214,7 @@ void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& labe
 //so, this is inteded to be called for on the first tree, and never again
 //the return of this function is meant to be fed into the function
 //  calc_distance_matrix();
+//  debug_print("_tree pointer: %p", _tree);
 //so that it can calculate ta specific matrix that is ''well ordered''
 std::unordered_map<string, size_t> tree_t::make_label_map(){
     size_t label_index = 0;
@@ -293,6 +300,7 @@ string node_t::to_string(){
 
 string tree_t::to_string() const{
     ostringstream ret;
+    debug_print("_tree pointer: %p", _tree);
 
     if(_unroot.size()>1)
         ret<<"(";
