@@ -13,7 +13,7 @@ all: debug
 debug: CFLAGS+= -DDEBUG -g -O0
 debug: gstar
 
-release: CFLAGS+= -DRELEASE -O2
+release: CFLAGS+= -DRELEASE -Ofast -march=native
 release: gstar
 
 gstar: $(OBJS)
