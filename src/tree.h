@@ -23,8 +23,6 @@ class node_t{
     public:
         node_t(): _parent(0), _weight(0.0), _lchild(0), _rchild(0), _children(false) {};
         node_t(node_t* s, float w): _parent(s), _weight(w){};
-        node_t(const node_t&);
-        node_t& operator=(const node_t&);
 
 
         std::string to_string();

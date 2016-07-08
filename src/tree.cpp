@@ -19,36 +19,6 @@ using std::function;
 
 #include <iostream>
 
-node_t::node_t(const node_t& n){
-    _label = string(n._label);
-    _weight = n._weight;
-    if(n._children){
-        _lchild = n._lchild;
-        _rchild = n._rchild;
-        _children = n._children;
-    }
-    else{
-        _children=false;
-        _lchild = _rchild = NULL;
-    }
-}
-
-node_t& node_t::operator=(const node_t& n){
-    //make a new string
-    _label = string(n._label);
-    _weight = n._weight;
-    if(n._children){
-        _lchild = n._lchild;
-        _rchild = n._rchild;
-        _children = n._children;
-    }
-    else{
-        _children=false;
-        _lchild = _rchild = NULL;
-    }
-    return *this;
-}
-
 size_t node_t::count_nodes(){
     size_t children = 0;
     if(_children){
