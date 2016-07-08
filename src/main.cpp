@@ -37,6 +37,8 @@ int main(){
 
     cout<<t.print_labels()<<endl;
     cout<<t.to_string()<<endl;
+    t.sort();
+    cout<<t.to_string()<<endl;
 
     return 0;
 }

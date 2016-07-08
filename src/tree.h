@@ -7,6 +7,9 @@
 //  fixed number of nodes, usually given not by the nodes, but the number of leaves
 //  branch lengths,
 //  maybe no root?
+//      this changed to using an ''unroot''
+//      the unroot is just a collection of three rooted trees
+//      which get joined at the unroot, to make the three rooted trees an unrooted tree
 
 #pragma once
 
@@ -28,6 +31,7 @@ class node_t{
 
         void set_weights(std::function<float(size_t)>, size_t);
         void update_children(std::unordered_map<node_t*, node_t*>);
+        std::string sort();
 
         size_t count_nodes();
 
@@ -65,6 +69,7 @@ class tree_t{
         float parent_distance(node_t* child, node_t* parent);
         void set_weights(const std::vector<float>&);
         void set_weights(std::function<float(size_t)>);
+        void sort();
 
     private:
         

@@ -77,6 +77,21 @@ void node_t::set_weights(function<float(size_t)> w_func, size_t depth){
     }
 }
 
+string node_t::sort(){
+    if(_children){
+        auto lchild_string = _lchild->sort();
+        auto rchild_string = _rchild->sort();
+        if(rchild_string < lchild_string){
+            std::swap(_lchild, _rchild);
+            std::swap(lchild_string, rchild_string);
+        }
+        if(lchild_string < _label || _label.empty()){
+            return lchild_string;
+        }
+    }
+    return _label;
+}
+
 tree_t::tree_t(const tree_t& t){
     make_flat_tree(t._unroot);
 }
@@ -337,4 +352,28 @@ void tree_t::set_weights(const vector<float>& w_vec){
             if(d == 0) return 0.0f;
             return w_vec[d-1];
     });
+}
+
+void tree_t::sort(){
+    assert_string(_unroot.size() == 3, "the unroot is has a size different than expected");  
+    vector<string> label_vector;
+    label_vector.reserve(3);
+    for(auto && n : _unroot){
+        label_vector.push_back(n->sort());
+    }
+
+    //make sure the first element is the smallest
+    if(label_vector[0] > label_vector[1]){
+        std::swap(label_vector[0], label_vector[1]);
+        std::swap(_unroot[0], _unroot[1]);
+    }
+    if(label_vector[0] > label_vector[2]){
+        std::swap(label_vector[0], label_vector[2]);
+        std::swap(_unroot[0], _unroot[2]);
+    }
+    //then swap the last two if needed
+    if(label_vector[1] > label_vector[2]){
+        std::swap(label_vector[1], label_vector[2]);
+        std::swap(_unroot[1], _unroot[2]);
+    }
 }
