@@ -14,6 +14,8 @@ using std::unordered_map;
 #include <utility>
 #include <cmath>
 
+#include <iostream>
+
 nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
     debug_string("");
     _dists = dists;
@@ -137,7 +139,8 @@ void nj_t::join_pair(){
 
     //integrate the new node into the distance table
     debug_string("making tmp_dists");
-    vector<float> tmp_dists((_row_size-1)*(_row_size-1));
+    vector<float> tmp_dists((_row_size-1)*(_row_size-1), 0.0);
+    size_t tmp_row_size = _row_size-1;
 
     for(size_t i=0;i<_row_size;++i){
         if(i==_i || i==_j) continue;
@@ -149,13 +152,17 @@ void nj_t::join_pair(){
             size_t cur_j = j;
             if(j>_j) cur_j--;
             if(j>_i) cur_j--;
-            tmp_dists[cur_i*(_row_size-1)+cur_j] = _dists[i*_row_size-j];
+            debug_print("mapping (%lu, %lu) to (%lu, %lu)",i,j,cur_i,cur_j);
+            tmp_dists[cur_i*tmp_row_size+cur_j] = _dists[i*_row_size+j];
         }
     }
     
-    for(size_t i=0;i<_row_size-1;++i){
-        tmp_dists[i*(_row_size-1) + (_row_size-2)] = .5 * 
+    //reflect the matrix
+
+    for(size_t i=0;i<tmp_row_size;++i){
+        tmp_dists[i*tmp_row_size + (tmp_row_size-1)] = .5 * 
             (_dists[i*_row_size+_i] + _dists[i*_row_size+_j] - _dists[_i*_row_size + _j]);
+        tmp_dists[tmp_row_size*(tmp_row_size-1) + i] = tmp_dists[i*tmp_row_size + (tmp_row_size-1)];
     }
 
     debug_string("swapping tmp_dists and _dists");
@@ -181,14 +188,22 @@ void nj_t::join_final(){
      *  and we can calculate the other d_ir for i in {x,y,z} the same way 
      */
     
+    /*
+    _tree[0]->_weight = .5* (_dists[0*_row_size+1] + _dists[0*_row_size+2] - _dists[1*_row_size+2]);
+    _tree[1]->_weight = .5* (_dists[1*_row_size+2] + _dists[0*_row_size+1] - _dists[0*_row_size+2]);
+    _tree[2]->_weight = .5* (_dists[1*_row_size+2] + _dists[2*_row_size+0] - _dists[0*_row_size+1]);
+    */
+
     for(size_t i=0;i<_row_size;++i){
         size_t x,y,z;
         x = i;
-        y = (i+1)%3;
-        z = (i+2)%3;
-        _tree[i]->_weight = .5 * 
-            (_dists[x*_row_size + y] + _dists[x*_row_size + z] - _dists[y*_row_size+z]);
-        debug_print("setting last weight to : %f", _tree[i]->_weight);
+        y = (i+1)%_row_size;
+        z = (i+2)%_row_size;
+        _tree[i]->_weight = (_dists[x*_row_size + y] + _dists[x*_row_size + z] - _dists[y*_row_size+z]);
+        _tree[i]->_weight *= .5;
+        debug_print("setting last weight to : .5* (%f + %f - %f) = %f",
+            _dists[x*_row_size + y] , _dists[x*_row_size + z] , _dists[y*_row_size+z],
+            _tree[i]->_weight);
     }
 }
 
