@@ -1,16 +1,29 @@
+//nj.cpp
+//Ben Bettisworth
+//neighbor joiner for gstar
+//given a distance table, will create a pretty good guess at a tree
+//wikipedia has a pretty good working man's explaination of the alg.
+//  https://en.wikipedia.org/wiki/Neighbor_joining
+
 #include "nj.h"
 #include "tree.h"
 #include "debug.h"
+
 #include <vector>
 using std::vector;
+
 #include <string>
 using std::string;
+
 #include <queue>
 using std::queue;
+
 #include <stack>
 using std::stack;
+
 #include <unordered_map>
 using std::unordered_map;
+
 #include <utility>
 #include <cmath>
 
@@ -76,6 +89,17 @@ void nj_t::compute_q(){
     }
 }
 
+//This is the cherry picking secret sauce that NJ uses which is based off of
+//the four point condition.
+//Take as example the graph
+//     A        C
+//      \______/
+//      /      \
+//     B        D
+//With unspecified positive non zero edge lengths.
+//Then, the following is must be true
+//  d(A,B) + d(C,D) < d(A,C) + d(B,D) = d(A,D) + d(B,C)
+//Where d(i,j) is the distance between the nodes labeled i and j
 void nj_t::find_pair(){
     debug_string("");
     //compute the matrix Q, which is put into a private data member
@@ -157,8 +181,10 @@ void nj_t::join_pair(){
         }
     }
     
-    //reflect the matrix
-
+    //we computed the top of the matrix
+    //now need to copy that down to the bottom
+    //ideally we wouldn't need to do this
+    //but I need to work on the other parts of the code first
     for(size_t i=0;i<tmp_row_size;++i){
         tmp_dists[i*tmp_row_size + (tmp_row_size-1)] = .5 * 
             (_dists[i*_row_size+_i] + _dists[i*_row_size+_j] - _dists[_i*_row_size + _j]);
@@ -211,67 +237,6 @@ void nj_t::make_tree(){
     debug_string("");
     _final_tree = tree_t(_tree);
 }
-
-/*
-void nj_t::flatten_tree(){
-    debug_string("");
-    //need a stack and a queue to flatten this tree
-    std::queue<node_t*> node_q;
-    std::stack<node_t*> node_stack;
-
-    _unroot = _tree;
-
-    debug_print("_tree.size(): %lu", _tree.size());
-    
-    for(auto n : _tree){
-        node_stack.push(n);
-        node_q.push(n);
-    }
-
-    while(!node_stack.empty()){
-        auto tmp_node = node_stack.top(); node_stack.pop();
-        debug_print("tmp_node->_children %i", tmp_node->_children);
-        if(tmp_node->_children){
-            node_stack.push(tmp_node->_lchild);
-            node_stack.push(tmp_node->_rchild);
-            node_q.push(tmp_node->_lchild);
-            node_q.push(tmp_node->_rchild);
-        }
-    }
-
-    _tree_size = node_q.size();
-    _flat_tree = new node_t[_tree_size];
-    for(size_t i=0;i<_tree_size;++i){
-        _flat_tree[i] = node_t();
-    }
-
-    node_map nm;
-
-    for(size_t i=0;i<_tree_size;++i){
-        debug_print("current temp node weight: %f", node_q.front()->_weight);
-        _flat_tree[i] = *node_q.front();
-        nm[node_q.front()] = _flat_tree+i;
-        node_q.pop();
-    }
-
-    for(size_t i=0;i<_tree_size;++i){
-        debug_print("checking nm for %p", _flat_tree[i]._parent);
-        debug_print("checking weight: %f", _flat_tree[i]._weight);
-        if(_flat_tree[i]._parent != NULL)
-            _flat_tree[i]._parent = nm.at(_flat_tree[i]._parent);
-        if(_flat_tree[i]._lchild && _flat_tree[i]._rchild){
-            debug_print("checking nm for children: %p", _flat_tree[i]._lchild);
-            _flat_tree[i]._lchild = nm.at(_flat_tree[i]._lchild);
-            _flat_tree[i]._rchild = nm.at(_flat_tree[i]._rchild);
-        }
-    }
-    //update the unroot
-    for(size_t i=0;i<_unroot.size();++i){
-        _unroot[i] = nm.at(_unroot[i]);
-        debug_print("unroot weight: %f", _unroot[i]->_weight);
-    }
-}
-*/
 
 void delete_node(node_t* n){
     debug_string("");
