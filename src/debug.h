@@ -1,3 +1,13 @@
+//debug.h
+//Ben Bettisworth
+//Macros to assist in debugging. When using this, and the DEBUG preprocessor 
+//flag is defined, then verbosity is increased extremely. Its useful to put
+//this here, so that I can't accidently add functionality into a debug section.
+//Secondly, when DEBUG_IF_FLAG is defined to be zero, and an optmizer is turned
+//on, then that code gets pruned.
+//
+//I really don't think this will ever be pretty
+
 #pragma once
 
 #include <cstdio>
@@ -6,16 +16,16 @@
 #include <execinfo.h>
 
 #ifdef DEBUG
-#define DEBUG 1
+#define DEBUG_IF_FLAG 1
 #else
-#define DEBUG 0
+#define DEBUG_IF_FLAG 0
 #endif
 
-#define debug_print(fmt, ...) {if(DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt "\n", __FILE__,\
+#define debug_print(fmt, ...) {if(DEBUG_IF_FLAG) fprintf(stderr, "%s:%d:%s(): " fmt "\n", __FILE__,\
         __LINE__, __func__, __VA_ARGS__); }
 #define debug_string(x) { debug_print("%s", x)}
 
-#define print_trace(){ if(DEBUG) {\
+#define print_trace(){ if(DEBUG_IF_FLAG) {\
         void* callstack[128];\
         int frames = backtrace(callstack, 128);\
         char** bt_symbols = backtrace_symbols(callstack, frames);\
@@ -26,9 +36,9 @@
     }\
 }
 
-#define assert_string(cond, comment) {\
+#define assert_string(cond, comment) if(DEBUG_IF_FLAG){ {\
     if(!(cond)){\
         fprintf(stderr, "assertion \"%s\" failed: file: %s, line: %d, comment: %s\n",#cond, __FILE__, __LINE__, comment);\
         abort();\
     }\
-}
+} }

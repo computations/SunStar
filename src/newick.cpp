@@ -1,3 +1,8 @@
+//newick.cpp
+//Ben Bettisworth
+//newick notation parser for gstar
+//more about newick notation: 
+//  https://en.wikipedia.org/wiki/Newick_format
 #include "newick.h"
 #include "debug.h"
 
@@ -24,8 +29,11 @@ size_t scan_nodes(const string& s){
     return n_nodes;
 }
 
-//Currently, there needs to be a tree on each string line for this parser to work
-//If you put multiple trees in, then it has undefined behavior
+//make a tree from a string in newick notation, only a single tree per string.
+//specifically, it takes a tree of the form:
+//  ( (a:1.0 , b:2.0):2.0 , (c:1.0 , d:1.0):1.0 ):1.0; comments go here
+//comments are only supported after the semicolon
+//returns an unflatttened tree
 node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
     debug_string("starting newick parse");
     tree_size = scan_nodes(newick_string);
