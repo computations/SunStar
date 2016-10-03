@@ -43,4 +43,4 @@ run: debug
 	./gstar
 
 clean:
-	rm -rf obj gstar
+	rm -rf obj gstar *.log

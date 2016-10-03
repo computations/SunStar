@@ -1,18 +1,33 @@
+//nj.cpp
+//Ben Bettisworth
+//neighbor joiner for gstar
+//given a distance table, will create a pretty good guess at a tree
+//wikipedia has a pretty good working man's explaination of the alg.
+//  https://en.wikipedia.org/wiki/Neighbor_joining
+
 #include "nj.h"
 #include "tree.h"
 #include "debug.h"
+
 #include <vector>
 using std::vector;
+
 #include <string>
 using std::string;
+
 #include <queue>
 using std::queue;
+
 #include <stack>
 using std::stack;
+
 #include <unordered_map>
 using std::unordered_map;
+
 #include <utility>
 #include <cmath>
+
+#include <iostream>
 
 nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
     debug_string("");
@@ -74,6 +89,17 @@ void nj_t::compute_q(){
     }
 }
 
+//This is the cherry picking secret sauce that NJ uses which is based off of
+//the four point condition.
+//Take as example the graph
+//     A        C
+//      \______/
+//      /      \
+//     B        D
+//With unspecified positive non zero edge lengths.
+//Then, the following is must be true
+//  d(A,B) + d(C,D) < d(A,C) + d(B,D) = d(A,D) + d(B,C)
+//Where d(i,j) is the distance between the nodes labeled i and j
 void nj_t::find_pair(){
     debug_string("");
     //compute the matrix Q, which is put into a private data member
@@ -137,7 +163,8 @@ void nj_t::join_pair(){
 
     //integrate the new node into the distance table
     debug_string("making tmp_dists");
-    vector<float> tmp_dists((_row_size-1)*(_row_size-1));
+    vector<float> tmp_dists((_row_size-1)*(_row_size-1), 0.0);
+    size_t tmp_row_size = _row_size-1;
 
     for(size_t i=0;i<_row_size;++i){
         if(i==_i || i==_j) continue;
@@ -149,13 +176,19 @@ void nj_t::join_pair(){
             size_t cur_j = j;
             if(j>_j) cur_j--;
             if(j>_i) cur_j--;
-            tmp_dists[cur_i*(_row_size-1)+cur_j] = _dists[i*_row_size-j];
+            debug_print("mapping (%lu, %lu) to (%lu, %lu)",i,j,cur_i,cur_j);
+            tmp_dists[cur_i*tmp_row_size+cur_j] = _dists[i*_row_size+j];
         }
     }
     
-    for(size_t i=0;i<_row_size-1;++i){
-        tmp_dists[i*(_row_size-1) + (_row_size-2)] = .5 * 
+    //we computed the top of the matrix
+    //now need to copy that down to the bottom
+    //ideally we wouldn't need to do this
+    //but I need to work on the other parts of the code first
+    for(size_t i=0;i<tmp_row_size;++i){
+        tmp_dists[i*tmp_row_size + (tmp_row_size-1)] = .5 * 
             (_dists[i*_row_size+_i] + _dists[i*_row_size+_j] - _dists[_i*_row_size + _j]);
+        tmp_dists[tmp_row_size*(tmp_row_size-1) + i] = tmp_dists[i*tmp_row_size + (tmp_row_size-1)];
     }
 
     debug_string("swapping tmp_dists and _dists");
@@ -181,14 +214,22 @@ void nj_t::join_final(){
      *  and we can calculate the other d_ir for i in {x,y,z} the same way 
      */
     
+    /*
+    _tree[0]->_weight = .5* (_dists[0*_row_size+1] + _dists[0*_row_size+2] - _dists[1*_row_size+2]);
+    _tree[1]->_weight = .5* (_dists[1*_row_size+2] + _dists[0*_row_size+1] - _dists[0*_row_size+2]);
+    _tree[2]->_weight = .5* (_dists[1*_row_size+2] + _dists[2*_row_size+0] - _dists[0*_row_size+1]);
+    */
+
     for(size_t i=0;i<_row_size;++i){
         size_t x,y,z;
         x = i;
-        y = (i+1)%3;
-        z = (i+2)%3;
-        _tree[i]->_weight = .5 * 
-            (_dists[x*_row_size + y] + _dists[x*_row_size + z] - _dists[y*_row_size+z]);
-        debug_print("setting last weight to : %f", _tree[i]->_weight);
+        y = (i+1)%_row_size;
+        z = (i+2)%_row_size;
+        _tree[i]->_weight = (_dists[x*_row_size + y] + _dists[x*_row_size + z] - _dists[y*_row_size+z]);
+        _tree[i]->_weight *= .5;
+        debug_print("setting last weight to : .5* (%f + %f - %f) = %f",
+            _dists[x*_row_size + y] , _dists[x*_row_size + z] , _dists[y*_row_size+z],
+            _tree[i]->_weight);
     }
 }
 
@@ -196,67 +237,6 @@ void nj_t::make_tree(){
     debug_string("");
     _final_tree = tree_t(_tree);
 }
-
-/*
-void nj_t::flatten_tree(){
-    debug_string("");
-    //need a stack and a queue to flatten this tree
-    std::queue<node_t*> node_q;
-    std::stack<node_t*> node_stack;
-
-    _unroot = _tree;
-
-    debug_print("_tree.size(): %lu", _tree.size());
-    
-    for(auto n : _tree){
-        node_stack.push(n);
-        node_q.push(n);
-    }
-
-    while(!node_stack.empty()){
-        auto tmp_node = node_stack.top(); node_stack.pop();
-        debug_print("tmp_node->_children %i", tmp_node->_children);
-        if(tmp_node->_children){
-            node_stack.push(tmp_node->_lchild);
-            node_stack.push(tmp_node->_rchild);
-            node_q.push(tmp_node->_lchild);
-            node_q.push(tmp_node->_rchild);
-        }
-    }
-
-    _tree_size = node_q.size();
-    _flat_tree = new node_t[_tree_size];
-    for(size_t i=0;i<_tree_size;++i){
-        _flat_tree[i] = node_t();
-    }
-
-    node_map nm;
-
-    for(size_t i=0;i<_tree_size;++i){
-        debug_print("current temp node weight: %f", node_q.front()->_weight);
-        _flat_tree[i] = *node_q.front();
-        nm[node_q.front()] = _flat_tree+i;
-        node_q.pop();
-    }
-
-    for(size_t i=0;i<_tree_size;++i){
-        debug_print("checking nm for %p", _flat_tree[i]._parent);
-        debug_print("checking weight: %f", _flat_tree[i]._weight);
-        if(_flat_tree[i]._parent != NULL)
-            _flat_tree[i]._parent = nm.at(_flat_tree[i]._parent);
-        if(_flat_tree[i]._lchild && _flat_tree[i]._rchild){
-            debug_print("checking nm for children: %p", _flat_tree[i]._lchild);
-            _flat_tree[i]._lchild = nm.at(_flat_tree[i]._lchild);
-            _flat_tree[i]._rchild = nm.at(_flat_tree[i]._rchild);
-        }
-    }
-    //update the unroot
-    for(size_t i=0;i<_unroot.size();++i){
-        _unroot[i] = nm.at(_unroot[i]);
-        debug_print("unroot weight: %f", _unroot[i]->_weight);
-    }
-}
-*/
 
 void delete_node(node_t* n){
     debug_string("");

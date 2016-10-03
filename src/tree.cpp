@@ -1,22 +1,36 @@
+//tree.cpp
+//Ben Bettisworth
+//A class that implements a phylogentic tree. Features of the class:
+//  - Handles the newick parsing (via newick.cpp)
+//  - Packed to take advantage of cache locallity
+//  - Handles labels
+
 #include "debug.h"
 #include "tree.h"
 #include "newick.h"
+
 #include <string>
 using std::string;
+
 #include <unordered_map>
 using std::unordered_map;
+
 #include<vector>
 using std::vector;
+
 #include <stack>
 using std::stack;
+
 #include <queue>
 using std::queue;
+
 #include <sstream>
 using std::ostringstream;
+
 #include <functional>
 using std::function;
-#include <cassert>
 
+#include <cassert>
 #include <iostream>
 
 size_t node_t::count_nodes(){
@@ -113,36 +127,6 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
 tree_t::tree_t(const vector<node_t*>& unroot){
     make_flat_tree(unroot);
 }
-
-//this is not needed anymore
-/*
-tree_t::tree_t(node_t* tree, size_t size, const vector<node_t*>& unroot){
-    _size = size;
-    _tree = new node_t[_size];
-    long int offset = _tree - tree;
-    debug_print("offset: %li", offset);
-    for(size_t i=0;i<_size;++i){
-        _tree[i] = tree[i];
-    }
-    for(size_t i=0;i<_size;++i){
-        if(_tree[i]._parent)
-            _tree[i]._parent += offset;
-        if(_tree[i]._children){
-            _tree[i]._lchild += offset;
-            _tree[i]._rchild += offset;
-        }
-        assert_string( (_tree[i]._lchild && _tree[i]._rchild) 
-                    || (_tree[i]._lchild == NULL && _tree[i]._rchild == NULL),
-                    "invalid children state");
-    }
-    
-    _unroot = unroot;
-    for(size_t i=0;i<_unroot.size();++i){
-        _unroot[i]+=offset;
-        debug_print("unroot wieght: %f", _unroot[i]->_weight);
-    }
-}
-*/
 
 //takes a tree specified by newick notation, and makes a tree_t
 tree_t::tree_t(const string& newick){

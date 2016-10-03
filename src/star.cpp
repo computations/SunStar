@@ -1,13 +1,24 @@
+//star.cpp
+//Ben Bettisworth
+//Implementation of the STAR algorithm.
+//STAR is the algorithm where we compute a distance matrix of the various trees
+//and then average the matrices entrywise. Then use NJ to make an ''average'' 
+//tree.
+
 #include "star.h"
 #include "tree.h"
 #include "nj.h"
 #include "debug.h"
+
 #include <vector>
 using std::vector;
+
 #include <string>
 using std::string;
+
 #include <unordered_map>
 using std::unordered_map;
+
 #include <iostream>
 
 inline void init_array(float* v, size_t s){
@@ -42,9 +53,9 @@ void star_t::calc_average_distances(std::vector<tree_t>& tree_vector){
         for(size_t j=0;j<row_size; ++j){
             for(size_t k = 0; k<row_size; ++k){
                 _avg_dists[j*row_size+k]+=dists[j*row_size+k];
-                std::cerr<<dists[j*row_size+k]<<" ";
+                if(DEBUG){std::cerr<<dists[j*row_size+k]<<" ";}
             }
-            std::cerr<<"\n";
+            if(DEBUG){std::cerr<<"\n";}
         }
     }
     for(size_t j=0;j<row_size*row_size; ++j){
