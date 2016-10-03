@@ -171,6 +171,15 @@ float* tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& la
     return dists;
 }
 
+//I can do this better, and make the node_t smaller. 
+//Take to do this, perform a recursive algorithm.
+//  Start at the root and find distances to all the leaves. This involves basically finding all the leaves
+//      Since the tree is ultrametric, we only need to find the distance once, and then set every pair to 2 that distance
+//  Then recursively call the same routine on the two children of the tree.
+//  Because of the ordering, the distance matrix will update with the smallest size found.
+//  This can even work on trees with an unroot, as long as there is a special case for the unroot
+//The main advantage of this method is to remove the need for a parent pointer in the node_t
+//This saves on quite a bit of space, and allows for larger trees to fit in cache
 void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& label_map, float* dists){
     size_t row_size = label_map.size();
     for(size_t i=0;i<_size;++i){
