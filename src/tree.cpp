@@ -56,11 +56,21 @@ void node_t::update_children(const unordered_map<node_t*, node_t*> node_map){
 //TODO: fix this function
 //currently sets the weights according to the function, but it needs to 
 //ensure that the tree is ultrametric
-void node_t::set_weights(function<float(size_t)> w_func, size_t depth){
-    _weight = w_func(depth);
-    if(_children){
-        _lchild->set_weights(w_func, depth+1);
-        _rchild->set_weights(w_func, depth+1);
+void node_t::set_weights(function<float(size_t)> w_func, size_t depth, 
+      double max){
+
+    if(!_children){
+        double total=0;
+        for(size_t i = 0; i<= depth; ++i){
+          total+= w_func(i);
+        }
+        _weight = max - total;
+    }
+    else{
+        if(_children){
+            _lchild->set_weights(w_func, depth+1, max);
+            _rchild->set_weights(w_func, depth+1, max);
+        }
     }
 }
 
@@ -293,7 +303,8 @@ string tree_t::to_string() const{
 string tree_t::print_labels() const{
     ostringstream ret;
     for(size_t i=0;i<_size;++i){
-        ret<<_tree[i]._label<< "(" << _tree[i]._parent <<"," <<_tree[i]._lchild<<","<<_tree[i]._rchild<<")";
+        ret<<_tree[i]._label<< "(" << _tree[i]._parent <<"," <<_tree[i]._lchild
+            <<","<<_tree[i]._rchild<<")";
         if(i!=_size-1) ret<<" | ";
     }
     return ret.str();
@@ -301,11 +312,36 @@ string tree_t::print_labels() const{
 
 void tree_t::set_weights(function<float(size_t)> w_func){
     for(auto n : _unroot){
-        n->set_weights(w_func, 0);
+        n->set_weights(w_func, 0, (_size - 1.0)/2.0);
     }
 }
 
 void tree_t::set_weights(const vector<float>& w_vec){
+    //to fix this function, we need to solve the problem of how much the total
+    //depth should be. Current plan: 
+    //Since the depth of a taxa cannot be any more than a catapillar. So, a
+    //taxa's maximum depth on a rooted phylogenic tree is 
+    //  (n-1)/2
+    //vague proof:
+    //the case with the largest depth is a tree that is unbalanced as possible.
+    //that is the following case
+    //          o
+    //         / \
+    //        o   o
+    //       / \
+    //      .   o 
+    //      .
+    //      .
+    //      o
+    //     / \
+    //    o   o
+    //Each layer is two taxa, except for the root. Iterativly, we can construct
+    //a new layer by adding two new taxa. So, n=1 case: There is just the root,
+    //and the max depth is indeed (n-1)/2 = (1-1)/2 = 0
+    //For then n = k case, we can construct it from the n=k-2 case. We add a
+    //layer hanging of the right most child. This requires two more taxa. So,
+    //the max depth is now 
+    //  (k-2 +2 -1)/2 = (k-1)/2
     set_weights([&w_vec](size_t d){
             assert_string(d < w_vec.size(), "out of bounds for passed float vector");
             if(d == 0) return 0.0f;

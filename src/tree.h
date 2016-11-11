@@ -27,7 +27,7 @@ class node_t{
 
         std::string to_string();
 
-        void set_weights(std::function<float(size_t)>, size_t);
+        void set_weights(std::function<float(size_t)>, size_t, double);
         void update_children(std::unordered_map<node_t*, node_t*>);
         std::string sort();
 
