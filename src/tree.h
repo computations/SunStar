@@ -24,7 +24,6 @@ class node_t{
         node_t(): _parent(0), _weight(0.0), _lchild(0), _rchild(0), _children(false) {};
         node_t(node_t* s, float w): _parent(s), _weight(w){};
 
-
         std::string to_string();
 
         void set_weights(std::function<float(size_t)>, size_t, double);
@@ -41,6 +40,8 @@ class node_t{
         bool _children;
 };
 
+//TODO: fix the distance algorithm
+//TODO: incorporate the label map into this tree
 class tree_t{
     public:
         tree_t(): _tree(0), _size(0){};
@@ -64,9 +65,11 @@ class tree_t{
         float* calc_distance_matrix(const std::unordered_map<std::string, size_t>&);
         void calc_distance_matrix(const std::unordered_map<std::string, size_t>&, float*);
         float calc_distance(node_t*, node_t*);
+
         float parent_distance(node_t* child, node_t* parent);
         void set_weights(const std::vector<float>&);
         void set_weights(std::function<float(size_t)>);
+
         void sort();
 
     private:
