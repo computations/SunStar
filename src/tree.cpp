@@ -359,25 +359,19 @@ void tree_t::set_weights(const vector<float>& w_vec){
 }
 
 void tree_t::sort(){
-    assert_string(_unroot.size() == 3, "the unroot is has a size different than expected");  
+    assert_string(_unroot.size() <= 3, "the unroot is has a size different than expected");  
     vector<string> label_vector;
     label_vector.reserve(3);
     for(auto && n : _unroot){
         label_vector.push_back(n->sort());
     }
-
-    //make sure the first element is the smallest
-    if(label_vector[0] > label_vector[1]){
-        std::swap(label_vector[0], label_vector[1]);
-        std::swap(_unroot[0], _unroot[1]);
-    }
-    if(label_vector[0] > label_vector[2]){
-        std::swap(label_vector[0], label_vector[2]);
-        std::swap(_unroot[0], _unroot[2]);
-    }
-    //then swap the last two if needed
-    if(label_vector[1] > label_vector[2]){
-        std::swap(label_vector[1], label_vector[2]);
-        std::swap(_unroot[1], _unroot[2]);
+    for(size_t i=0;i<_unroot.size();++i){
+        for(size_t k=i;k<_unroot.size();++k){
+            if(i==k){ continue;}
+            if(label_vector[i] > label_vector[k]){
+                std::swap(label_vector[i], label_vector[k]);
+                std::swap(_unroot[i], _unroot[k]);
+            }
+        }
     }
 }
