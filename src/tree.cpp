@@ -61,13 +61,12 @@ void node_t::set_weights(function<float(size_t)> w_func, size_t depth,
         for(size_t i = 0; i<= depth; ++i){
           total+= w_func(i);
         }
+        debug_print("total: %f", total);
         _weight = max - total;
     }
     else{
-        if(_children){
-            _lchild->set_weights(w_func, depth+1, max);
-            _rchild->set_weights(w_func, depth+1, max);
-        }
+        _lchild->set_weights(w_func, depth+1, max);
+        _rchild->set_weights(w_func, depth+1, max);
     }
 }
 
@@ -142,6 +141,7 @@ tree_t::tree_t(const vector<node_t*>& unroot){
 //takes a tree specified by newick notation, and makes a tree_t
 tree_t::tree_t(const string& newick){
     _tree = make_tree_from_newick(newick, _size);
+    _unroot.push_back(_tree);
 }
 
 tree_t::~tree_t(){
@@ -294,7 +294,6 @@ string tree_t::to_string() const{
 
     if(_unroot.size()>1)
         ret<<"(";
-
     for(size_t i=0;i<_unroot.size();++i){
         ret<<_unroot[i]->to_string();
         if(i!=_unroot.size()-1)
@@ -317,12 +316,6 @@ string tree_t::print_labels() const{
 }
 
 void tree_t::set_weights(function<float(size_t)> w_func){
-    for(auto n : _unroot){
-        n->set_weights(w_func, 0, (_size - 1.0)/2.0);
-    }
-}
-
-void tree_t::set_weights(const vector<float>& w_vec){
     //to fix this function, we need to solve the problem of how much the total
     //depth should be. Current plan: 
     //Since the depth of a taxa cannot be any more than a catapillar. So, a
@@ -348,6 +341,16 @@ void tree_t::set_weights(const vector<float>& w_vec){
     //layer hanging of the right most child. This requires two more taxa. So,
     //the max depth is now 
     //  (k-2 +2 -1)/2 = (k-1)/2
+    float max = 1;
+    for(size_t i=0;i<(_size-1)/2;++i){
+        max+=w_func(i);
+    }
+    for(auto n : _unroot){
+        n->set_weights(w_func, 0, max);
+    }
+}
+
+void tree_t::set_weights(const vector<float>& w_vec){
     set_weights([&w_vec](size_t d){
             assert_string(d < w_vec.size(), "out of bounds for passed float vector");
             if(d == 0) return 0.0f;
