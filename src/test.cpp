@@ -17,9 +17,10 @@ using std::string;
 
 TEST_CASE("making trees from newick notation", "[tree]"){
     vector<string> tree_strings = 
-        {"((a:1.0,b:1.0):1.0,(c:1.0,d:1.0):1.0);",
+        {"((a:1.0,b:1.0):1.0,(c:1.0,d:1.0):1.0):1.0;",
          "((b:1.0,c:1.0):1.0,(a:1.0,d:1.0):1.0);"};
 
     tree_t t1(tree_strings[0]);
+    t1.sort();
     REQUIRE(t1.to_string() == tree_strings[0]);
 }

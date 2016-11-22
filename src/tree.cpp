@@ -12,6 +12,8 @@
 #include <string>
 using std::string;
 
+#include <iomanip>
+
 #include <unordered_map>
 using std::unordered_map;
 
@@ -279,12 +281,9 @@ string node_t::to_string(){
     ostringstream ret;
     if(_lchild && _rchild){
         ret<<"("<<_lchild->to_string()
-            <<","<<_rchild->to_string()<<")"
-            <<_label<<":"<<_weight;
+            <<","<<_rchild->to_string()<<")";
     }
-    else{
-        ret<<_label<<":"<<_weight;
-    }
+    ret<<_label<<":"<<std::fixed<<std::setprecision(1)<<_weight;
     return ret.str();
 }
 
@@ -301,6 +300,7 @@ string tree_t::to_string() const{
     }
     if(_unroot.size()>1)
         ret<<")";
+    ret<<";";
 
     return ret.str();
 }
