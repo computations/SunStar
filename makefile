@@ -6,9 +6,15 @@ IFLAGS=
 OBJDIR=obj
 SRCDIR=src
 
-OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o nj.o)
+RELEASE_OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o nj.o)
+TEST_OBJS := $(addprefix $(OBJDIR)/,test.o tree.o newick.o star.o nj.o)
 
 all: debug
+
+test: gstar_test
+
+gstar_test: $(TEST_OBJS)
+	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
 
 debug: CFLAGS+= -DDEBUG -g -O0
 debug: gstar
@@ -16,10 +22,13 @@ debug: gstar
 release: CFLAGS+= -DRELEASE -Ofast -march=native
 release: gstar
 
-gstar: $(OBJS)
+gstar: $(RELEASE_OBJS)
 	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
 
 %o: CFLAGS+=-c
+
+$(OBJDIR)/test.o: $(SRCDIR)/test.cpp | $(OBJDIR)
+	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
 
 $(OBJDIR)/main.o: $(SRCDIR)/main.cpp | $(OBJDIR)
 	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
@@ -43,4 +52,4 @@ run: debug
 	./gstar
 
 clean:
-	rm -rf obj gstar *.log
+	rm -rf obj gstar gstar_test *.log
