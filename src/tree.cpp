@@ -303,7 +303,9 @@ string tree_t::to_string() const{
     }
     if(_unroot.size()>1)
         ret<<")";
-    ret<<";";
+
+    if(ret.str() != "")
+        ret<<";";
 
     return ret.str();
 }
