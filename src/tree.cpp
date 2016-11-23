@@ -160,10 +160,20 @@ tree_t& tree_t::operator=(tree_t t){
     return *this;
 }
 
+std::vector<float> tree_t::calc_distance_matrix(){
+    auto lm = make_label_map();
+    auto f = calc_distance_matrix(lm);
+    size_t size = lm.size();
+    std::vector<float> r(f, f+size*size);
+    delete[] f;
+    return r;
+}
+
 //we use a label to index map to make the matrix well ordered
 //this is so we can do a blind average later on, and not have to worry about 
 //the ordering of the array
 float* tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& label_map){
+    debug_string("calc_distance_matrix with label map");
     size_t row_size = label_map.size();
     float* dists = new float[row_size*row_size];
     calc_distance_matrix(label_map, dists);

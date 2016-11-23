@@ -61,6 +61,7 @@ class tree_t{
 
         std::unordered_map<std::string, size_t> make_label_map();
 
+        std::vector<float> calc_distance_matrix();
         float* calc_distance_matrix(const std::unordered_map<std::string, size_t>&);
         void calc_distance_matrix(const std::unordered_map<std::string, size_t>&, float*);
         float calc_distance(node_t*, node_t*);
