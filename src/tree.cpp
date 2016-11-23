@@ -140,10 +140,11 @@ tree_t::tree_t(const vector<node_t*>& unroot){
     make_flat_tree(unroot);
 }
 
-//takes a tree specified by newick notation, and makes a tree_t
 tree_t::tree_t(const string& newick){
     _tree = make_tree_from_newick(newick, _size);
-    _unroot.push_back(_tree);
+    std::vector<node_t*> tmp;
+    tmp.push_back(_tree);
+    make_flat_tree(tmp);
 }
 
 tree_t::~tree_t(){
@@ -283,7 +284,9 @@ string node_t::to_string(){
         ret<<"("<<_lchild->to_string()
             <<","<<_rchild->to_string()<<")";
     }
-    ret<<_label<<":"<<std::fixed<<std::setprecision(1)<<_weight;
+    if(_weight!=0.0){
+        ret<<_label<<":"<<std::fixed<<std::setprecision(1)<<_weight;
+    }
     return ret.str();
 }
 

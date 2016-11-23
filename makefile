@@ -45,7 +45,7 @@ run: debug
 tests: gstar_tests
 
 run-tests: tests
-	./gstar_tests
+	./gstar_tests -d yes
 
 clean:
 	rm -rf obj gstar gstar_tests *.log

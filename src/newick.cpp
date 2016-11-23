@@ -29,6 +29,31 @@ size_t scan_nodes(const string& s){
     return n_nodes;
 }
 
+string parse_label(const string& newick_string, size_t& idx){
+    size_t start, end;
+    start = end = idx;
+    while(start<newick_string.size()){
+        char cur = newick_string[end];
+        if(cur<'0' || (cur >= '9'  && cur < 'A') || (cur >'Z' && cur < 'a') 
+                || cur > 'z') break;
+        end++;
+    }
+    idx = end;
+    return newick_string.substr(start, end-start);
+}
+
+float parse_weight(const string& newick_string, size_t& idx){
+    size_t start, end;
+    start = end = idx;
+    while(start<newick_string.size()){
+        char cur = newick_string[end];
+        if((cur < '0' || cur > '9') && cur!='.' && cur != '-') break;
+        end++;
+    }
+    idx = end;
+    return stof(newick_string.substr(start, end-start));
+}
+
 //make a tree from a string in newick notation, only a single tree per string.
 //specifically, it takes a tree of the form:
 //  ( (a:1.0 , b:2.0):2.0 , (c:1.0 , d:1.0):1.0 ):1.0; comments go here
@@ -43,15 +68,13 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
     node_stack.push(tree);
     tree[0]._parent = tree;
 
-    debug_print("tree size is : %lu", tree_size);
-
-    size_t idx=0;
+    size_t idx=0, last=0;
     size_t current_node = 1;
     debug_string("starting newick parse| while loop");
     while(idx < newick_string.size()){
         debug_print("current character: %c", newick_string[idx]);
 
-        if(newick_string[idx] == '(' || newick_string[idx] == ','){
+        if(newick_string[idx] == '('){
             debug_string("found new taxa, pushing new node");
             node_stack.push(tree+current_node);
             current_node++; idx++;
@@ -94,7 +117,7 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
                 idx = j;
             }
             else{
-                node_stack.top()->_weight = 0.0;
+                node_stack.top()->_weight = 1.0;
             }
         }
     }
@@ -111,3 +134,4 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
     //if the root isn't at the front, we need to make it that way
     return tree;
 }
+
