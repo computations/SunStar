@@ -5,16 +5,16 @@ IFLAGS=
 
 OBJDIR=obj
 SRCDIR=src
+TSTDIR=tests
 
+TEST_SOURCES := $(shell find $(TSTDIR) -name '*cpp')
 RELEASE_OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o nj.o)
-TEST_OBJS := $(addprefix $(OBJDIR)/,test.o tree.o newick.o star.o nj.o)
+TEST_OBJS := $(addprefix $(OBJDIR)/, $(TEST_SOURCES:$(TSTDIR)/%.cpp=%.o))
+
 
 all: debug
-
-test: gstar_test
-
-gstar_test: $(TEST_OBJS)
-	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
+	@echo $(TEST_SOURCES)
+	@echo $(TEST_OBJS)
 
 debug: CFLAGS+= -DDEBUG -g -O0
 debug: gstar
@@ -25,24 +25,15 @@ release: gstar
 gstar: $(RELEASE_OBJS)
 	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
 
+gstar_tests: $(TEST_OBJS)
+	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
+
 %o: CFLAGS+=-c
 
-$(OBJDIR)/test.o: $(SRCDIR)/test.cpp | $(OBJDIR)
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
 
-$(OBJDIR)/main.o: $(SRCDIR)/main.cpp | $(OBJDIR)
-	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
-
-$(OBJDIR)/tree.o: $(SRCDIR)/tree.cpp | $(OBJDIR)
-	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
-
-$(OBJDIR)/newick.o: $(SRCDIR)/newick.cpp | $(OBJDIR)
-	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
-
-$(OBJDIR)/star.o: $(SRCDIR)/star.cpp | $(OBJDIR)
-	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
-
-$(OBJDIR)/nj.o: $(SRCDIR)/nj.cpp | $(OBJDIR)
+$(OBJDIR)/%.o: $(TSTDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
 
 $(OBJDIR):
@@ -51,5 +42,10 @@ $(OBJDIR):
 run: debug
 	./gstar
 
+tests: gstar_tests
+
+run-tests: tests
+	./gstar_tests
+
 clean:
-	rm -rf obj gstar gstar_test *.log
+	rm -rf obj gstar gstar_tests *.log
