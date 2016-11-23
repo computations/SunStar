@@ -15,9 +15,8 @@ using std::string;
 #include <memory>
 using std::shared_ptr;
 
-inline size_t skip_whitespace(const string& s, size_t index){
-    while(isspace(s[index])!=0 && index < s.size()) index++;
-    return index;
+void skip_whitespace(const string& s, size_t& idx){
+    while(isspace(s[idx])!=0 && idx < s.size()) idx++;
 }
 
 size_t scan_nodes(const string& s){
@@ -69,12 +68,13 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
     node_stack.push(tree);
     tree[0]._parent = tree;
 
-    size_t idx=0, last=0;
+    size_t idx=0;
     size_t current_node = 1;
     debug_string("starting newick parse| while loop");
     while(idx < newick_string.size()){
+        skip_whitespace(newick_string, idx);
         char cur = newick_string[idx];
-        debug_print("current character: %c",cur);
+        debug_print("current character: %c, current idx: %lu",cur, idx);
 
         if(cur == '(' || cur == ','){
             debug_string("found new taxa, pushing new node");
@@ -104,6 +104,9 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
         }
         else if(cur == ';'){
             break;
+        }
+        else{
+            assert_string(false, "Didn't recongize the current character in while parsing newick notation");
         }
     }
 
