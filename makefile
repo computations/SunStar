@@ -13,8 +13,6 @@ TEST_OBJS := $(addprefix $(OBJDIR)/, $(TEST_SOURCES:$(TSTDIR)/%.cpp=%.o))
 
 
 all: debug
-	@echo $(TEST_SOURCES)
-	@echo $(TEST_OBJS)
 
 debug: CFLAGS+= -DDEBUG -g -O0
 debug: gstar
