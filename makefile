@@ -1,5 +1,5 @@
 CXX=g++
-CFLAGS=-Wall -Wextra -std=c++14
+CFLAGS=-Wall -Wextra -std=c++14 
 DFLAGS=
 IFLAGS=
 
@@ -10,7 +10,6 @@ TSTDIR=tests
 TEST_SOURCES := $(shell find $(TSTDIR) -name '*cpp')
 RELEASE_OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o nj.o)
 TEST_OBJS := $(addprefix $(OBJDIR)/, $(TEST_SOURCES:$(TSTDIR)/%.cpp=%.o))
-
 
 all: debug
 
