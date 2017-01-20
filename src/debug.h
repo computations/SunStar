@@ -24,7 +24,13 @@ const clock_t CLOCK_START = clock();
 #define DEBUG_IF_FLAG 0
 #endif
 
-#define debug_print(fmt, ...) {if(DEBUG_IF_FLAG) fprintf(stderr, "[%f] %s:%d:%s(): " fmt "\n",\
+#ifdef EMIT_DEBUG
+#define EMIT_DEBUG_FLAG 1
+#else
+#define EMIT_DEBUG_FLAG 0
+#endif
+
+#define debug_print(fmt, ...) {if(DEBUG_IF_FLAG && EMIT_DEBUG_FLAG) fprintf(stderr, "[%f] %s:%d:%s(): " fmt "\n",\
         ((double)clock() - CLOCK_START)/CLOCKS_PER_SEC, __FILE__,\
         __LINE__, __func__, __VA_ARGS__); }
 #define debug_string(x) { debug_print("%s", x)}

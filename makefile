@@ -13,7 +13,7 @@ TEST_OBJS := $(addprefix $(OBJDIR)/, $(TEST_SOURCES:$(TSTDIR)/%.cpp=%.o))
 
 all: debug
 
-debug: CFLAGS+= -DDEBUG -g -O0
+debug: CFLAGS+= -DDEBUG -DEMIT_DEBUG -g -O0
 debug: gstar
 
 release: CFLAGS+= -DRELEASE -Ofast -march=native
@@ -41,8 +41,12 @@ run: debug
 
 tests: gstar_tests
 
+run-tests: CFLAGS+= -DDEBUG -g -O0
 run-tests: tests
 	./gstar_tests -d yes
+
+verbose-tests: CFLAGS+= -DEMIT_DEBUG
+verbose-tests: run-tests
 
 clean:
 	rm -rf obj gstar gstar_tests *.log
