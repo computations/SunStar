@@ -19,6 +19,7 @@ class nj_t{
         void find_pair();
         void join_pair();
         void join_final();
+        void join_final_small();
         void make_tree();
         //void flatten_tree();
 

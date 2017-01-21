@@ -26,6 +26,7 @@ using std::unordered_map;
 
 #include <utility>
 //for std::swap
+
 #include <cmath>
 
 #include <iostream>
@@ -47,11 +48,15 @@ nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
     }
 
     debug_string("starting to join pairs");
+
     while(_row_size>3){
         join_pair();
     }
+
     debug_string("done joining");
+
     join_final();
+
     make_tree();
 }
 
@@ -133,13 +138,13 @@ void nj_t::join_pair(){
     debug_print("_i:%lu, _j:%lu", _i,_j);
     //make a temp vector
     std::vector<node_t*> tmp_tree;
+    tmp_tree.reserve(_tree.size()-1);
     for(size_t i=0;i<_row_size;++i){
         if(i==_i || i==_j) continue;
         tmp_tree.push_back(_tree[i]);
     }
     //join nodes and push onto the vector
     debug_string("joining nodes and pushing onto the tmp vector");
-
 
     node_t* tmp = new node_t;
 
@@ -199,6 +204,7 @@ void nj_t::join_pair(){
 
 void nj_t::join_final(){
     debug_string("");
+    if(_row_size==2) join_final_small();
     assert_string(_row_size == 3, "the row size is wrong for the final join");
 
     /**
@@ -252,5 +258,17 @@ void nj_t::clean_up(){
     debug_string("");
     for(auto n : _tree){
         delete_node(n);
+    }
+}
+
+/*
+ * In the case of a small tree, ie only two taxa, I have made the choice to
+ * just split the distance between the taxa and add them to the root.
+ */
+void nj_t::join_final_small(){
+    assert_string(_row_size = 2, "there needs to be two taxa to join");
+    auto dist = _dists[1]/2.0;
+    for(auto & n : _tree){
+        n->_weight = dist;
     }
 }
