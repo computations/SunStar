@@ -55,7 +55,7 @@ void node_t::update_children(const unordered_map<node_t*, node_t*> node_map){
     }
 }
 
-void node_t::set_weights(function<float(size_t)> w_func, size_t depth, 
+void node_t::set_weights(function<float(size_t)> w_func, size_t depth,
       double max){
 
     if(!_children){
@@ -87,6 +87,19 @@ string node_t::sort(){
     return _label;
 }
 
+node_t* node_factory(node_t* lchild, node_t* rchild){
+    node_t* ret = new node_t;
+    debug_print("lchild to_string: %s, rchild to_string: %s",
+            lchild->to_string().c_str(), rchild->to_string().c_str());
+    ret->_lchild = lchild;
+    ret->_rchild = rchild;
+    assert_string(ret->_lchild && ret->_rchild, "both children are not null");
+    ret->_children = true;
+    lchild->_parent = ret;
+    rchild->_parent = ret;
+    return ret;
+}
+
 tree_t::tree_t(const tree_t& t){
     make_flat_tree(t._unroot);
 }
@@ -96,7 +109,7 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
     unordered_map<node_t*, node_t*> node_map;
     stack<node_t*> node_stack;
     queue<node_t*> node_q; //too many ueue to type each time
-    
+
     for(size_t i=0;i<unroot.size(); ++i){
         node_stack.push(unroot[i]);
         node_q.push(unroot[i]);
@@ -172,7 +185,7 @@ std::vector<float> tree_t::calc_distance_matrix(){
 }
 
 //we use a label to index map to make the matrix well ordered
-//this is so we can do a blind average later on, and not have to worry about 
+//this is so we can do a blind average later on, and not have to worry about
 //the ordering of the array
 float* tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& label_map){
     debug_string("calc_distance_matrix with label map");
@@ -182,7 +195,7 @@ float* tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& la
     return dists;
 }
 
-//I can do this better, and make the node_t smaller. 
+//I can do this better, and make the node_t smaller.
 //Take to do this, perform a recursive algorithm.
 //  Start at the root and find distances to all the leaves. This involves basically finding all the leaves
 //      Since the tree is ultrametric, we only need to find the distance once, and then set every pair to 2 that distance
@@ -201,7 +214,7 @@ void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& labe
             for(size_t j=0;j<_size;++j){
                 if(!_tree[j]._children){
                     size_t dest_matrix_index = label_map.at(_tree[j]._label);
-                    debug_print("calculating distance for (%lu,%lu), putting in: (%lu,%lu)", 
+                    debug_print("calculating distance for (%lu,%lu), putting in: (%lu,%lu)",
                             i, j, matrix_index,dest_matrix_index);
                     dists[row_size*matrix_index+dest_matrix_index] = calc_distance(_tree+i,_tree+j);
                 }
@@ -296,8 +309,11 @@ string node_t::to_string(){
         ret<<"("<<_lchild->to_string()
             <<","<<_rchild->to_string()<<")";
     }
+    else{
+        ret<<_label;
+    }
     if(_weight!=0.0){
-        ret<<_label<<":"<<std::fixed<<std::setprecision(1)<<_weight;
+        ret<<":"<<std::fixed<<std::setprecision(1)<<_weight;
     }
     return ret.str();
 }
@@ -335,9 +351,9 @@ string tree_t::print_labels() const{
 void tree_t::set_weights(function<float(size_t)> w_func){
    /*
     * To fix this function, we need to solve the problem of how much the total
-    * depth should be. Current plan: 
+    * depth should be. Current plan:
     * Since the depth of a taxa cannot be any more than a catapillar. So, a
-    * taxa's maximum depth on a rooted phylogenic tree is 
+    * taxa's maximum depth on a rooted phylogenic tree is
     *   (n-1)/2
     * vague proof:
     * the case with the largest depth is a tree that is unbalanced as possible.
@@ -346,7 +362,7 @@ void tree_t::set_weights(function<float(size_t)> w_func){
     *          / \
     *         o   o
     *        / \
-    *       .   o 
+    *       .   o
     *       .
     *       .
     *       o
@@ -357,7 +373,7 @@ void tree_t::set_weights(function<float(size_t)> w_func){
     * and the max depth is indeed (n-1)/2 = (1-1)/2 = 0
     * For then n = k case, we can construct it from the n=k-2 case. We add a
     * layer hanging of the right most child. This requires two more taxa. So,
-    * the max depth is now 
+    * the max depth is now
     *   (k-2 +2 -1)/2 = (k-1)/2
     */
     float max = 1;
@@ -378,7 +394,7 @@ void tree_t::set_weights(const vector<float>& w_vec){
 }
 
 void tree_t::sort(){
-    assert_string(_unroot.size() <= 3, "the unroot is has a size different than expected");  
+    assert_string(_unroot.size() <= 3, "the unroot is has a size different than expected");
     vector<string> label_vector;
     label_vector.reserve(3);
     for(auto && n : _unroot){

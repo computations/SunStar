@@ -6,7 +6,9 @@ TEST_CASE("nj with simple distance table", "[nj]"){
                             1.0,0.0};
     std::vector<std::string> l {"a", "b"};
     nj_t n(d,l);
-    REQUIRE(n.get_tree().to_string() == "(a,b);");
+    auto nj_tree = n.get_tree();
+    nj_tree.sort();
+    REQUIRE(nj_tree.to_string() == "(a:0.5,b:0.5);");
 }
 
 TEST_CASE("nj with larger distance table", "[nj]"){

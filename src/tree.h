@@ -40,6 +40,9 @@ class node_t{
         bool _children;
 };
 
+node_t* node_factory(node_t* lchild, node_t* rchild);
+
+
 //TODO: incorporate the label map into this tree
 class tree_t{
     public:
@@ -73,7 +76,7 @@ class tree_t{
         void sort();
 
     private:
-        
+
         void make_flat_tree(const std::vector<node_t*>&);
 
         //for unrooted trees, we can thing of them as being 3 unrooted trees
