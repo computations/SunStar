@@ -204,7 +204,10 @@ void nj_t::join_pair(){
 
 void nj_t::join_final(){
     debug_string("");
-    if(_row_size==2) join_final_small();
+    if(_row_size==2){ 
+        join_final_small();
+        return;
+    }
     assert_string(_row_size == 3, "the row size is wrong for the final join");
 
     /**

@@ -39,10 +39,9 @@ $(OBJDIR):
 run: debug
 	./gstar
 
-tests: CFLAGS+= -DDEBUG
+tests: CFLAGS+= -DDEBUG -g -O0
 tests: gstar_tests
 
-run-tests: CFLAGS+= -DDEBUG -g -O0
 run-tests: tests
 	./gstar_tests 
 
