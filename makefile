@@ -39,10 +39,11 @@ $(OBJDIR):
 run: debug
 	./gstar
 
+tests: CFLAGS+= -DDEBUG
 tests: gstar_tests
 
 run-tests: tests
-	./gstar_tests -d yes
+	./gstar_tests 
 
 clean:
 	rm -rf obj gstar gstar_tests *.log
