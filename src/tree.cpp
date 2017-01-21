@@ -127,6 +127,8 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
         cur_index++;
     }
 
+    _unroot.clear();
+
     for(auto &i:unroot){
         debug_string("updating children")
         _unroot.push_back(node_map.at(i));

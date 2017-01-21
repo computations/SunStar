@@ -130,7 +130,7 @@ void nj_t::find_pair(){
     _j = low_j;
 }
 
-//in this funciton, I modify the size of _tree and _dists.
+//In this function, I modify the size of _tree and _dists.
 //furthermore, _row_size's value changes to keep up.
 void nj_t::join_pair(){
     debug_string("");
@@ -162,7 +162,7 @@ void nj_t::join_pair(){
     //need to calculate new distances for the new node
     //equation boosted from https://en.wikipedia.org/wiki/Neighbor_joining
     //actually, could be simplier
-    tmp->_lchild->_weight = .5*_dists[_i*_row_size+_j] + 1/(2*(2*_row_size-2)) * 
+    tmp->_lchild->_weight = .5*_dists[_i*_row_size+_j] + 1/(2*(2*_row_size-2)) *
         (_r_vec[_i] - _r_vec[_j]);
 
     tmp->_rchild->_weight = _dists[_i*_row_size+_j] - tmp->_lchild->_weight;
@@ -186,13 +186,13 @@ void nj_t::join_pair(){
             tmp_dists[cur_i*tmp_row_size+cur_j] = _dists[i*_row_size+j];
         }
     }
-    
+
     //we computed the top of the matrix
     //now need to copy that down to the bottom
     //ideally we wouldn't need to do this
     //but I need to work on the other parts of the code first
     for(size_t i=0;i<tmp_row_size;++i){
-        tmp_dists[i*tmp_row_size + (tmp_row_size-1)] = .5 * 
+        tmp_dists[i*tmp_row_size + (tmp_row_size-1)] = .5 *
             (_dists[i*_row_size+_i] + _dists[i*_row_size+_j] - _dists[_i*_row_size + _j]);
         tmp_dists[tmp_row_size*(tmp_row_size-1) + i] = tmp_dists[i*tmp_row_size + (tmp_row_size-1)];
     }
@@ -209,7 +209,7 @@ void nj_t::join_final(){
 
     /**
      * join the last 3
-     *  to do that we need to use the three distance formulas 
+     *  to do that we need to use the three distance formulas
      *    for a graph like
      *        x
      *        |
@@ -218,9 +218,9 @@ void nj_t::join_final(){
      *      y   z
      *  We can calculate the x-r (d_xr) distance by calculating the following
      *     d_xr = (d_yx + d_yx - d_yz)/2
-     *  and we can calculate the other d_ir for i in {x,y,z} the same way 
+     *  and we can calculate the other d_ir for i in {x,y,z} the same way
      */
-    
+
     /*
     _tree[0]->_weight = .5* (_dists[0*_row_size+1] + _dists[0*_row_size+2] - _dists[1*_row_size+2]);
     _tree[1]->_weight = .5* (_dists[1*_row_size+2] + _dists[0*_row_size+1] - _dists[0*_row_size+2]);
