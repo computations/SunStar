@@ -29,6 +29,7 @@ size_t scan_nodes(const string& s){
 }
 
 string parse_label(const string& newick_string, size_t& idx){
+    skip_whitespace(newick_string, idx);
     size_t start, end;
     start = end = idx;
     while(start<newick_string.size()){
@@ -74,7 +75,7 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
     while(idx < newick_string.size()){
         skip_whitespace(newick_string, idx);
         char cur = newick_string[idx];
-        debug_print("current character: %c, current idx: %lu",cur, idx);
+        debug_print("current character: '%c', current idx: %lu",cur, idx);
 
         if(cur == '(' || cur == ','){
             debug_string("found new taxa, pushing new node");
@@ -101,6 +102,9 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
             tmp_l->_parent = node_stack.top();
             tmp_r->_parent = node_stack.top();
             idx++;
+        }
+        else if(cur == ' '){
+            continue;
         }
         else if(cur == ';'){
             break;

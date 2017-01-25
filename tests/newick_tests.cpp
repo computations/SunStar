@@ -57,6 +57,7 @@ TEST_CASE("newick weight parser, float in newick", "[newick]"){
     REQUIRE(idx == 6);
 }
 
+
 TEST_CASE("newick parser, simple tree", "[newick][tree]"){
     string t_string = "(a,b);";
     string expected = "(a:1.0,b:1.0);";
@@ -67,6 +68,14 @@ TEST_CASE("newick parser, simple tree", "[newick][tree]"){
 
 TEST_CASE("newick parser, simple tree with weights", "[newick][tree]"){
     string t_string = "(a:1.0,b:1.0);";
+    string expected = "(a:1.0,b:1.0);";
+    tree_t t(t_string);
+    t.sort();
+    REQUIRE(t.to_string() == expected);
+}
+
+TEST_CASE("newick parser, tree with spaces", "[newick][tree]"){
+    string t_string = "(a:1.0, b:1.0);";
     string expected = "(a:1.0,b:1.0);";
     tree_t t(t_string);
     t.sort();
