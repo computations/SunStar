@@ -1,9 +1,0 @@
-language: cpp
-script: make run-tests
-dist: xenial
-addons:
-    apt:
-        packages:
-        -   gcc-6.3
-        -   g++-6.3
-
