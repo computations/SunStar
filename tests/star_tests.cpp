@@ -30,7 +30,7 @@ TEST_CASE("star, two different trees", "[star]"){
     vt.push_back(t2);
     star_t s(vt);
     auto star_tree = s.get_tree();
-    star_tree.set_weights([](size_t d) -> float {return 1.0;});
+    star_tree.set_weights([](size_t) -> float {return 1.0;});
     star_tree.sort();
     REQUIRE(star_tree.to_string()== t1);
 }

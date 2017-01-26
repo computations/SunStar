@@ -94,4 +94,10 @@ TEST_CASE("tree, calculate complicated, not ultrametric distance matrix", "[tree
     }
 }
 
-
+TEST_CASE("tree, setting weights","[tree]"){
+    tree_t t1(tree_strings[0]);
+    t1.set_weights([](size_t) -> float {return 1.0;});
+    t1.sort();
+    auto s = t1.to_string();
+    REQUIRE(s == "(a:1.0,b:1.0);");
+}

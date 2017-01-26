@@ -70,6 +70,9 @@ void node_t::set_weights(function<float(size_t)> w_func, size_t depth,
         _lchild->set_weights(w_func, depth+1, max);
         _rchild->set_weights(w_func, depth+1, max);
     }
+    if(depth!=0){
+        _weight = w_func(depth);
+    }
 }
 
 string node_t::sort(){
@@ -377,19 +380,21 @@ void tree_t::set_weights(function<float(size_t)> w_func){
     *   (k-2 +2 -1)/2 = (k-1)/2
     */
     float max = 1;
-    for(size_t i=0;i<(_size-1)/2;++i){
+    size_t depth=0;
+    if(_unroot.size()>1) depth=1;
+    for(size_t i=depth;i<(_size-1)/2;++i){
         max+=w_func(i);
     }
     for(auto n : _unroot){
-        n->set_weights(w_func, 0, max);
+        n->set_weights(w_func, depth, max);
     }
 }
 
 void tree_t::set_weights(const vector<float>& w_vec){
     set_weights([&w_vec](size_t d){
-            assert_string(d < w_vec.size(), "out of bounds for passed float vector");
-            if(d == 0) return 0.0f;
-            return w_vec[d-1];
+        assert_string(d < w_vec.size(), "out of bounds for passed float vector");
+        if(d == 0) return 0.0f;
+        return w_vec[d-1];
     });
 }
 
