@@ -8,7 +8,7 @@
 
 class nj_t{
     public:
-        nj_t(const std::vector<float> &, const std::vector<std::string>&);
+        nj_t(const std::vector<double> &, const std::vector<std::string>&);
         tree_t get_tree();
         
     private:
@@ -30,11 +30,11 @@ class nj_t{
         //these vectors are "flat"
         std::vector<node_t*> _tree;
         std::vector<node_t*> _unroot;
-        std::vector<float> _r_vec;
+        std::vector<double> _r_vec;
 
         //these vectors are "square"
-        std::vector<float> _dists;
-        std::vector<float> _q_vec;
+        std::vector<double> _dists;
+        std::vector<double> _q_vec;
 
         size_t _row_size;
         size_t _i, _j;

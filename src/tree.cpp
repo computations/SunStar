@@ -55,7 +55,7 @@ void node_t::update_children(const unordered_map<node_t*, node_t*> node_map){
     }
 }
 
-void node_t::set_weights(function<float(size_t)> w_func, size_t depth,
+void node_t::set_weights(function<double(size_t)> w_func, size_t depth,
       double max){
 
     if(!_children){
@@ -178,11 +178,11 @@ tree_t& tree_t::operator=(tree_t t){
     return *this;
 }
 
-std::vector<float> tree_t::calc_distance_matrix(){
+std::vector<double> tree_t::calc_distance_matrix(){
     auto lm = make_label_map();
     auto f = calc_distance_matrix(lm);
     size_t size = lm.size();
-    std::vector<float> r(f, f+size*size);
+    std::vector<double> r(f, f+size*size);
     delete[] f;
     return r;
 }
@@ -190,10 +190,10 @@ std::vector<float> tree_t::calc_distance_matrix(){
 //we use a label to index map to make the matrix well ordered
 //this is so we can do a blind average later on, and not have to worry about
 //the ordering of the array
-float* tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& label_map){
+double* tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& label_map){
     debug_string("calc_distance_matrix with label map");
     size_t row_size = label_map.size();
-    float* dists = new float[row_size*row_size];
+    double* dists = new double[row_size*row_size];
     calc_distance_matrix(label_map, dists);
     return dists;
 }
@@ -207,7 +207,7 @@ float* tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& la
 //  This can even work on trees with an unroot, as long as there is a special case for the unroot
 //The main advantage of this method is to remove the need for a parent pointer in the node_t
 //This saves on quite a bit of space, and allows for larger trees to fit in cache
-void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& label_map, float* dists){
+void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& label_map, double* dists){
     size_t row_size = label_map.size();
     for(size_t i=0;i<_size;++i){
         //if the node has no children, then it is a leaf, and we need to find distances
@@ -253,7 +253,7 @@ std::unordered_map<string, size_t> tree_t::make_label_map(){
 //  make a list of parents for each node
 //  compare those lists from the back (ie, root first)
 //  when those lists diverge, thats the common parent
-float tree_t::calc_distance(node_t* src, node_t* dst){
+double tree_t::calc_distance(node_t* src, node_t* dst){
     debug_print("calculating distance between (%p, %p)", src, dst);
     if(src==dst){
         debug_string("src and dst are the same, returning zero");
@@ -279,7 +279,7 @@ float tree_t::calc_distance(node_t* src, node_t* dst){
     }
 
     //calculating common parent can be faster, since I have a list of parents already, but this is fine
-    float ret =  parent_distance(src, src_list[src_index]) + parent_distance(dst,dst_list[dst_index]);
+    double ret =  parent_distance(src, src_list[src_index]) + parent_distance(dst,dst_list[dst_index]);
     debug_print("returning the distance %f", ret);
     return ret;
 }
@@ -297,8 +297,8 @@ vector<node_t*> tree_t::get_parents_of(node_t* cur_node){
     return parent_list;
 }
 
-float tree_t::parent_distance(node_t* child, node_t* parent){
-    float distance = 0;
+double tree_t::parent_distance(node_t* child, node_t* parent){
+    double distance = 0;
     while(child!=parent){
         distance+=child->_weight;
         child = child->_parent;
@@ -351,7 +351,7 @@ string tree_t::print_labels() const{
     return ret.str();
 }
 
-void tree_t::set_weights(function<float(size_t)> w_func){
+void tree_t::set_weights(function<double(size_t)> w_func){
    /*
     * To fix this function, we need to solve the problem of how much the total
     * depth should be. Current plan:
@@ -379,7 +379,7 @@ void tree_t::set_weights(function<float(size_t)> w_func){
     * the max depth is now
     *   (k-2 +2 -1)/2 = (k-1)/2
     */
-    float max = 1;
+    double max = 1;
     size_t depth=0;
     if(_unroot.size()>1) depth=1;
     for(size_t i=depth;i<(_size-1)/2;++i){
@@ -390,10 +390,10 @@ void tree_t::set_weights(function<float(size_t)> w_func){
     }
 }
 
-void tree_t::set_weights(const vector<float>& w_vec){
+void tree_t::set_weights(const vector<double>& w_vec){
     set_weights([&w_vec](size_t d){
-        assert_string(d < w_vec.size(), "out of bounds for passed float vector");
-        if(d == 0) return 0.0f;
+        assert_string(d < w_vec.size(), "out of bounds for passed double vector");
+        if(d == 0) return 0.0;
         return w_vec[d-1];
     });
 }

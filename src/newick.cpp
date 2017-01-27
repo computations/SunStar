@@ -34,7 +34,8 @@ string parse_label(const string& newick_string, size_t& idx){
     start = end = idx;
     while(start<newick_string.size()){
         char cur = newick_string[end];
-        if(cur<'0' || (cur >= '9'  && cur < 'A') || (cur >'Z' && cur < 'a') 
+        if(cur<'0' || (cur >= '9'  && cur < 'A') 
+                || (cur >'Z' && cur < 'a' && cur!='_') 
                 || cur > 'z') break;
         end++;
     }
@@ -42,12 +43,12 @@ string parse_label(const string& newick_string, size_t& idx){
     return newick_string.substr(start, end-start);
 }
 
-float parse_weight(const string& newick_string, size_t& idx){
+double parse_weight(const string& newick_string, size_t& idx){
     size_t start, end;
     start = end = idx;
     while(start<newick_string.size()){
         char cur = newick_string[end];
-        if((cur < '0' || cur > '9') && cur!='.' && cur != '-') break;
+        if((cur < '0' || cur > '9') && cur!='.' && cur != '-' && cur!='e') break;
         end++;
     }
     idx = end;
@@ -87,7 +88,7 @@ node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
             node_stack.top()->_weight = 1.0;
         }
         else if(cur == ':'){
-            debug_string("found colon, parsing float");
+            debug_string("found colon, parsing double");
             idx++;
             node_stack.top()->_weight = parse_weight(newick_string, idx);
             debug_print("new taxa weight: %f", node_stack.top()->_weight);

@@ -19,6 +19,6 @@ class star_t{
         void make_tree();
 
         tree_t _final_tree;
-        std::vector<float> _avg_dists;
+        std::vector<double> _avg_dists;
         std::unordered_map<std::string, size_t> _label_map;
 };

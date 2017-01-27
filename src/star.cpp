@@ -21,7 +21,7 @@ using std::unordered_map;
 
 #include <iostream>
 
-inline void init_array(float* v, size_t s){
+inline void init_array(double* v, size_t s){
     for(size_t i =0;i<s*s;++i){
         v[i]= 0.0;
     }
@@ -42,7 +42,7 @@ void star_t::calc_average_distances(std::vector<tree_t>& tree_vector){
     debug_print("front tree: %s", tree_vector.front().to_string().c_str());
     size_t row_size = _label_map.size();
     debug_print("row_size: %lu", row_size);
-    float* dists = new float[row_size*row_size];
+    double* dists = new double[row_size*row_size];
     _avg_dists.resize(row_size*row_size, 0);
     init_array(dists, row_size);
 
@@ -60,7 +60,7 @@ void star_t::calc_average_distances(std::vector<tree_t>& tree_vector){
         debug_print("_avg_dists no average: %f", _avg_dists[j]);
     }
     for(size_t i=0; i<row_size*row_size;++i){
-        _avg_dists[i]/=(float)tree_vector.size();
+        _avg_dists[i]/=(double)tree_vector.size();
     }
 }
 

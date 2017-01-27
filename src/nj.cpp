@@ -31,7 +31,7 @@ using std::unordered_map;
 
 #include <iostream>
 
-nj_t::nj_t(const vector<float>& dists, const vector<string>& labels){
+nj_t::nj_t(const vector<double>& dists, const vector<string>& labels){
     debug_string("");
     _dists = dists;
     //because dists is a square matrix, we need to compute the row size.
@@ -161,14 +161,14 @@ void nj_t::join_pair(){
     //need to calculate new distances for the new node
     //equation boosted from https://en.wikipedia.org/wiki/Neighbor_joining
     //actually, could be simplier
-    _tree.back()->_lchild->_weight = .5*_dists[_i*_row_size+_j] + 1/(2*(2*_row_size-2)) *
+    _tree.back()->_lchild->_weight = .5*_dists[_i*_row_size+_j] + 1/(2*(_row_size-2)) *
         (_r_vec[_i] - _r_vec[_j]);
 
     _tree.back()->_rchild->_weight = _dists[_i*_row_size+_j] - _tree.back()->_lchild->_weight;
 
     //integrate the new node into the distance table
     debug_string("making tmp_dists");
-    vector<float> tmp_dists((_row_size-1)*(_row_size-1), 0.0);
+    vector<double> tmp_dists((_row_size-1)*(_row_size-1), 0.0);
     size_t tmp_row_size = _row_size-1;
 
     for(size_t i=0;i<_row_size;++i){
@@ -186,10 +186,6 @@ void nj_t::join_pair(){
         }
     }
 
-    //we computed the top of the matrix
-    //now need to copy that down to the bottom
-    //ideally we wouldn't need to do this
-    //but I need to work on the other parts of the code first
     for(size_t i=0;i<tmp_row_size;++i){
         tmp_dists[i*tmp_row_size + (tmp_row_size-1)] = .5 *
             (_dists[i*_row_size+_i] + _dists[i*_row_size+_j] - _dists[_i*_row_size + _j]);

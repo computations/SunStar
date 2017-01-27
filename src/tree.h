@@ -22,11 +22,11 @@
 class node_t{
     public:
         node_t(): _parent(0), _weight(0.0), _lchild(0), _rchild(0), _children(false) {};
-        node_t(node_t* s, float w): _parent(s), _weight(w){};
+        node_t(node_t* s, double w): _parent(s), _weight(w){};
 
         std::string to_string();
 
-        void set_weights(std::function<float(size_t)>, size_t, double);
+        void set_weights(std::function<double(size_t)>, size_t, double);
         void update_children(std::unordered_map<node_t*, node_t*>);
         std::string sort();
 
@@ -34,7 +34,7 @@ class node_t{
 
         std::string _label;
         node_t* _parent;
-        float _weight;
+        double _weight;
         node_t* _lchild;
         node_t* _rchild;
         bool _children;
@@ -64,14 +64,14 @@ class tree_t{
 
         std::unordered_map<std::string, size_t> make_label_map();
 
-        std::vector<float> calc_distance_matrix();
-        float* calc_distance_matrix(const std::unordered_map<std::string, size_t>&);
-        void calc_distance_matrix(const std::unordered_map<std::string, size_t>&, float*);
-        float calc_distance(node_t*, node_t*);
+        std::vector<double> calc_distance_matrix();
+        double* calc_distance_matrix(const std::unordered_map<std::string, size_t>&);
+        void calc_distance_matrix(const std::unordered_map<std::string, size_t>&, double*);
+        double calc_distance(node_t*, node_t*);
 
-        float parent_distance(node_t* child, node_t* parent);
-        void set_weights(const std::vector<float>&);
-        void set_weights(std::function<float(size_t)>);
+        double parent_distance(node_t* child, node_t* parent);
+        void set_weights(const std::vector<double>&);
+        void set_weights(std::function<double(size_t)>);
 
         void sort();
 
