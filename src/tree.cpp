@@ -379,7 +379,7 @@ void tree_t::set_weights(function<double(size_t)> w_func){
     * the max depth is now
     *   (k-2 +2 -1)/2 = (k-1)/2
     */
-    double max = 1;
+    double max = 2;
     size_t depth=0;
     if(_unroot.size()>1) depth=1;
     for(size_t i=depth;i<(_size-1)/2;++i){

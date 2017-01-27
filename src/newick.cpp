@@ -52,7 +52,7 @@ double parse_weight(const string& newick_string, size_t& idx){
         end++;
     }
     idx = end;
-    return stof(newick_string.substr(start, end-start));
+    return stod(newick_string.substr(start, end-start));
 }
 
 //make a tree from a string in newick notation, only a single tree per string.

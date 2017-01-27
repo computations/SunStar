@@ -46,7 +46,6 @@ TEST_CASE("star, massive trees from ASTRID","[star]"){
     }
     star_t s(vt);
     auto star_tree = s.get_tree();
-    star_tree.set_weights([](size_t) -> float {return 0.0;});
     star_tree.sort();
-    REQUIRE(astrid_tree_string == star_tree.to_string());
+    REQUIRE(star_tree.to_string() == astrid_tree_string);
 }
