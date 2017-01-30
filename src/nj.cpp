@@ -96,17 +96,18 @@ void nj_t::compute_q(){
     }
 }
 
-//This is the cherry picking secret sauce that NJ uses which is based off of
-//the four point condition.
-//Take as example the graph
-//     A        C
-//      \______/
-//      /      \
-//     B        D
-//With unspecified positive non zero edge lengths.
-//Then, the following is must be true
-//  d(A,B) + d(C,D) < d(A,C) + d(B,D) = d(A,D) + d(B,C)
-//Where d(i,j) is the distance between the nodes labeled i and j
+/* This is the cherry picking secret sauce that NJ uses which is based off of
+ * the four point condition.
+ * Take as example the graph
+ *     A        C
+ *      \______/
+ *      /      \
+ *     B        D
+ * With unspecified positive non zero edge lengths.
+ * Then, the following is must be true
+ *   d(A,B) + d(C,D) < d(A,C) + d(B,D) = d(A,D) + d(B,C)
+ * Where d(i,j) is the distance between the nodes labeled i and j
+ */
 void nj_t::find_pair(){
     debug_string("");
     //compute the matrix Q, which is put into a private data member
