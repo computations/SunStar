@@ -42,7 +42,6 @@ class node_t{
 
 node_t* node_factory(node_t* lchild, node_t* rchild);
 
-
 //TODO: incorporate the label map into this tree
 class tree_t{
     public:
@@ -72,6 +71,7 @@ class tree_t{
         double parent_distance(node_t* child, node_t* parent);
         void set_weights(const std::vector<double>&);
         void set_weights(std::function<double(size_t)>);
+        void set_weights(double);
 
         void sort();
 

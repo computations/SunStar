@@ -182,7 +182,7 @@ std::vector<double> tree_t::calc_distance_matrix(){
     auto lm = make_label_map();
     auto f = calc_distance_matrix(lm);
     size_t size = lm.size();
-    std::vector<double> r(f, f+size*size);
+    std::vector<double> r(f, f+size*size); //copy from f to f+size*size
     delete[] f;
     return r;
 }
@@ -224,10 +224,6 @@ void tree_t::calc_distance_matrix(const std::unordered_map<string, size_t>& labe
             }
         }
     }
-    //need to reflect the matrix
-    //because i is unsigned, when we go negative, we actually go up to 2^64-1.
-    //fortunatly, that is always going to be larger than the size of the array
-    //so, we check to see if i<_size, just like a regular for loop
 }
 
 
@@ -396,6 +392,10 @@ void tree_t::set_weights(const vector<double>& w_vec){
         if(d == 0) return 0.0;
         return w_vec[d-1];
     });
+}
+
+void tree_t::set_weights(double w){
+    set_weights([&w](size_t) -> double {return w;});
 }
 
 void tree_t::sort(){
