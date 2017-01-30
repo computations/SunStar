@@ -46,7 +46,7 @@ run-tests: tests
 	./gstar_tests 
 
 verbose-tests: CFLAGS+= -DEMIT_DEBUG
-verbose-tests: run-tests
+verbose-tests: tests
 
 clean:
 	rm -rf obj gstar gstar_tests *.log
