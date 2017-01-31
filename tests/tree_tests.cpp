@@ -98,17 +98,17 @@ TEST_CASE("tree, calculate complicated, not ultrametric distance matrix", "[tree
 
 TEST_CASE("tree, calculate large tree distance matrix", "[tree]"){
     tree_t t1(tree_strings[3]);
-    auto f = t1.calc_distance_matrix();
     t1.set_weights(1.0);
+    auto f = t1.calc_distance_matrix();
     t1.sort();
 
     std::vector<double> r = {
-        0.0, 2.0, 4.0, 5.0, 5.0, 4.0,
-        2.0, 0.0, 4.0, 5.0, 5.0, 4.0,
-        4.0, 4.0, 0.0, 3.0, 3.0, 4.0,
-        5.0, 5.0, 3.0, 0.0, 2.0, 5.0,
-        5.0, 5.0, 3.0, 2.0, 0.0, 5.0,
-        4.0, 4.0, 4.0, 5.0, 5.0, 0.0
+        0, 4, 6, 6, 6, 8,
+        4, 0, 6, 6, 6, 8,
+        6, 6, 0, 4, 4, 8,
+        6, 6, 4, 0, 2, 8,
+        6, 6, 4, 2, 0, 8,
+        8, 8, 8, 8, 8, 0
     };
     REQUIRE(r.size() == f.size());
     for(size_t i=0;i<r.size();++i){
@@ -118,8 +118,8 @@ TEST_CASE("tree, calculate large tree distance matrix", "[tree]"){
 
 TEST_CASE("tree, calculate larger tree distance matrix", "[tree]"){
     tree_t t1(tree_strings[4]);
-    auto f = t1.calc_distance_matrix();
     t1.set_weights(1.0);
+    auto f = t1.calc_distance_matrix();
     t1.sort();
 
     std::vector<double> r = {
@@ -140,16 +140,16 @@ TEST_CASE("tree, calculate larger tree distance matrix", "[tree]"){
 
 TEST_CASE("tree, setting weights with double","[tree]"){
     tree_t t1(tree_strings[0]);
-    t1.set_weights(1.0);
+    t1.set_weights(3.2, 3.2);
     t1.sort();
     auto s = t1.to_string();
-    REQUIRE(s == "(a:1.0,b:1.0);");
+    REQUIRE(s == "(a:3.2,b:3.2);");
 }
 
 TEST_CASE("tree, setting weights with a vector","[tree]"){
     tree_t t1(tree_strings[0]);
     std::vector<double> ws{4.4, 2.0, 3.0};
-    t1.set_weights(ws);
+    t1.set_weights(ws, 4.4);
     t1.sort();
     auto s = t1.to_string();
     REQUIRE(s == "(a:4.4,b:4.4);");
@@ -157,7 +157,7 @@ TEST_CASE("tree, setting weights with a vector","[tree]"){
 
 TEST_CASE("tree, setting weights with a function","[tree]"){
     tree_t t1(tree_strings[0]);
-    t1.set_weights([](size_t d) -> double {return d*2.2;});
+    t1.set_weights([](size_t d) -> double {return d*2.2;}, 2.2);
     t1.sort();
     auto s = t1.to_string();
     REQUIRE(s == "(a:2.2,b:2.2);");

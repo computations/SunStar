@@ -33,7 +33,12 @@ const clock_t CLOCK_START = clock();
 #define debug_print(fmt, ...) {if(DEBUG_IF_FLAG && EMIT_DEBUG_FLAG) fprintf(stderr, "[%f] %s:%d:%s(): " fmt "\n",\
         ((double)clock() - CLOCK_START)/CLOCKS_PER_SEC, __FILE__,\
         __LINE__, __func__, __VA_ARGS__); }
+
 #define debug_string(x) { debug_print("%s", x)}
+
+#define debug_matrix(desc,x,s) { if(DEBUG_IF_FLAG && EMIT_DEBUG_FLAG){\
+    debug_string(desc);\
+    for(size_t i=0;i<s;++i){fprintf(stderr, "[%f]\t", ((double)clock() - CLOCK_START)/CLOCKS_PER_SEC); for(size_t j=0;j<s;++j){fprintf(stderr, "%.1f\t", x[i*s+j]);} fprintf(stderr, "\n");}}}
 
 #define print_trace(){ if(DEBUG_IF_FLAG) {\
         void* callstack[128];\

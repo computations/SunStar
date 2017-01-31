@@ -62,16 +62,23 @@ void node_t::set_weights(function<double(size_t)> w_func, size_t depth,
         double total=0;
         for(size_t i = 0; i<= depth; ++i){
           total+= w_func(i);
+          debug_print("total: %f", total);
         }
-        debug_print("total: %f", total);
         _weight = max - total;
     }
     else{
         _lchild->set_weights(w_func, depth+1, max);
         _rchild->set_weights(w_func, depth+1, max);
-    }
-    if(depth!=0){
         _weight = w_func(depth);
+    }
+}
+
+void node_t::set_weights_as_root(function<double(size_t)> w_func, size_t depth,
+        double max){
+    _weight=0.0;
+    if(_children){
+        _lchild->set_weights(w_func, depth, max);
+        _rchild->set_weights(w_func, depth, max);
     }
 }
 
@@ -88,6 +95,15 @@ string node_t::sort(){
         }
     }
     return _label;
+}
+
+size_t node_t::calc_max_depth(){
+    if(_children){
+        size_t lchild_depth = _lchild->calc_max_depth();
+        size_t rchild_depth = _rchild->calc_max_depth();
+        return lchild_depth > rchild_depth ? lchild_depth+1 : rchild_depth+1;
+    }
+    return 1;
 }
 
 node_t* node_factory(node_t* lchild, node_t* rchild){
@@ -184,6 +200,8 @@ std::vector<double> tree_t::calc_distance_matrix(){
     size_t size = lm.size();
     std::vector<double> r(f, f+size*size); //copy from f to f+size*size
     delete[] f;
+    debug_string(to_string().c_str());
+    debug_matrix("r", r, size);
     return r;
 }
 
@@ -347,55 +365,38 @@ string tree_t::print_labels() const{
     return ret.str();
 }
 
-void tree_t::set_weights(function<double(size_t)> w_func){
-   /*
-    * To fix this function, we need to solve the problem of how much the total
-    * depth should be. Current plan:
-    * Since the depth of a taxa cannot be any more than a catapillar. So, a
-    * taxa's maximum depth on a rooted phylogenic tree is
-    *   (n-1)/2
-    * vague proof:
-    * the case with the largest depth is a tree that is unbalanced as possible.
-    * that is the following case
-    *           o
-    *          / \
-    *         o   o
-    *        / \
-    *       .   o
-    *       .
-    *       .
-    *       o
-    *      / \
-    *     o   o
-    * Each layer is two taxa, except for the root. Iterativly, we can construct
-    * a new layer by adding two new taxa. So, n=1 case: There is just the root,
-    * and the max depth is indeed (n-1)/2 = (1-1)/2 = 0
-    * For then n = k case, we can construct it from the n=k-2 case. We add a
-    * layer hanging of the right most child. This requires two more taxa. So,
-    * the max depth is now
-    *   (k-2 +2 -1)/2 = (k-1)/2
-    */
-    double max = 2;
-    size_t depth=0;
-    if(_unroot.size()>1) depth=1;
-    for(size_t i=depth;i<(_size-1)/2;++i){
-        max+=w_func(i);
-    }
+void tree_t::set_weights(function<double(size_t)> w_func, double max ){
+    size_t depth = 0;
     for(auto n : _unroot){
-        n->set_weights(w_func, depth, max);
+        size_t tmp_d = n->calc_max_depth();
+        if(tmp_d > depth) depth = tmp_d;
+    }
+    debug_print("max depth: %lu", depth);
+    if(_unroot.size() == 1) depth-=1;
+    for(size_t i=0;i<depth;++i){
+        max+=w_func(i);
+        debug_print("w_func(%lu)=%f", i, w_func(i));
+    }
+    debug_print("max: %f", max);
+    if(_unroot.size() == 1){
+        _unroot.front()->set_weights_as_root(w_func, 0, max);
+    }
+    else{
+        for(auto n : _unroot){
+            n->set_weights(w_func, 0, max);
+        }
     }
 }
 
-void tree_t::set_weights(const vector<double>& w_vec){
+void tree_t::set_weights(const vector<double>& w_vec, double max){
     set_weights([&w_vec](size_t d){
         assert_string(d < w_vec.size(), "out of bounds for passed double vector");
-        if(d == 0) return 0.0;
-        return w_vec[d-1];
-    });
+        return w_vec[d];
+    }, max);
 }
 
-void tree_t::set_weights(double w){
-    set_weights([&w](size_t) -> double {return w;});
+void tree_t::set_weights(double w, double max){
+    set_weights([w](size_t) -> double {return w;}, max);
 }
 
 void tree_t::sort(){

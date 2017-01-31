@@ -167,6 +167,7 @@ void nj_t::join_pair(){
 
     _tree.back()->_rchild->_weight = _dists[_i*_row_size+_j] - _tree.back()->_lchild->_weight;
 
+
     //integrate the new node into the distance table
     debug_string("making tmp_dists");
     vector<double> tmp_dists((_row_size-1)*(_row_size-1), 0.0);

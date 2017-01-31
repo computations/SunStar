@@ -27,6 +27,8 @@ class node_t{
         std::string to_string();
 
         void set_weights(std::function<double(size_t)>, size_t, double);
+        void set_weights_as_root(std::function<double(size_t)>, size_t, double);
+        size_t calc_max_depth();
         void update_children(std::unordered_map<node_t*, node_t*>);
         std::string sort();
 
@@ -69,9 +71,9 @@ class tree_t{
         double calc_distance(node_t*, node_t*);
 
         double parent_distance(node_t* child, node_t* parent);
-        void set_weights(const std::vector<double>&);
-        void set_weights(std::function<double(size_t)>);
-        void set_weights(double);
+        void set_weights(const std::vector<double>&, double max=1.0);
+        void set_weights(std::function<double(size_t)>, double max = 1.0);
+        void set_weights(double, double max = 1.0);
 
         void sort();
 
