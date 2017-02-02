@@ -196,6 +196,7 @@ tree_t& tree_t::operator=(tree_t t){
 
 std::vector<double> tree_t::calc_distance_matrix(){
     auto lm = make_label_map();
+    debug_print_map("label map", lm);
     auto f = calc_distance_matrix(lm);
     size_t size = lm.size();
     std::vector<double> r(f, f+size*size); //copy from f to f+size*size

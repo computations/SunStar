@@ -39,6 +39,7 @@ star_t::star_t(const vector<string>& newick_trees){
 
 void star_t::calc_average_distances(std::vector<tree_t>& tree_vector){
     _label_map =  tree_vector.front().make_label_map();
+    debug_print_map("label map", _label_map);
     debug_print("front tree: %s", tree_vector.front().to_string().c_str());
     size_t row_size = _label_map.size();
     debug_print("row_size: %lu", row_size);

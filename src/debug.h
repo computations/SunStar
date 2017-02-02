@@ -40,6 +40,10 @@ const clock_t CLOCK_START = clock();
     debug_string(desc);\
     for(size_t i=0;i<s;++i){fprintf(stderr, "[%f]\t", ((double)clock() - CLOCK_START)/CLOCKS_PER_SEC); for(size_t j=0;j<s;++j){fprintf(stderr, "%.1f\t", x[i*s+j]);} fprintf(stderr, "\n");}}}
 
+#define debug_print_map(desc, map){ if(DEBUG_IF_FLAG && EMIT_DEBUG_FLAG){\
+    debug_string(desc);for(auto kv:map){fprintf(stderr, "(%s : %lu) ", kv.first.c_str(), kv.second);} fprintf\
+}}
+
 #define print_trace(){ if(DEBUG_IF_FLAG) {\
         void* callstack[128];\
         int frames = backtrace(callstack, 128);\

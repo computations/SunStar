@@ -53,3 +53,13 @@ TEST_CASE("nj, larger distance table, complicated tree", "[nj][regression]"){
     nj_t n(d,l);
     REQUIRE(n.get_tree().to_string() == "(a:0.2,b:0.2,(((e:0.4,d:0.4),f):1.2,c:1.2):0.2);");
 }
+
+TEST_CASE("nj, from tree distance matrix", "[nj]"){
+    std::string newick_string = "(((a,b),(c,d)),(((e,f),g),h));";
+    tree_t t(newick_string);
+    auto dists = t.calc_distance_matrix();
+    auto lm = t.make_label_map();
+    nj_t n(dists, lm);
+    debug_print(n.get_tree().to_string().c_str());
+
+}
