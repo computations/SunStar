@@ -47,12 +47,59 @@ TEST_CASE("tree, assignment operator", "[tree]"){
 }
 
 
-TEST_CASE("tree, make label map", "[tree]"){
+TEST_CASE("tree, make label map, small", "[tree]"){
     tree_t t1(tree_strings[0]);
     auto m = t1.make_label_map();
     REQUIRE(m.size()==2);
     REQUIRE(m.count("a")==1);
     REQUIRE(m.count("b")==1);
+}
+
+TEST_CASE("tree, make label map, medium", "[tree]"){
+    tree_t t1(tree_strings[1]);
+    auto m = t1.make_label_map();
+    REQUIRE(m.size()==4);
+    REQUIRE(m.count("a")==1);
+    REQUIRE(m.count("b")==1);
+    REQUIRE(m.count("c")==1);
+    REQUIRE(m.count("d")==1);
+}
+
+TEST_CASE("tree, make label map, large", "[tree]"){
+    tree_t t1(tree_strings[2]);
+    auto m = t1.make_label_map();
+    REQUIRE(m.size()==5);
+    REQUIRE(m.count("a")==1);
+    REQUIRE(m.count("b")==1);
+    REQUIRE(m.count("c")==1);
+    REQUIRE(m.count("d")==1);
+    REQUIRE(m.count("e")==1);
+}
+
+TEST_CASE("tree, make label map, larger", "[tree]"){
+    tree_t t1(tree_strings[3]);
+    auto m = t1.make_label_map();
+    REQUIRE(m.size()==6);
+    REQUIRE(m.count("a")==1);
+    REQUIRE(m.count("b")==1);
+    REQUIRE(m.count("c")==1);
+    REQUIRE(m.count("d")==1);
+    REQUIRE(m.count("e")==1);
+    REQUIRE(m.count("f")==1);
+}
+
+TEST_CASE("tree, make label map, largest", "[tree]"){
+    tree_t t1(tree_strings[4]);
+    auto m = t1.make_label_map();
+    REQUIRE(m.size()==8);
+    REQUIRE(m.count("a")==1);
+    REQUIRE(m.count("b")==1);
+    REQUIRE(m.count("c")==1);
+    REQUIRE(m.count("d")==1);
+    REQUIRE(m.count("e")==1);
+    REQUIRE(m.count("f")==1);
+    REQUIRE(m.count("g")==1);
+    REQUIRE(m.count("h")==1);
 }
 
 TEST_CASE("tree, calculate simple distance matrix", "[tree]"){
@@ -99,8 +146,8 @@ TEST_CASE("tree, calculate complicated, not ultrametric distance matrix", "[tree
 TEST_CASE("tree, calculate large tree distance matrix", "[tree]"){
     tree_t t1(tree_strings[3]);
     t1.set_weights(1.0);
-    auto f = t1.calc_distance_matrix();
     t1.sort();
+    auto f = t1.calc_distance_matrix();
 
     std::vector<double> r = {
         0, 4, 6, 6, 6, 8,
@@ -119,8 +166,8 @@ TEST_CASE("tree, calculate large tree distance matrix", "[tree]"){
 TEST_CASE("tree, calculate larger tree distance matrix", "[tree]"){
     tree_t t1(tree_strings[4]);
     t1.set_weights(1.0);
-    auto f = t1.calc_distance_matrix();
     t1.sort();
+    auto f = t1.calc_distance_matrix();
 
     std::vector<double> r = {
         0.0, 2.0, 4.0, 4.0, 7.0, 7.0, 6.0, 5.0,
