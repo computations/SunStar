@@ -36,6 +36,21 @@ TEST_CASE("star, two different trees", "[star]"){
     REQUIRE(star_tree.to_string()== t1);
 }
 
+
+TEST_CASE("star, two large cloned trees", "[star][regression]"){
+    std::string newick_tree = "(((a,b),(c,d)),(((e,f),g),h));";
+    std::vector<std::string> vt;
+    vt.push_back(newick_tree);
+    vt.push_back(newick_tree);
+
+    star_t s(vt);
+    auto star_tree = s.get_tree();
+    star_tree.clear_weights();
+    star_tree.sort();
+    REQUIRE(star_tree.to_string() == "((a,b),(((c,d),h),g),(e,f));");
+
+}
+
 TEST_CASE("star, massive trees from ASTRID","[star][astrid]"){
     std::string astrid_tree_string = "(((Tree_Shrew,((Rabbit,Pika),(Squirrel,(Guinea_Pig,(Kangaroo_Rat,(Rat,Mouse)))))),((Mouse_Lemur,Galagos),(Tarsier,(Marmoset,(Macaque,(Orangutan,(Gorilla,(Human,Chimpanzee)))))))),((Shrew,Hedgehog),((Megabat,Microbat),((Alpaca,(Pig,(Dolphin,Cow))),(Horse,(Cat,Dog))))),(((Armadillos,Sloth),(Lesser_Hedgehog_Tenrec,(Elephant,Hyrax))),((Wallaby,Opossum),(Platypus,Chicken))));";
     std::ifstream tree_file("tests/song_mammals.424.gene.tre");
@@ -46,6 +61,7 @@ TEST_CASE("star, massive trees from ASTRID","[star][astrid]"){
     }
     star_t s(vt);
     auto star_tree = s.get_tree();
+    star_tree.clear_weights();
     star_tree.sort();
     REQUIRE(star_tree.to_string() == astrid_tree_string);
 }

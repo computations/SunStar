@@ -49,7 +49,7 @@ void star_t::calc_average_distances(std::vector<tree_t>& tree_vector){
 
     for(size_t i=0;i<tree_vector.size();++i){
         init_array(dists, row_size);
-        tree_vector[i].set_weights([](size_t) -> auto {return 1.0;});
+        tree_vector[i].set_weights(1.0);
         debug_print("current tree with set weights: %s", tree_vector[i].to_string().c_str());
         tree_vector[i].calc_distance_matrix(_label_map, dists);
         debug_print("current tree: %s", tree_vector[i].print_labels().c_str());
