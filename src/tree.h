@@ -26,6 +26,7 @@ class node_t{
 
         std::string to_string();
 
+        void set_weights_constant(double);
         void set_weights(std::function<double(size_t)>, size_t, double);
         void set_weights_as_root(std::function<double(size_t)>, size_t, double);
         size_t calc_max_depth();
@@ -74,6 +75,8 @@ class tree_t{
         void set_weights(const std::vector<double>&, double max=1.0);
         void set_weights(std::function<double(size_t)>, double max = 1.0);
         void set_weights(double, double max = 1.0);
+        void set_weights_constant(double);
+        void clear_weights();
 
         void sort();
 

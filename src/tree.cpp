@@ -55,6 +55,14 @@ void node_t::update_children(const unordered_map<node_t*, node_t*> node_map){
     }
 }
 
+void node_t::set_weights_constant(double c){
+    _weight=c;
+    if(_children){
+        _lchild->set_weights_constant(c);
+        _rchild->set_weights_constant(c);
+    }
+}
+
 void node_t::set_weights(function<double(size_t)> w_func, size_t depth,
       double max){
 
@@ -397,6 +405,16 @@ void tree_t::set_weights(const vector<double>& w_vec, double max){
 
 void tree_t::set_weights(double w, double max){
     set_weights([w](size_t) -> double {return w;}, max);
+}
+
+void tree_t::set_weights_constant(double c){
+    for(auto &&n:_unroot){
+        n->set_weights_constant(c);
+    }
+}
+
+void tree_t::clear_weights(){
+    set_weights_constant(0.0);
 }
 
 void tree_t::sort(){
