@@ -59,7 +59,14 @@ TEST_CASE("nj, from tree distance matrix", "[nj]"){
     tree_t t(newick_string);
     auto dists = t.calc_distance_matrix();
     auto lm = t.make_label_map();
-    nj_t n(dists, lm);
-    debug_print(n.get_tree().to_string().c_str());
-
+    std::vector<std::string> invlm;
+    invlm.resize(lm.size());
+    for(auto && kv:lm){
+        invlm[kv.second] = kv.first;
+    }
+    nj_t n(dists, invlm);
+    auto nj_tree = n.get_tree();
+    nj_tree.sort();
+    nj_tree.clear_weights();
+    REQUIRE(nj_tree.to_string() == newick_string);
 }

@@ -37,6 +37,18 @@ TEST_CASE("star, two different trees", "[star]"){
 }
 
 
+TEST_CASE("star, one large trees", "[star][regression]"){
+    std::string newick_tree = "(((a,b),(c,d)),(((e,f),g),h));";
+    std::vector<std::string> vt;
+    vt.push_back(newick_tree);
+
+    star_t s(vt);
+    auto star_tree = s.get_tree();
+    star_tree.clear_weights();
+    star_tree.sort();
+    REQUIRE(star_tree.to_string() == "((a,b),(((c,d),h),g),(e,f));");
+}
+
 TEST_CASE("star, two large cloned trees", "[star][regression]"){
     std::string newick_tree = "(((a,b),(c,d)),(((e,f),g),h));";
     std::vector<std::string> vt;
