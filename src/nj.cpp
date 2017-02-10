@@ -91,9 +91,14 @@ void nj_t::compute_q(){
     debug_string("computing q");
     for(size_t i=0;i<_row_size;++i){
         for(size_t j=0;j<_row_size;++j){
+            if(i == j) {
+                _q_vec[i*_row_size+j] = 0.0;
+                continue;
+            }
             _q_vec[i*_row_size+j] = (_row_size-2)*_dists[i*_row_size+j] - _r_vec[i] - _r_vec[j];
         }
     }
+    debug_matrix("q", _q_vec, _row_size);
 }
 
 /* This is the cherry picking secret sauce that NJ uses which is based off of
@@ -136,6 +141,7 @@ void nj_t::find_pair(){
 //furthermore, _row_size's value changes to keep up.
 void nj_t::join_pair(){
     debug_string("");
+    debug_matrix("_dists", _dists, _row_size);
 
     find_pair();
     debug_print("_i:%lu, _j:%lu", _i,_j);

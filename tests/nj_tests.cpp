@@ -54,9 +54,24 @@ TEST_CASE("nj, larger distance table, complicated tree", "[nj][regression]"){
     REQUIRE(n.get_tree().to_string() == "(a:0.2,b:0.2,(((e:0.4,d:0.4),f):1.2,c:1.2):0.2);");
 }
 
+TEST_CASE("nj, tree from wikipedia", "[nj][wiki]"){
+    std::vector<double> d = { 0.0, 5.0, 9.0, 9.0, 8.0,
+                              5.0, 0.0, 10.0, 10.0, 9.0,
+                              9.0, 10.0, 0.0, 8.0, 7.0,
+                              9.0, 10.0, 8.0, 0.0, 3.0,
+                              8.0, 9.0, 7.0, 3.0, 0.0 };
+    std::vector<std::string> l {"a", "b", "c", "d", "e"};
+    nj_t n(d,l);
+    auto tree = n.get_tree();
+    tree.sort();
+    tree.clear_weights();
+    REQUIRE(tree.to_string() == "(((a,b),c),d,e);");
+}
+
 TEST_CASE("nj, from tree distance matrix", "[nj]"){
     std::string newick_string = "(((a,b),(c,d)),(((e,f),g),h));";
     tree_t t(newick_string);
+    t.set_weights(1.0);
     auto dists = t.calc_distance_matrix();
     auto lm = t.make_label_map();
     std::vector<std::string> invlm;
