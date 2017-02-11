@@ -30,9 +30,11 @@ const clock_t CLOCK_START = clock();
 #define EMIT_DEBUG_FLAG 0
 #endif
 
-#define debug_print(fmt, ...) {if(DEBUG_IF_FLAG && EMIT_DEBUG_FLAG) fprintf(stderr, "[%f] %s:%d:%s(): " fmt "\n",\
-        ((double)clock() - CLOCK_START)/CLOCKS_PER_SEC, __FILE__,\
-        __LINE__, __func__, __VA_ARGS__); }
+#define print_clock {if(DEBUG_IF_FLAG && EMIT_DEBUG_FLAG){fprintf(stderr, "[%f] ", \
+        ((double)clock() - CLOCK_START)/CLOCKS_PER_SEC);}};
+
+#define debug_print(fmt, ...) {if(DEBUG_IF_FLAG && EMIT_DEBUG_FLAG){print_clock; fprintf(stderr, "%s:%d:%s(): " fmt "\n",\
+         __FILE__, __LINE__, __func__, __VA_ARGS__); }}
 
 #define debug_string(x) { debug_print("%s", x)}
 
@@ -48,8 +50,10 @@ const clock_t CLOCK_START = clock();
         void* callstack[128];\
         int frames = backtrace(callstack, 128);\
         char** bt_symbols = backtrace_symbols(callstack, frames);\
+        print_clock;\
         fprintf(stderr, "BACKTRACE AT %s:%d:%s():\n", __FILE__, __LINE__, __func__);\
         for(int i=0;i<frames;++i){\
+            print_clock;\
             fprintf(stderr, "%s\n", bt_symbols[i]);\
         }\
     }\
@@ -57,6 +61,7 @@ const clock_t CLOCK_START = clock();
 
 #define assert_string(cond, comment) if(DEBUG_IF_FLAG){ {\
     if(!(cond)){\
+        print_clock;\
         fprintf(stderr, "assertion \"%s\" failed: file: %s, line: %d, comment: %s\n",#cond, __FILE__, __LINE__, comment);\
         abort();\
     }\
