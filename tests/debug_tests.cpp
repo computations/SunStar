@@ -13,7 +13,3 @@ TEST_CASE("debug, debug_print", "[debug]"){
 TEST_CASE("debug, debug_string", "[debug]"){
     debug_string("here is a test string");
 }
-
-TEST_CASE("debug, print trace", "[debug]"){
-    print_trace();
-}
