@@ -79,8 +79,7 @@ vector<string> invert_label_map(unordered_map<string, size_t> lm){
 }
 
 void star_t::make_tree(){
-    nj_t nj(_avg_dists, invert_label_map(_label_map));
-    _final_tree = nj.get_tree();
+    _final_tree = nj(_avg_dists, invert_label_map(_label_map));
 }
 
 tree_t star_t::get_tree(){
