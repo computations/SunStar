@@ -67,3 +67,48 @@ TEST_CASE("new nj, tree from wikipedia", "[nj][wiki]"){
     tree.clear_weights();
     REQUIRE(tree.to_string() == "(((a,b),c),d,e);");
 }
+
+TEST_CASE("nj with simple distance table", "[nj]"){
+    std::vector<double> d = {0.0,1.0,
+                            1.0,0.0};
+    std::vector<std::string> l {"a", "b"};
+    auto nj_tree =  nj(d,l);
+    nj_tree.sort();
+    REQUIRE(nj_tree.to_string() == "(a:0.5,b:0.5);");
+}
+
+TEST_CASE("nj with larger distance table", "[nj]"){
+    std::vector<double> d = {0.0, 1.0, 1.0,
+                            1.0, 0.0, 1.0,
+                            1.0, 1.0, 0.0};
+    std::vector<std::string> l {"a", "b", "c"};
+    auto n=  nj(d,l);
+    REQUIRE(n.to_string() == "(a:0.5,b:0.5,c:0.5);");
+}
+
+TEST_CASE("nj and then setting weights", "[nj]"){
+    std::vector<double> d = {0.0,1.0,
+                            1.0,0.0};
+    std::vector<std::string> l {"a", "b"};
+    auto nj_tree =  nj(d,l);
+    nj_tree.set_weights([](size_t) -> double {return 1.0;});
+    nj_tree.sort();
+    REQUIRE(nj_tree.to_string() == "(a:1.0,b:1.0);");
+}
+
+TEST_CASE("nj, from tree distance matrix", "[nj]"){
+    std::string newick_string = "(((a,b),(c,d)),(((e,f),g),h));";
+    tree_t t(newick_string);
+    t.set_weights(1.0);
+    auto dists = t.calc_distance_matrix();
+    auto lm = t.make_label_map();
+    std::vector<std::string> invlm;
+    invlm.resize(lm.size());
+    for(auto && kv:lm){
+        invlm[kv.second] = kv.first;
+    }
+    auto nj_tree =  nj(dists,invlm);
+    nj_tree.sort();
+    nj_tree.clear_weights();
+    REQUIRE(nj_tree.to_string() == newick_string);
+}
