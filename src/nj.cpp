@@ -75,7 +75,7 @@ std::pair<size_t, size_t> find_pair(const d2vector_t& dists){
         for(size_t j=i+1;j<row_size;++j){
             double tmp = (row_size-2)*dists[i][j] -R[i] - R[j];
             debug_print("current M[%lu][%lu] = %f, lowest = %f", i,j,tmp, lowest);
-            if(tmp < lowest){
+            if(tmp <= lowest){
                 _i = i; _j = j;
                 lowest = tmp;
                 debug_print("new lowest: %f, _i:%lu, _j:%lu", lowest, _i, _j);
@@ -140,15 +140,11 @@ void join_pair(d2vector_t& dists, vector<node_t*>& unroot){
     //done with the tree update, need to make a new distance table.
     //Doing this with the three point distance table.
     auto tmp_dists = dists;
-    debug_d2vector_t("tmp_dists, init", tmp_dists);
     delete_rowcol(tmp_dists,p.first);
-    debug_d2vector_t("tmp_dists, first delete", tmp_dists);
     auto second_del = p.second;
     if(p.first< p.second) second_del--;
     delete_rowcol(tmp_dists,second_del);
-    debug_d2vector_t("tmp_dists, second delete", tmp_dists);
     add_rowcol(tmp_dists);
-    debug_d2vector_t("tmp_dists, second delete", tmp_dists);
     /*
      * Here we are goin to use the three point formulas again but a bit
      * differently. Its still the case that for the tree.
@@ -176,17 +172,16 @@ void join_pair(d2vector_t& dists, vector<node_t*>& unroot){
         size_t cur_i = i;
         if(p.first <= cur_i){cur_i++;}
         if(p.second <= cur_i){cur_i++;}
-        tmp_dists[i].back() = dists[p.first][cur_i] + dists[p.second][cur_i] - dists[p.first][p.second];
+        tmp_dists[i].back() = (dists[p.first][cur_i] + dists[p.second][cur_i] - dists[p.first][p.second])/2.0;
     }
 
     for(size_t i = 0;i<tmp_dists.size()-1;++i){
         size_t cur_i = i;
         if(p.first <= cur_i){cur_i++;}
         if(p.second <= cur_i){cur_i++;}
-        tmp_dists.back()[i] = dists[p.first][cur_i] + dists[p.second][cur_i] - dists[p.first][p.second];
+        tmp_dists.back()[i] = (dists[p.first][cur_i] + dists[p.second][cur_i] - dists[p.first][p.second])/2.0;
     }
 
-    debug_d2vector_t("tmp_dists, before swap", tmp_dists);
     dists.swap(tmp_dists);
     debug_d2vector_t("dists, after swap", dists);
 }

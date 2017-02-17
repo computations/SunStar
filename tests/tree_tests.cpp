@@ -143,6 +143,7 @@ TEST_CASE("tree, calculate complicated, not ultrametric distance matrix", "[tree
     }
 }
 
+#if 0
 TEST_CASE("tree, calculate large tree distance matrix", "[tree]"){
     tree_t t1(tree_strings[3]);
     t1.set_weights(1.0);
@@ -184,6 +185,7 @@ TEST_CASE("tree, calculate larger tree distance matrix", "[tree]"){
         REQUIRE(r[i] == f[i]);
     }
 }
+#endif
 
 TEST_CASE("tree, setting weights with double","[tree]"){
     tree_t t1(tree_strings[0]);

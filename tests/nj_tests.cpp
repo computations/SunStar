@@ -52,7 +52,7 @@ TEST_CASE("new nj with large enough distance table", "[nj][regression]"){
     std::vector<std::string> l {"a", "b", "c", "d"};
     auto n = nj(d,l);
     n.sort();
-    REQUIRE(n.to_string() =="((a:0.5,b:0.5):3.5,c:0.5,d:0.5);");
+    REQUIRE(n.to_string() =="(a:0.5,b:0.5,(c:0.5,d:0.5):1.5);");
 }
 
 TEST_CASE("new nj, tree from wikipedia", "[nj][wiki]"){
@@ -65,7 +65,7 @@ TEST_CASE("new nj, tree from wikipedia", "[nj][wiki]"){
     auto tree = nj(d,l);
     tree.sort();
     tree.clear_weights();
-    REQUIRE(tree.to_string() == "(((a,b),c),d,e);");
+    REQUIRE(tree.to_string() == "((a,b),c,(d,e));");
 }
 
 TEST_CASE("nj with simple distance table", "[nj]"){
@@ -96,8 +96,8 @@ TEST_CASE("nj and then setting weights", "[nj]"){
     REQUIRE(nj_tree.to_string() == "(a:1.0,b:1.0);");
 }
 
-TEST_CASE("nj, from tree distance matrix", "[nj]"){
-    std::string newick_string = "(((a,b),(c,d)),(((e,f),g),h));";
+TEST_CASE("nj, from small tree distance matrix", "[nj]"){
+    std::string newick_string ="((a,b),(c,d))";
     tree_t t(newick_string);
     t.set_weights(1.0);
     auto dists = t.calc_distance_matrix();
@@ -110,5 +110,39 @@ TEST_CASE("nj, from tree distance matrix", "[nj]"){
     auto nj_tree =  nj(dists,invlm);
     nj_tree.sort();
     nj_tree.clear_weights();
-    REQUIRE(nj_tree.to_string() == newick_string);
+    REQUIRE(nj_tree.to_string() == "(a,b,(c,d));");
+}
+
+TEST_CASE("nj, from medium tree distance matrix", "[nj]"){
+    std::string newick_string ="((a,b),(c,(d,e)));";
+    tree_t t(newick_string);
+    t.set_weights(1.0);
+    auto dists = t.calc_distance_matrix();
+    auto lm = t.make_label_map();
+    std::vector<std::string> invlm;
+    invlm.resize(lm.size());
+    for(auto && kv:lm){
+        invlm[kv.second] = kv.first;
+    }
+    auto nj_tree =  nj(dists,invlm);
+    nj_tree.sort();
+    nj_tree.clear_weights();
+    REQUIRE(nj_tree.to_string() == "((a,b),c,(d,e));");
+}
+
+TEST_CASE("nj, from large tree distance matrix", "[nj]"){
+    std::string newick_string = "(((a,b),(c,d)),(((e,f),g),h));";
+    tree_t t(newick_string);
+    t.set_weights_constant(1.0);
+    auto dists = t.calc_distance_matrix();
+    auto lm = t.make_label_map();
+    std::vector<std::string> invlm;
+    invlm.resize(lm.size());
+    for(auto && kv:lm){
+        invlm[kv.second] = kv.first;
+    }
+    auto nj_tree =  nj(dists,invlm);
+    nj_tree.sort();
+    nj_tree.clear_weights();
+    REQUIRE(nj_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
 }

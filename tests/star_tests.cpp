@@ -46,7 +46,7 @@ TEST_CASE("star, one large trees", "[star][regression]"){
     auto star_tree = s.get_tree();
     star_tree.clear_weights();
     star_tree.sort();
-    REQUIRE(star_tree.to_string() == "((a,b),(((c,d),h),g),(e,f));");
+    REQUIRE(star_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
 }
 
 TEST_CASE("star, two large cloned trees", "[star][regression]"){
@@ -59,7 +59,7 @@ TEST_CASE("star, two large cloned trees", "[star][regression]"){
     auto star_tree = s.get_tree();
     star_tree.clear_weights();
     star_tree.sort();
-    REQUIRE(star_tree.to_string() == "((a,b),(((c,d),h),g),(e,f));");
+    REQUIRE(star_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
 
 }
 

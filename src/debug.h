@@ -47,7 +47,7 @@ const clock_t CLOCK_START = clock();
     for(size_t i=0;i<m.size();++i){print_clock; for(size_t j=0;j<m.size();++j){fprintf(stderr, "%.1f\t", m[i][j]);} fprintf(stderr, "\n");}}}
 
 #define debug_print_map(desc, map){ if(DEBUG_IF_FLAG && EMIT_DEBUG_FLAG){\
-    debug_string(desc);for(auto kv:map){fprintf(stderr, "(%s : %lu) ", kv.first.c_str(), kv.second);}\
+    print_clock; fprintf(stderr, desc);for(auto kv:map){fprintf(stderr, "(%s : %lu) ", kv.first.c_str(), kv.second);} fprintf(stderr, "\n");\
 }}
 
 #define print_trace(){ if(DEBUG_IF_FLAG) {\
