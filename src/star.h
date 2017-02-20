@@ -9,16 +9,18 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <functional>
 
 class star_t{
     public:
         star_t(const std::vector<std::string>&);
         tree_t get_tree();
     private:
-        void calc_average_distances(std::vector<tree_t>&);
+        void calc_average_distances();
         void make_tree();
 
         tree_t _final_tree;
         std::vector<double> _avg_dists;
+        std::vector<tree_t> _tree_collection;
         std::unordered_map<std::string, size_t> _label_map;
 };
