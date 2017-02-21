@@ -96,3 +96,14 @@ tree_t star_t::get_tree(const vector<double>& v){
     calc_average_distances();
     return nj(_avg_dists, invert_label_map(_label_map));
 }
+
+size_t star_t::get_size(){
+    size_t max = 0;
+    for(const auto& t:_tree_collection){
+       size_t tmp = t.get_depth();
+       if(max < tmp){
+           max = tmp;
+       }
+    }
+    return max;
+}

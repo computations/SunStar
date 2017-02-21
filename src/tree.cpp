@@ -375,13 +375,8 @@ string tree_t::print_labels() const{
 }
 
 void tree_t::set_weights(function<double(size_t)> w_func, double max ){
-    size_t depth = 0;
-    for(auto n : _unroot){
-        size_t tmp_d = n->calc_max_depth();
-        if(tmp_d > depth) depth = tmp_d;
-    }
+    size_t depth = get_depth();
     debug_print("max depth: %lu", depth);
-    if(_unroot.size() == 1) depth-=1;
     for(size_t i=0;i<depth;++i){
         max+=w_func(i);
         debug_print("w_func(%lu)=%f", i, w_func(i));
@@ -434,4 +429,14 @@ void tree_t::sort(){
             }
         }
     }
+}
+
+size_t tree_t::get_depth() const{
+    size_t max=0;
+    for(auto& n:_unroot){
+        size_t tmp = n->calc_max_depth();
+        if(max<tmp) max = tmp;
+    }
+    if(_unroot.size() == 1) max-=1;
+    return max;
 }

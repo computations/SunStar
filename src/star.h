@@ -17,6 +17,7 @@ class star_t{
         tree_t get_tree();
         tree_t get_tree(const std::function<double(size_t)>&);
         tree_t get_tree(const std::vector<double>&);
+        size_t get_size();
     private:
         void calc_average_distances();
 

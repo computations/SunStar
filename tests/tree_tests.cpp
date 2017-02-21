@@ -211,3 +211,8 @@ TEST_CASE("tree, setting weights with a function","[tree]"){
     auto s = t1.to_string();
     REQUIRE(s == "(a:2.2,b:2.2);");
 }
+
+TEST_CASE("tree, getting the correct depth", "[tree]"){
+    tree_t t(tree_strings.back());
+    REQUIRE(t.get_depth() == 4);
+}

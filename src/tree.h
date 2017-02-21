@@ -74,6 +74,8 @@ class tree_t{
         void calc_distance_matrix(const std::unordered_map<std::string, size_t>&, double*);
         double calc_distance(node_t*, node_t*);
 
+        size_t get_depth() const;
+
         double parent_distance(node_t* child, node_t* parent);
         void set_weights(const std::vector<double>&, double max=1.0);
         void set_weights(std::function<double(size_t)>, double max = 1.0);
