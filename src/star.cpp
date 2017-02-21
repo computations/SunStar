@@ -19,7 +19,8 @@ using std::string;
 #include <unordered_map>
 using std::unordered_map;
 
-#include <iostream>
+#include <functional>
+using std::function;
 
 inline void init_array(double* v, size_t s){
     for(size_t i =0;i<s*s;++i){
@@ -32,8 +33,6 @@ star_t::star_t(const vector<string>& newick_trees){
     for(auto &&s : newick_trees){
         _tree_collection.emplace_back(s);
     }
-    calc_average_distances();
-    make_tree();
 }
 
 void star_t::calc_average_distances(){
@@ -77,10 +76,23 @@ vector<string> invert_label_map(unordered_map<string, size_t> lm){
     return ret;
 }
 
-void star_t::make_tree(){
-    _final_tree = nj(_avg_dists, invert_label_map(_label_map));
+tree_t star_t::get_tree(){
+    calc_average_distances();
+    return nj(_avg_dists, invert_label_map(_label_map));
 }
 
-tree_t star_t::get_tree(){
-    return _final_tree;
+tree_t star_t::get_tree(const function<double(size_t)>& f){
+    for(auto& t:_tree_collection){
+        t.set_weights(f);
+    }
+    calc_average_distances();
+    return nj(_avg_dists, invert_label_map(_label_map));
+}
+
+tree_t star_t::get_tree(const vector<double>& v){
+    for(auto& t:_tree_collection){
+        t.set_weights(v);
+    }
+    calc_average_distances();
+    return nj(_avg_dists, invert_label_map(_label_map));
 }

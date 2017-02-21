@@ -15,11 +15,11 @@ class star_t{
     public:
         star_t(const std::vector<std::string>&);
         tree_t get_tree();
+        tree_t get_tree(const std::function<double(size_t)>&);
+        tree_t get_tree(const std::vector<double>&);
     private:
         void calc_average_distances();
-        void make_tree();
 
-        tree_t _final_tree;
         std::vector<double> _avg_dists;
         std::vector<tree_t> _tree_collection;
         std::unordered_map<std::string, size_t> _label_map;

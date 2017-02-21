@@ -63,6 +63,28 @@ TEST_CASE("star, two large cloned trees", "[star][regression]"){
 
 }
 
+TEST_CASE("star, with weight schedule as vector", "[star][regression]"){
+    std::string newick_tree = "(((a,b),(c,d)),(((e,f),g),h));";
+    std::vector<double> v = {1.0, 2.0, 3.0, 4.0, 5.0};
+
+    star_t s({newick_tree});
+    auto star_tree = s.get_tree(v);
+    star_tree.sort();
+    star_tree.clear_weights();
+    REQUIRE(star_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
+}
+
+TEST_CASE("star, with weight schedule as function", "[star][regression]"){
+    std::string newick_tree = "(((a,b),(c,d)),(((e,f),g),h));";
+    auto f = [](size_t d) {return 2.0*d;};
+
+    star_t s({newick_tree});
+    auto star_tree = s.get_tree(f);
+    star_tree.sort();
+    star_tree.clear_weights();
+    REQUIRE(star_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
+}
+
 TEST_CASE("star, massive trees from ASTRID","[star][astrid]"){
     std::string astrid_tree_string = "(((Tree_Shrew,((Rabbit,Pika),(Squirrel,(Guinea_Pig,(Kangaroo_Rat,(Rat,Mouse)))))),((Mouse_Lemur,Galagos),(Tarsier,(Marmoset,(Macaque,(Orangutan,(Gorilla,(Human,Chimpanzee)))))))),((Shrew,Hedgehog),((Megabat,Microbat),((Alpaca,(Pig,(Dolphin,Cow))),(Horse,(Cat,Dog))))),(((Armadillos,Sloth),(Lesser_Hedgehog_Tenrec,(Elephant,Hyrax))),((Wallaby,Opossum),(Platypus,Chicken))));";
     std::string astrid_tree_isomorphic = "((Alpaca,((Cow,Dolphin),Pig)),((((((Armadillos,Sloth),((Elephant,Hyrax),Lesser_Hedgehog_Tenrec)),((Chicken,Platypus),(Opossum,Wallaby))),((((((((Chimpanzee,Human),Gorilla),Orangutan),Macaque),Marmoset),Tarsier),(Galagos,Mouse_Lemur)),((((Guinea_Pig,(Kangaroo_Rat,(Mouse,Rat))),Squirrel),(Pika,Rabbit)),Tree_Shrew))),(Hedgehog,Shrew)),(Megabat,Microbat)),((Cat,Dog),Horse));";
