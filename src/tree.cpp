@@ -409,11 +409,12 @@ void tree_t::set_weights_constant(double c){
     }
 }
 
-void tree_t::clear_weights(){
+tree_t& tree_t::clear_weights(){
     set_weights_constant(0.0);
+    return *this;
 }
 
-void tree_t::sort(){
+tree_t& tree_t::sort(){
     assert_string(_unroot.size() <= 3, "the unroot is has a size different than expected");
     vector<string> label_vector;
     label_vector.reserve(3);
@@ -429,6 +430,7 @@ void tree_t::sort(){
             }
         }
     }
+    return *this;
 }
 
 size_t tree_t::get_depth() const{

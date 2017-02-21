@@ -81,9 +81,9 @@ class tree_t{
         void set_weights(std::function<double(size_t)>, double max = 1.0);
         void set_weights(double, double max = 1.0);
         void set_weights_constant(double);
-        void clear_weights();
+        tree_t& clear_weights();
 
-        void sort();
+        tree_t& sort();
 
     private:
 

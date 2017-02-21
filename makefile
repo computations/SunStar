@@ -8,7 +8,7 @@ SRCDIR=src
 TSTDIR=tests
 
 TEST_SOURCES := $(shell find $(TSTDIR) -name '*cpp')
-RELEASE_OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o nj.o)
+RELEASE_OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o nj.o gstar.o)
 TEST_OBJS := $(addprefix $(OBJDIR)/, $(TEST_SOURCES:$(TSTDIR)/%.cpp=%.o))
 
 all: debug
