@@ -2,6 +2,7 @@
 #include "star.h"
 #include "debug.h"
 #include "nj.h"
+#include "gstar.h"
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -9,37 +10,45 @@ using std::endl;
 using std::vector;
 #include <string>
 using std::string;
+#include <fstream>
+using std::ifstream;
+#include <getopt.h>
 
+int main(int argc, char** argv){
+    int c;
+    std::string filename;
+    while(true){
+        static struct option long_options[] = 
+        {
+            {"filename",    required_argument,  0,   'f'},
+            {0,0,0,0}
+        };
+        int option_index = 0;
+        c = getopt_long(argc, argv, "f:", long_options, &option_index);
+        if(c==-1){
+            break;
+        }
+        switch(c){
+            case 'f':
+                filename = string(optarg);
+                break;
+            default:
+                break;
+        }
+    }
+    std::cout<<filename<<std::endl;
+    ifstream newick_string_file(filename.c_str());
+    std::string line;
+    std::vector<std::string> newick_strings;
 
-int main(){
+    while(std::getline(newick_string_file, line)){
+        newick_strings.emplace_back(line);
+    }
 
-    vector<string> tree_strings = 
-        {"((a:1.0,b:1.0):1.0,(c:1.0,d:1.0):1.0);",
-         "((b:1.0,c:1.0):1.0,(a:1.0,d:1.0):1.0);"};
-
-    //tree_t tests
-    tree_t t1(tree_strings[0]);
-    tree_t t2(tree_strings[1]);
-
-    t1.sort();
-    cout<<t1.to_string()<<endl;
-    cout<<t1.print_labels()<<endl;
-    cout<<t2.to_string()<<endl;
-    cout<<t2.print_labels()<<endl;
-
-    t1.set_weights([](size_t d){ return d*2.56;});
-    cout<<t1.to_string()<<endl;
-    t1.set_weights({1,3,4,5,6,7,8,9});
-    cout<<t1.to_string()<<endl;
-
-    //star tests
-    star_t star(tree_strings);
-    auto t = star.get_tree();
-
-    cout<<t.print_labels()<<endl;
-    cout<<t.to_string()<<endl;
-    t.sort();
-    cout<<"tree string:"<<t.to_string()<<endl;
-
+    auto trees = gstar(newick_strings);
+    for(const auto& kv:trees){
+        std::cout<<kv.first<<kv.second<<std::endl;
+    }
+    
     return 0;
 }
