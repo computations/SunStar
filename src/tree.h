@@ -97,3 +97,5 @@ class tree_t{
         node_t* _tree;
         size_t _size;
 };
+
+std::ostream& operator<<(std::ostream& os, const tree_t& t);

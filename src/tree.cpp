@@ -442,3 +442,7 @@ size_t tree_t::get_depth() const{
     if(_unroot.size() == 1) max-=1;
     return max;
 }
+
+std::ostream& operator<<(std::ostream& os, const tree_t& t){
+    return os<<t.to_string();
+}

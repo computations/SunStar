@@ -14,6 +14,13 @@ using std::string;
 using std::ifstream;
 #include <getopt.h>
 
+void print_usage(){
+    std::cout<<
+    "Usage: gstar [options]\n"<<
+    "Application Options:\n"<<
+    "    -f, --filename      Filename for the set of gene trees in Newick notation\n";
+}
+
 int main(int argc, char** argv){
     int c;
     std::string filename;
@@ -36,7 +43,10 @@ int main(int argc, char** argv){
                 break;
         }
     }
-    std::cout<<filename<<std::endl;
+    if(filename.empty()){
+        print_usage();
+        return 1;
+    }
     ifstream newick_string_file(filename.c_str());
     std::string line;
     std::vector<std::string> newick_strings;
