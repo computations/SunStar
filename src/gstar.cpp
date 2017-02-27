@@ -9,6 +9,18 @@ using std::string;
 #include <vector>
 using std::vector;
 #include <utility>
+#include <random>
+
+vector<std::pair<string, double>> make_return_vector(
+        const unordered_map<string, int>& counts, size_t trials){
+    vector<std::pair<string, double>> ret;
+    for(auto&& kv : counts){
+        double ratio = ((double)kv.second)/(trials+1);
+        ret.push_back(std::make_pair(kv.first, ratio));
+    }
+    return ret;
+}
+
 
 /*
  * Since we can set the weights on the tree to various weights, as long as we
@@ -40,10 +52,32 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings){
         counts[s] +=1;
     }
 
-    vector<std::pair<string, double>> ret;
-    for(auto&& kv : counts){
-        double ratio = ((double)kv.second)/(max_depth+1);
-        ret.push_back(std::make_pair(kv.first, ratio));
+    return make_return_vector(counts, max_depth);
+}
+
+vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
+        const string& filename, size_t trials){
+    star_t star(newick_strings);
+    size_t max_depth = star.get_size();
+    vector<double> schedule (max_depth, 0.0);
+    unordered_map<string, int> counts;
+
+    std::mt19937 gen(std::random_device());
+    std::normal_distribution<> d(1,0);
+
+    for(size_t i = 0; i < trials; i++){
+        double tmp;
+        //Need to randomize the schedule
+        while((tmp = d(gen)) < 0){
+            schedule[0] = tmp;
+        }
+        for(size_t k = 1; k < schedule.size(); ++i){
+            while((tmp = d(gen)) < 0){
+                schedule[k] = schedule[k-1]+tmp;
+            }
+        }
+        string s = star.get_tree(schedule).sort().clear_weights().to_string();
+        counts[s]+=1;
     }
-    return ret;
+    return make_return_vector(counts, trials);
 }
