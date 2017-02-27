@@ -114,6 +114,101 @@ size_t node_t::calc_max_depth(){
     return 1;
 }
 
+/*
+ * Set root sets the root of the tree, based on the outgroup. This is after the
+ * outgroup is found on the tree. The outgroup is assumed to be on the tree. We
+ * want to make
+ *              O
+ *              |
+ *              .
+ *              .
+ *              .
+ *              |
+ *              r
+ *             / \
+ *            B   C
+ * Into
+ *              p
+ *             / \
+ *            O   .
+ *                .
+ *                .
+ *                |
+ *                r
+ *               / \
+ *              A   B
+ *
+ * Where O is the outgroup, r is the old unroot, and A,B are subtrees. We want
+ * to make the new node p which is the root of the whole tree. To do this, we
+ * need to add a node to the tree, (the root). Since there is a reallocate and
+ * copy, we might as well make a new flat tree using the unroot. 
+ *
+ *              O
+ *              |
+ *              o
+ *             / \
+ *            A   B
+ *
+ * So, let O be the left child of o (if its not, make it so by swapping the
+ * left and right child). This is guaranteed since O is a child, and so the
+ * parent cannot be pointing towards O. We make a new node p, which has as its
+ * children O, and the node o (which will need to be reoriented so that the
+ * parent points "up"). Since O is the left child of O, we replace O with p as
+ * o's left child, and swap the left child and the parent. This yeilds the tree
+ * below
+ *
+ *              p
+ *             / \
+ *            O   o
+ *               / \
+ *              A   B
+ *
+ * Note that A and B might still have the wrong orientation, so we need to call
+ * the recursive funciton swap_parent on them to reorient them to point to the
+ * right root.
+ */
+void tree_t::set_root(node_t* outgroup){
+    node_t* ur = new node_t;
+    ur->_parent = _unroot[0];
+    ur->_lchild = _unroot[1];
+    ur->_rchild = _unroot[2];
+
+    _unroot.clear();
+    _unroot.push_back(outgroup);
+
+    ur->_lchild->_parent = ur;
+    ur->_rchild->_parent = ur;
+    ur->_parent->_parent = ur;
+    
+    node_t* p = outgroup->_parent;
+    if(outgroup != p->_lchild) std::swap(p->_lchild, p->_rchild);
+    _unroot.push_back(p);
+    p->_lchild=nullptr;
+    p->swap_parent(nullptr);
+
+    make_flat_tree(_unroot);
+}
+
+/*
+ * A function to reorient the tree, because we moved the root. When we move the
+ * root, the direction of the parents is wrong. Specifically, for an interior
+ * node that WASN'T the unroot, two children will be pointing at each other. So
+ * to fix, we need to swap the mismatched child with the parent to make the
+ * direections add up. So, call this funciton with the address of the new
+ * parent. We swap and recurse. Eventually, the orientation is correct, and we
+ * can stop.
+ */
+void node_t::swap_parent(node_t* p){
+    if(p == _lchild){
+        std::swap(_parent,_lchild);
+        _lchild->swap_parent(this);
+    }
+    else if(p == _rchild){
+        std::swap(_parent,_rchild);
+        _rchild->swap_parent(this);
+    }
+}
+
 node_t* node_factory(node_t* lchild, node_t* rchild){
     node_t* ret = new node_t;
     debug_print("lchild to_string: %s, rchild to_string: %s",
@@ -442,6 +537,8 @@ size_t tree_t::get_depth() const{
     if(_unroot.size() == 1) max-=1;
     return max;
 }
+
+
 
 std::ostream& operator<<(std::ostream& os, const tree_t& t){
     return os<<t.to_string();
