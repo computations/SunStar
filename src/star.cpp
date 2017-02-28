@@ -107,3 +107,9 @@ size_t star_t::get_size(){
     }
     return max;
 }
+
+void star_t::set_outgroup(const string& outgroup){
+    for(auto& t:_tree_collection){
+        t.set_outgroup(outgroup);
+    }
+}

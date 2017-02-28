@@ -212,6 +212,13 @@ TEST_CASE("tree, setting weights with a function","[tree]"){
     REQUIRE(s == "(a:2.2,b:2.2);");
 }
 
+TEST_CASE("tree, setting weights on a larger tree", "[tree]"){
+    tree_t t(tree_strings[4]);
+    t.set_weights([](size_t) ->double {return 1.0;});
+    string s= t.sort().to_string();
+    REQUIRE(s == "(((a:2.0,b:2.0):1.0,(c:2.0,d:2.0):1.0):0.5,(((e:1.0,f:1.0):1.0,g:2.0):1.0,h:3.0):0.5);");
+}
+
 TEST_CASE("tree, getting the correct depth", "[tree]"){
     tree_t t(tree_strings.back());
     REQUIRE(t.get_depth() == 4);

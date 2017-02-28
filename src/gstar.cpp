@@ -2,6 +2,7 @@
 //Ben Bettisworth
 //2017-02-20
 #include "gstar.h"
+#include "debug.h"
 #include <unordered_map>
 using std::unordered_map;
 #include <string>
@@ -33,6 +34,7 @@ void write_sequence_to_file(const vector<double>& s, string newick_string,
             outfile<<',';
         }
     }
+    outfile<<"\n";
 }
 
 /*
@@ -48,8 +50,12 @@ void write_sequence_to_file(const vector<double>& s, string newick_string,
  * the tree as a ratio. The ratio is the number of times the tree was produce
  * over the total trials.
  */
-vector<std::pair<string, double>> gstar(const vector<string>& newick_strings){
+vector<std::pair<string, double>> gstar(const vector<string>& newick_strings, 
+        string outgroup){
     star_t star(newick_strings);
+    if(!outgroup.empty()){
+        star.set_outgroup(outgroup);
+    }
     size_t max_depth = star.get_size();
     vector<double> schedule(max_depth, 1.0);
     unordered_map<string, int> counts;
@@ -69,8 +75,11 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings){
 }
 
 vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
-        const string& filename, size_t trials){
+        const string& filename, size_t trials, string outgroup){
     star_t star(newick_strings);
+    if(!outgroup.empty()){
+        star.set_outgroup(outgroup);
+    }
     size_t max_depth = star.get_size();
     vector<double> schedule (max_depth, 0.0);
     unordered_map<string, int> counts;
@@ -78,18 +87,18 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
     ofstream outfile(filename.c_str());
 
     std::mt19937 gen((std::random_device())());
-    std::normal_distribution<> d(1,0);
+    std::normal_distribution<> d(1.0,1.0);
 
     for(size_t i = 0; i < trials; i++){
-        double tmp;
+        double tmp = 0.0;
         //Need to randomize the schedule
-        while((tmp = d(gen)) < 0){
-            schedule[0] = tmp;
-        }
-        for(size_t k = 1; k < schedule.size(); ++i){
-            while((tmp = d(gen)) < 0){
-                schedule[k] = schedule[k-1]+tmp;
-            }
+        while((tmp = d(gen)) < 0){}
+        debug_print("setting schedule[0]: %f", tmp);
+        schedule[0] = tmp;
+        for(size_t k = 1; k < schedule.size(); ++k){
+            while((tmp = d(gen)) < 0){ }
+            debug_print("setting schedule[%lu]: %f, tmp: %f", k, schedule[k-1] + tmp, tmp);
+            schedule[k] = schedule[k-1]+tmp;
         }
         string s = star.get_tree(schedule).sort().clear_weights().to_string();
         write_sequence_to_file(schedule, s, outfile);

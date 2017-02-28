@@ -531,7 +531,7 @@ string tree_t::print_labels() const{
     return ret.str();
 }
 
-void tree_t::set_weights(function<double(size_t)> w_func, double max ){
+void tree_t::set_weights(function<double(size_t)> w_func, double max){
     size_t depth = get_depth();
     debug_print("max depth: %lu", depth);
     for(size_t i=0;i<depth;++i){
