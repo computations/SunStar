@@ -72,6 +72,8 @@ class tree_t{
 
         std::unordered_map<std::string, size_t> make_label_map();
 
+        bool is_rooted();
+
         std::vector<double> calc_distance_matrix();
         double* calc_distance_matrix(const std::unordered_map<std::string, size_t>&);
         void calc_distance_matrix(const std::unordered_map<std::string, size_t>&, double*);
@@ -79,7 +81,7 @@ class tree_t{
 
         size_t get_depth() const;
         
-        void set_outgroup(std::string);
+        void set_outgroup(const std::string& );
 
         double parent_distance(node_t* child, node_t* parent);
         void set_weights(const std::vector<double>&, double max=1.0);
@@ -94,6 +96,7 @@ class tree_t{
 
         void make_flat_tree(const std::vector<node_t*>&);
         void set_root(node_t*);
+        void make_unrooted();
 
         //for unrooted trees, we can thing of them as being 3 unrooted trees
         //we join them together in a vector

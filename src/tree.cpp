@@ -168,25 +168,47 @@ size_t node_t::calc_max_depth(){
  * right root.
  */
 void tree_t::set_root(node_t* outgroup){
+    debug_string("making a new node");
     node_t* ur = new node_t;
+
+    if(is_rooted()){
+        debug_string("tree is rooted, unrooting it");
+        make_unrooted();
+    }
+
     ur->_parent = _unroot[0];
     ur->_lchild = _unroot[1];
     ur->_rchild = _unroot[2];
 
+    debug_string("clearing the old unroot, and pushing back the outgroup");
     _unroot.clear();
     _unroot.push_back(outgroup);
 
+    debug_string("setting the unroots children's parents to the new node");
     ur->_lchild->_parent = ur;
     ur->_rchild->_parent = ur;
     ur->_parent->_parent = ur;
     
     node_t* p = outgroup->_parent;
-    if(outgroup != p->_lchild) std::swap(p->_lchild, p->_rchild);
+    if(outgroup != p->_lchild){ 
+        debug_string("swapping the new outgroups parent's children");
+        std::swap(p->_lchild, p->_rchild);
+    }
     _unroot.push_back(p);
     p->_lchild=nullptr;
+    debug_string("starting to swap parent");
     p->swap_parent(nullptr);
 
     make_flat_tree(_unroot);
+}
+
+void tree_t::set_outgroup(const string& outgroup){
+    node_t* o = nullptr;
+    for(size_t i = 0;i<_size;++i){
+        if(_tree[i]._label == outgroup) o = _tree+i;
+    }
+    assert_string(o!=nullptr, "could not find outgroup label");
+    set_root(o);
 }
 
 /*
@@ -208,6 +230,7 @@ void node_t::swap_parent(node_t* p){
         _rchild->swap_parent(this);
     }
 }
+
 
 node_t* node_factory(node_t* lchild, node_t* rchild){
     node_t* ret = new node_t;
@@ -538,7 +561,34 @@ size_t tree_t::get_depth() const{
     return max;
 }
 
+bool tree_t::is_rooted(){
+    return _unroot.size()==2;
+}
 
+void tree_t::make_unrooted(){
+    assert_string(is_rooted(),"trying to unroot a tree, its already unrooted");
+    assert_string(_size>2,"tree too small to unroot");
+
+    node_t* tmp_n = nullptr;
+    int idx = 0;
+    for(size_t i = 0; i < _unroot.size(); ++i){
+        if(_unroot[i]->_children){ 
+            tmp_n = _unroot[i];
+            idx = i;
+            break;
+        }
+    }
+    assert_string(tmp_n != nullptr, "could not find node to reroot");
+    _unroot.erase(_unroot.begin()+idx);
+    _unroot.push_back(tmp_n->_lchild);
+    _unroot.push_back(tmp_n->_rchild);
+    tmp_n->_lchild->_parent=nullptr;
+    tmp_n->_rchild->_parent=nullptr;
+    tmp_n->_lchild = nullptr;
+    tmp_n->_rchild = nullptr;
+    delete tmp_n;
+    make_flat_tree(_unroot);
+}
 
 std::ostream& operator<<(std::ostream& os, const tree_t& t){
     return os<<t.to_string();

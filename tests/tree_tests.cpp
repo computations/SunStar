@@ -216,3 +216,9 @@ TEST_CASE("tree, getting the correct depth", "[tree]"){
     tree_t t(tree_strings.back());
     REQUIRE(t.get_depth() == 4);
 }
+
+TEST_CASE("tree, testing setting root by outgroup", "[tree]"){
+    tree_t t(tree_strings[1]);
+    t.set_outgroup("a");
+    REQUIRE(t.sort().to_string() == tree_strings[1]);
+}
