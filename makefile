@@ -1,4 +1,4 @@
-CXX=g++
+CXX=clang++
 CFLAGS=-Wall -Wextra -std=c++14 
 DFLAGS=
 IFLAGS=

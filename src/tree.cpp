@@ -44,14 +44,14 @@ size_t node_t::count_nodes(){
     return children+1;
 }
 
-void node_t::update_children(const unordered_map<node_t*, node_t*> node_map){
-    if(_parent)
-        _parent = node_map.at(_parent);
+void node_t::update_children(const unordered_map<node_t*, node_t*> node_map,
+        node_t* p){
+    _parent = p;
     if(_children){
         _lchild = node_map.at(_lchild);
         _rchild = node_map.at(_rchild);
-        _lchild->update_children(node_map);
-        _rchild->update_children(node_map);
+        _lchild->update_children(node_map, this);
+        _rchild->update_children(node_map, this);
     }
 }
 
@@ -141,7 +141,7 @@ size_t node_t::calc_max_depth(){
  * Where O is the outgroup, r is the old unroot, and A,B are subtrees. We want
  * to make the new node p which is the root of the whole tree. To do this, we
  * need to add a node to the tree, (the root). Since there is a reallocate and
- * copy, we might as well make a new flat tree using the unroot. 
+ * copy, we might as well make a new flat tree using the unroot.
  *
  *              O
  *              |
@@ -166,19 +166,41 @@ size_t node_t::calc_max_depth(){
  * Note that A and B might still have the wrong orientation, so we need to call
  * the recursive funciton swap_parent on them to reorient them to point to the
  * right root.
+ *
+ * TODO: refactor
  */
 void tree_t::set_root(node_t* outgroup){
     debug_string("making a new node");
     node_t* ur = new node_t;
+    debug_print("outgroup: %p", outgroup);
+    debug_print("_unroot.size(): %lu", _unroot.size());
 
-    if(is_rooted()){
-        debug_string("tree is rooted, unrooting it");
-        make_unrooted();
+    if(outgroup->_parent==nullptr){
+        node_t* tmp = new node_t;
+        //find the two that aren't the outgroup   
+        
+        size_t idx;
+        for(idx = 0; idx < _unroot.size(); ++idx){
+            if(_unroot[idx] == outgroup) break;
+        }
+        _unroot.erase(_unroot.begin()+idx);
+        tmp->_lchild = _unroot[0];
+        tmp->_rchild = _unroot[1];
+        tmp->_children = true;
+        tmp->_rchild->_parent = tmp;
+        tmp->_lchild->_parent = tmp;
+
+        _unroot.clear();
+        _unroot.push_back(outgroup);
+        _unroot.push_back(tmp);
+        return;
     }
 
     ur->_parent = _unroot[0];
     ur->_lchild = _unroot[1];
     ur->_rchild = _unroot[2];
+    debug_print("ur->_parent: %p, ur->_lchild: %p, ur->_rchild: %p", ur->_parent,
+            ur->_lchild, ur->_rchild);
 
     debug_string("clearing the old unroot, and pushing back the outgroup");
     _unroot.clear();
@@ -188,21 +210,33 @@ void tree_t::set_root(node_t* outgroup){
     ur->_lchild->_parent = ur;
     ur->_rchild->_parent = ur;
     ur->_parent->_parent = ur;
-    
+    ur->_children = true;
+    debug_print("ur->_parent->_parent: %p, ur->_lchild->_parent: %p, ur->_rchild->_parent: %p",
+            ur->_parent->_parent, ur->_lchild->_parent, ur->_rchild->_parent);
+
     node_t* p = outgroup->_parent;
-    if(outgroup != p->_lchild){ 
+    outgroup->_parent = nullptr;
+    debug_print("p: %p, p->_parent: %p", p, p->_parent);
+    if(outgroup != p->_lchild){
         debug_string("swapping the new outgroups parent's children");
         std::swap(p->_lchild, p->_rchild);
     }
     _unroot.push_back(p);
     p->_lchild=nullptr;
-    debug_string("starting to swap parent");
+    debug_print("p->_parent: %p, p->_lchild: %p, p->_rchild: %p", p->_parent,
+            p->_lchild, p->_rchild);
     p->swap_parent(nullptr);
-
-    make_flat_tree(_unroot);
+    debug_print("p->_parent: %p, p->_lchild: %p, p->_rchild: %p", p->_parent,
+            p->_lchild, p->_rchild);
+    make_flat_tree(std::vector<node_t*>(_unroot));
 }
 
 void tree_t::set_outgroup(const string& outgroup){
+    if(is_rooted()){
+        debug_string("tree is rooted, unrooting it");
+        make_unrooted();
+    }
+    assert_string(_unroot.size() == 3, "not an unrooted tree");
     node_t* o = nullptr;
     for(size_t i = 0;i<_size;++i){
         if(_tree[i]._label == outgroup) o = _tree+i;
@@ -221,16 +255,19 @@ void tree_t::set_outgroup(const string& outgroup){
  * can stop.
  */
 void node_t::swap_parent(node_t* p){
+    debug_print("in %p, label: %s, _lchild: %p, _rchild: %p", this, 
+            _label.c_str(), _lchild, _rchild);
     if(p == _lchild){
+        debug_print("swapping _lchild: %p and _parent: %p", _lchild, _parent);
         std::swap(_parent,_lchild);
         _lchild->swap_parent(this);
     }
     else if(p == _rchild){
+        debug_print("swapping _rchild: %p and _parent: %p", _lchild, _parent);
         std::swap(_parent,_rchild);
         _rchild->swap_parent(this);
     }
 }
-
 
 node_t* node_factory(node_t* lchild, node_t* rchild){
     node_t* ret = new node_t;
@@ -262,9 +299,12 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
     debug_print("node_stack.size(): %lu", node_stack.size());
 
     while(!node_stack.empty()){
+        debug_print("node stack top: %p", node_stack.top());
         node_t* cur = node_stack.top(); node_stack.pop();
         debug_string(cur->to_string().c_str());
-        if(cur->_children){
+        if(cur->_lchild && cur->_rchild){
+            debug_print("pushing _lchild: %p and _rchild:%p", cur->_lchild,
+                    cur->_rchild);
             node_stack.push(cur->_lchild);
             node_stack.push(cur->_rchild);
             node_q.push(cur->_lchild);
@@ -274,6 +314,7 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
 
     _size = node_q.size();
     _tree = new node_t[_size];
+    debug_print("_tree pointer: %p, last element: %p", _tree, _tree+_size);
     size_t cur_index = 0;
 
     while(!node_q.empty()){
@@ -293,7 +334,7 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
         _unroot.back()->update_children(node_map);
         debug_string(_unroot.back()->to_string().c_str());
     }
-    debug_print("_tree pointer: %p", _tree);
+    debug_print("new tree to_string(): %s", to_string().c_str());
 }
 
 tree_t::tree_t(const vector<node_t*>& unroot){
@@ -464,7 +505,6 @@ string node_t::to_string(){
 
 string tree_t::to_string() const{
     ostringstream ret;
-    debug_print("_tree pointer: %p", _tree);
 
     if(_unroot.size()>1)
         ret<<"(";
@@ -562,32 +602,42 @@ size_t tree_t::get_depth() const{
 }
 
 bool tree_t::is_rooted(){
-    return _unroot.size()==2;
+    //_unroot.size() is a size_t, which is unsigned,
+    return _unroot.size()<=2;
 }
 
 void tree_t::make_unrooted(){
     assert_string(is_rooted(),"trying to unroot a tree, its already unrooted");
     assert_string(_size>2,"tree too small to unroot");
 
-    node_t* tmp_n = nullptr;
-    int idx = 0;
-    for(size_t i = 0; i < _unroot.size(); ++i){
-        if(_unroot[i]->_children){ 
-            tmp_n = _unroot[i];
-            idx = i;
-            break;
+    while(_unroot.size()!=3){
+        node_t* tmp_n = nullptr;
+        int idx = 0;
+        for(size_t i = 0; i < _unroot.size(); ++i){
+            if(_unroot[i]->_children){
+                tmp_n = _unroot[i];
+                idx = i;
+                break;
+            }
         }
+        debug_print("tmp_n: %p", tmp_n);
+        assert_string(tmp_n != nullptr, "could not find node to reroot");
+        _unroot.erase(_unroot.begin()+idx);
+        debug_print("pushing _lchild: %p and _rchild: %p", tmp_n->_lchild,
+                tmp_n->_rchild);
+        debug_print("before pushing children _unroot.size(): %lu", _unroot.size());
+        _unroot.push_back(tmp_n->_lchild);
+        _unroot.push_back(tmp_n->_rchild);
+        debug_print("after pushing children, _unroot.size(): %lu", _unroot.size());
+        tmp_n->_lchild->_parent=nullptr;
+        tmp_n->_rchild->_parent=nullptr;
+        tmp_n->_lchild = nullptr;
+        tmp_n->_rchild = nullptr;
+        tmp_n->_children = false;
+        debug_print("tmp_n: %p", tmp_n);
     }
-    assert_string(tmp_n != nullptr, "could not find node to reroot");
-    _unroot.erase(_unroot.begin()+idx);
-    _unroot.push_back(tmp_n->_lchild);
-    _unroot.push_back(tmp_n->_rchild);
-    tmp_n->_lchild->_parent=nullptr;
-    tmp_n->_rchild->_parent=nullptr;
-    tmp_n->_lchild = nullptr;
-    tmp_n->_rchild = nullptr;
-    delete tmp_n;
-    make_flat_tree(_unroot);
+    make_flat_tree(vector<node_t*>(_unroot));
+    debug_print("unroot size after making flat: %lu", _unroot.size());
 }
 
 std::ostream& operator<<(std::ostream& os, const tree_t& t){

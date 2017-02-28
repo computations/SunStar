@@ -217,8 +217,32 @@ TEST_CASE("tree, getting the correct depth", "[tree]"){
     REQUIRE(t.get_depth() == 4);
 }
 
-TEST_CASE("tree, testing setting root by outgroup", "[tree]"){
+TEST_CASE("tree, testing setting root by outgroup string 1", "[tree]"){
     tree_t t(tree_strings[1]);
     t.set_outgroup("a");
-    REQUIRE(t.sort().to_string() == tree_strings[1]);
+    REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,(c,d)));");
+}
+
+TEST_CASE("tree, testing setting root by outgroup string 2", "[tree]"){
+    tree_t t(tree_strings[2]);
+    t.set_outgroup("a");
+    REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,(c,(d,e))));");
+}
+
+TEST_CASE("tree, testing setting root by outgroup string 3", "[tree]"){
+    tree_t t(tree_strings[3]);
+    t.set_outgroup("a");
+    REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,((c,(d,e)),f)));");
+}
+
+TEST_CASE("tree, testing setting root by outgroup string 3, different taxa", "[tree]"){
+    tree_t t(tree_strings[3]);
+    t.set_outgroup("c");
+    REQUIRE(t.sort().clear_weights().to_string() == "((((a,b),f),(d,e)),c);");
+}
+
+TEST_CASE("tree, testing setting root by outgroup string 3, 'identity' taxa", "[tree]"){
+    tree_t t(tree_strings[3]);
+    t.set_outgroup("f");
+    REQUIRE(t.sort().clear_weights().to_string() == tree_strings[3]);
 }

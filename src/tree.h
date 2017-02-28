@@ -33,7 +33,7 @@ class node_t{
         void set_weights(std::function<double(size_t)>, size_t, double);
         void set_weights_as_root(std::function<double(size_t)>, size_t, double);
         size_t calc_max_depth();
-        void update_children(std::unordered_map<node_t*, node_t*>);
+        void update_children(std::unordered_map<node_t*, node_t*>, node_t* p = nullptr);
         std::string sort();
 
         void swap_parent(node_t*);
