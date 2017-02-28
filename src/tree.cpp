@@ -77,7 +77,7 @@ void node_t::set_weights(function<double(size_t)> w_func, size_t depth,
     else{
         _lchild->set_weights(w_func, depth+1, max);
         _rchild->set_weights(w_func, depth+1, max);
-        _weight = w_func(depth);
+        _weight = (depth==0) ? w_func(depth)/2.0 : w_func(depth);
     }
 }
 
@@ -177,8 +177,7 @@ void tree_t::set_root(node_t* outgroup){
 
     if(outgroup->_parent==nullptr){
         node_t* tmp = new node_t;
-        //find the two that aren't the outgroup   
-        
+        //find the two that aren't the outgroup
         size_t idx;
         for(idx = 0; idx < _unroot.size(); ++idx){
             if(_unroot[idx] == outgroup) break;
@@ -255,7 +254,7 @@ void tree_t::set_outgroup(const string& outgroup){
  * can stop.
  */
 void node_t::swap_parent(node_t* p){
-    debug_print("in %p, label: %s, _lchild: %p, _rchild: %p", this, 
+    debug_print("in %p, label: %s, _lchild: %p, _rchild: %p", this,
             _label.c_str(), _lchild, _rchild);
     if(p == _lchild){
         debug_print("swapping _lchild: %p and _parent: %p", _lchild, _parent);

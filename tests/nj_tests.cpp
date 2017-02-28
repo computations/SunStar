@@ -116,7 +116,7 @@ TEST_CASE("nj, from small tree distance matrix", "[nj]"){
 TEST_CASE("nj, from medium tree distance matrix", "[nj]"){
     std::string newick_string ="((a,b),(c,(d,e)));";
     tree_t t(newick_string);
-    t.set_weights(1.0);
+    t.set_weights_constant(1.0);
     auto dists = t.calc_distance_matrix();
     auto lm = t.make_label_map();
     std::vector<std::string> invlm;
