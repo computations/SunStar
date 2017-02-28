@@ -10,6 +10,8 @@ using std::string;
 using std::vector;
 #include <utility>
 #include <random>
+#include <fstream>
+using std::ofstream;
 
 vector<std::pair<string, double>> make_return_vector(
         const unordered_map<string, int>& counts, size_t trials){
@@ -21,6 +23,17 @@ vector<std::pair<string, double>> make_return_vector(
     return ret;
 }
 
+void write_sequence_to_file(const vector<double>& s, string newick_string,
+        ofstream& outfile){
+    
+    outfile<<"This newick string: "<<newick_string<<" using the sequence:\n\t";
+    for(size_t i = 0; i < s.size(); ++i){
+        outfile<<s[i];
+        if(i!=s.size()-1){
+            outfile<<',';
+        }
+    }
+}
 
 /*
  * Since we can set the weights on the tree to various weights, as long as we
@@ -62,7 +75,9 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
     vector<double> schedule (max_depth, 0.0);
     unordered_map<string, int> counts;
 
-    std::mt19937 gen(std::random_device());
+    ofstream outfile(filename.c_str());
+
+    std::mt19937 gen((std::random_device())());
     std::normal_distribution<> d(1,0);
 
     for(size_t i = 0; i < trials; i++){
@@ -77,6 +92,7 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
             }
         }
         string s = star.get_tree(schedule).sort().clear_weights().to_string();
+        write_sequence_to_file(schedule, s, outfile);
         counts[s]+=1;
     }
     return make_return_vector(counts, trials);
