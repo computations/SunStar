@@ -110,7 +110,7 @@ TEST_CASE("nj, from small tree distance matrix", "[nj]"){
     auto nj_tree =  nj(dists,invlm);
     nj_tree.sort();
     nj_tree.clear_weights();
-    REQUIRE(nj_tree.to_string() == "(a,b,(c,d));");
+    REQUIRE(nj_tree.to_string() == "((a,b),c,d);");
 }
 
 TEST_CASE("nj, from medium tree distance matrix", "[nj]"){

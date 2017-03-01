@@ -10,6 +10,7 @@
 using std::stack;
 #include <cctype>
 using std::isdigit;
+using std::isalpha;
 #include <string>
 using std::string;
 #include <memory>
@@ -55,75 +56,108 @@ double parse_weight(const string& newick_string, size_t& idx){
     return stod(newick_string.substr(start, end-start));
 }
 
-//make a tree from a string in newick notation, only a single tree per string.
-//specifically, it takes a tree of the form:
-//  ( (a:1.0 , b:2.0):2.0 , (c:1.0 , d:1.0):1.0 ):1.0; comments go here
-//comments are only supported after the semicolon
-node_t* make_tree_from_newick(const string& newick_string, size_t& tree_size){
-    debug_string("starting newick parse");
-
-    tree_size = scan_nodes(newick_string);
-    debug_print("tree size: %lu", tree_size);
-    node_t* tree = new node_t[tree_size];
-
+node_t* parse_subtree(const string& newick, size_t& idx, node_t*& next_node){
     stack<node_t*> node_stack;
-    node_stack.push(tree);
-    tree[0]._parent = tree;
-
-    size_t idx=0;
-    size_t current_node = 1;
-    debug_string("starting newick parse| while loop");
-    while(idx < newick_string.size()){
-        skip_whitespace(newick_string, idx);
-        char cur = newick_string[idx];
+    node_stack.push(next_node); next_node++;
+    node_stack.top()->_weight = 1.0;
+    while(idx < newick.size()){
+        skip_whitespace(newick, idx);
+        char cur = newick[idx];
         debug_print("current character: '%c', current idx: %lu",cur, idx);
-
         if(cur == '(' || cur == ','){
-            debug_string("found new taxa, pushing new node");
-            node_stack.push(tree+current_node);
-            current_node++; idx++;
-            node_stack.top()->_label = parse_label(newick_string, idx);
-            debug_print("new taxa label: %s", node_stack.top()->_label.c_str());
-            debug_string("setting weight on new taxa to 1.0");
+            debug_string("found new node, pushing onto the stack");
+            idx++;
+            node_stack.push(next_node);
+            next_node++;
+            node_stack.top()->_label = parse_label(newick, idx);
             node_stack.top()->_weight = 1.0;
         }
         else if(cur == ':'){
-            debug_string("found colon, parsing double");
+            debug_string("found ':', parsing weight");
             idx++;
-            node_stack.top()->_weight = parse_weight(newick_string, idx);
-            debug_print("new taxa weight: %f", node_stack.top()->_weight);
-            
+            node_stack.top()->_weight = parse_weight(newick, idx);
         }
         else if(cur == ')'){
-            debug_string("found ')', finishing subtree");
+            idx++;
+            debug_string("found ')', popping off the stack");
             node_t* tmp_l = node_stack.top(); node_stack.pop();
             node_t* tmp_r = node_stack.top(); node_stack.pop();
             node_stack.top()->_lchild = tmp_l;
             node_stack.top()->_rchild = tmp_r;
             tmp_l->_parent = node_stack.top();
             tmp_r->_parent = node_stack.top();
-            idx++;
+            debug_print("done popping off the stack, node_stack.size(): %lu", 
+                    node_stack.size());
+            if(node_stack.size() == 1){ break; }
         }
-        else if(cur == ' '){
-            continue;
-        }
-        else if(cur == ';'){
+        else if(isalpha(cur)){
+            debug_string("found a bare alpha, parsing label and breaking");
+            node_stack.top()->_label = parse_label(newick, idx);
+            node_stack.top()->_weight = 1.0;
             break;
         }
         else{
-            assert_string(false, "Didn't recongize the current character in while parsing newick notation");
+            assert_string(false, "could not recognize current character");
         }
     }
+    debug_string("broke out of while loop, doing cleanup");
+    if(newick[idx] == ':'){
+        debug_string("found subtree weight, parsing");
+        idx++;
+        node_stack.top()->_weight = parse_weight(newick, idx);
+    }
+    debug_string("returning the top of the stack");
+    return node_stack.top();
+}
+
+//make a tree from a string in newick notation, only a single tree per string.
+//specifically, it takes a tree of the form:
+//  ( (a:1.0 , b:2.0):2.0 , (c:1.0 , d:1.0):1.0 ):1.0; comments go here
+//comments are only supported after the semicolon
+std::vector<node_t*> make_tree_from_newick(const string& newick_string, size_t& tree_size){
+    debug_string("starting newick parse");
+
+    tree_size = scan_nodes(newick_string);
+    debug_print("tree size: %lu", tree_size);
+    node_t* tree = new node_t[tree_size];
+
+    size_t idx=0;
+    node_t* next_node = tree;
+    std::vector<node_t*> unroot;
+
+    debug_string("starting newick parse | while loop");
+    while(idx < newick_string.size() && newick_string[idx] != ';'){
+        char cur = newick_string[idx];
+        debug_print("current char: %c", cur);
+        if(cur == '(' || cur == ','){
+            idx++;
+            unroot.push_back(parse_subtree(newick_string, idx, next_node));
+        }
+        else if(cur == ')'){
+            idx++;
+            assert_string(newick_string[idx] == ';', "end of input was not a semicolon");
+            break;
+        }
+        else{
+            debug_string("there was an error parsing");
+            return {nullptr};
+        }
+    }
+    if(unroot.size() == 1){
+        debug_string("found an unroot with size one, contracting the root");
+        node_t* t = unroot.front();
+        unroot.clear();
+        unroot.push_back(t->_lchild);
+        unroot.push_back(t->_rchild);
+        t->_lchild->_parent = nullptr;
+        t->_rchild->_parent = nullptr;
+    }
+    assert_string(unroot.size() == 2 || unroot.size() == 3, "Unroot is the wrong size");
 
     for(size_t i=0;i<tree_size;++i){
-        tree[i]._children = tree[i]._lchild || tree[i]._rchild;
+        tree[i]._children = tree[i]._lchild && tree[i]._rchild;
     }
 
-    debug_string("done parsing, going into asserts");
-
-    assert_string(node_stack.size() == 1, "There was a parse error");
-    assert_string(node_stack.top() == tree, "the root wasn't the top of the stack");
-
-    return tree;
+    return unroot;
 }
 

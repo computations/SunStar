@@ -344,10 +344,9 @@ tree_t::tree_t(const vector<node_t*>& unroot){
 }
 
 tree_t::tree_t(const string& newick){
-    _tree = make_tree_from_newick(newick, _size);
-    std::vector<node_t*> tmp;
-    tmp.push_back(_tree);
-    make_flat_tree(tmp);
+    _unroot = make_tree_from_newick(newick, _size);
+    _tree = _unroot.front();
+    make_flat_tree(std::vector<node_t*>(_unroot));
 }
 
 tree_t::~tree_t(){

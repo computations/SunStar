@@ -46,7 +46,7 @@ TEST_CASE("star, one large trees", "[star][regression]"){
     auto star_tree = s.get_tree();
     star_tree.clear_weights();
     star_tree.sort();
-    REQUIRE(star_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
+    REQUIRE(star_tree.to_string() == "(((a,b),(c,d)),((e,f),g),h);");
 }
 
 TEST_CASE("star, two large cloned trees", "[star][regression]"){
@@ -59,7 +59,7 @@ TEST_CASE("star, two large cloned trees", "[star][regression]"){
     auto star_tree = s.get_tree();
     star_tree.clear_weights();
     star_tree.sort();
-    REQUIRE(star_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
+    REQUIRE(star_tree.to_string() == "(((a,b),(c,d)),((e,f),g),h);");
 
 }
 
@@ -71,7 +71,7 @@ TEST_CASE("star, with weight schedule as vector", "[star][regression]"){
     auto star_tree = s.get_tree(v);
     star_tree.sort();
     star_tree.clear_weights();
-    REQUIRE(star_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
+    REQUIRE(star_tree.to_string() == "(((a,b),(c,d)),((e,f),g),h);");
 }
 
 TEST_CASE("star, with weight schedule as function", "[star][regression]"){
@@ -82,7 +82,7 @@ TEST_CASE("star, with weight schedule as function", "[star][regression]"){
     auto star_tree = s.get_tree(f);
     star_tree.sort();
     star_tree.clear_weights();
-    REQUIRE(star_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
+    REQUIRE(star_tree.to_string() == "(((a,b),(c,d)),((e,f),g),h);");
 }
 
 TEST_CASE("star, massive trees from ASTRID","[star][astrid]"){
