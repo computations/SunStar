@@ -253,3 +253,13 @@ TEST_CASE("tree, testing setting root by outgroup string 3, 'identity' taxa", "[
     t.set_outgroup("f");
     REQUIRE(t.sort().clear_weights().to_string() == tree_strings[3]);
 }
+
+TEST_CASE("tree, checking rooted-ness, rooted tree", "[tree][is_rooted]"){
+    tree_t t(tree_strings[1]);
+    REQUIRE(t.is_rooted());
+}
+
+TEST_CASE("tree, checking rooted-ness, unrooted tree", "[tree][is_rooted]"){
+    tree_t t("((a,b),(c,d),e);");
+    REQUIRE(!t.is_rooted());
+}
