@@ -19,6 +19,7 @@ class star_t{
         tree_t get_tree(const std::vector<double>&);
         size_t get_size();
         void set_outgroup(const std::string&);
+        std::string get_first_label();
     private:
         void calc_average_distances();
 

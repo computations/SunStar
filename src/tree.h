@@ -81,7 +81,7 @@ class tree_t{
 
         size_t get_depth() const;
         
-        void set_outgroup(const std::string& );
+        tree_t& set_outgroup(const std::string& );
 
         double parent_distance(node_t* child, node_t* parent);
         void set_weights(const std::vector<double>&, double max = 1.0);

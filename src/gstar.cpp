@@ -18,7 +18,7 @@ vector<std::pair<string, double>> make_return_vector(
         const unordered_map<string, int>& counts, size_t trials){
     vector<std::pair<string, double>> ret;
     for(auto&& kv : counts){
-        double ratio = ((double)kv.second)/(trials+1);
+        double ratio = ((double)kv.second)/(trials);
         ret.push_back(std::make_pair(kv.first, ratio));
     }
     return ret;
@@ -27,7 +27,7 @@ vector<std::pair<string, double>> make_return_vector(
 void write_sequence_to_file(const vector<double>& s, string newick_string,
         ofstream& outfile){
     
-    outfile<<"This newick string: "<<newick_string<<" using the sequence:\n\t";
+    outfile<<"This newick string: "<<newick_string<<"\n\tusing the sequence: ";
     for(size_t i = 0; i < s.size(); ++i){
         outfile<<s[i];
         if(i!=s.size()-1){
@@ -71,7 +71,7 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
         counts[s] +=1;
     }
 
-    return make_return_vector(counts, max_depth);
+    return make_return_vector(counts, max_depth+1);
 }
 
 vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
@@ -86,8 +86,10 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
     size_t max_depth = star.get_size();
     vector<double> schedule (max_depth, 0.0);
     unordered_map<string, int> counts;
+    string newick_root = star.get_first_label();
 
     ofstream outfile(filename.c_str());
+    outfile<<"using root: '"<<newick_root<<"'"<<std::endl;
 
     std::mt19937 gen((std::random_device())());
     std::normal_distribution<> d(1.0,1.0);
@@ -103,7 +105,8 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
             debug_print("setting schedule[%lu]: %f, tmp: %f", k, schedule[k-1] + tmp, tmp);
             schedule[k] = schedule[k-1]+tmp;
         }
-        string s = star.get_tree(schedule).sort().clear_weights().to_string();
+        string s = star.get_tree(schedule).set_outgroup(newick_root).
+            sort().clear_weights().to_string();
         write_sequence_to_file(schedule, s, outfile);
         counts[s]+=1;
     }

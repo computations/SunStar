@@ -33,10 +33,10 @@ star_t::star_t(const vector<string>& newick_trees){
     for(auto &&s : newick_trees){
         _tree_collection.emplace_back(s);
     }
+    _label_map = _tree_collection.front().make_label_map();
 }
 
 void star_t::calc_average_distances(){
-    _label_map = _tree_collection.front().make_label_map();
     debug_print_map("label map", _label_map);
     debug_print("front tree: %s", _tree_collection.front().to_string().c_str());
     size_t row_size = _label_map.size();
@@ -112,4 +112,13 @@ void star_t::set_outgroup(const string& outgroup){
     for(auto& t:_tree_collection){
         t.set_outgroup(outgroup);
     }
+}
+
+string star_t::get_first_label(){
+    string ret;
+    for(auto kv : _label_map){
+        ret = kv.first;
+        if(!ret.empty() && ret != " ") break;
+    }
+    return ret;
 }

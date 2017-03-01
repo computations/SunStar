@@ -233,7 +233,7 @@ void tree_t::set_root(node_t* outgroup){
     make_flat_tree(std::vector<node_t*>(_unroot));
 }
 
-void tree_t::set_outgroup(const string& outgroup){
+tree_t& tree_t::set_outgroup(const string& outgroup){
     if(is_rooted()){
         debug_string("tree is rooted, unrooting it");
         make_unrooted();
@@ -245,6 +245,7 @@ void tree_t::set_outgroup(const string& outgroup){
     }
     assert_string(o!=nullptr, "could not find outgroup label");
     set_root(o);
+    return *this;
 }
 
 /*
