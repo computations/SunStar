@@ -171,11 +171,11 @@ size_t node_t::calc_max_depth(){
  */
 void tree_t::set_root(node_t* outgroup){
     debug_string("making a new node");
-    node_t* ur = new node_t;
     debug_print("outgroup: %p", outgroup);
     debug_print("_unroot.size(): %lu", _unroot.size());
 
     if(outgroup->_parent==nullptr){
+        debug_string("outgroup has no parent");
         node_t* tmp = new node_t;
         //find the two that aren't the outgroup
         size_t idx;
@@ -192,8 +192,11 @@ void tree_t::set_root(node_t* outgroup){
         _unroot.clear();
         _unroot.push_back(outgroup);
         _unroot.push_back(tmp);
+        make_flat_tree(std::vector<node_t*>(_unroot));
         return;
     }
+
+    node_t* ur = new node_t;
 
     ur->_parent = _unroot[0];
     ur->_lchild = _unroot[1];
@@ -443,11 +446,14 @@ double tree_t::calc_distance(node_t* src, node_t* dst){
     auto src_list = get_parents_of(src);
     auto dst_list = get_parents_of(dst);
 
+    debug_print("src list size: %lu, dst list size: %lu", src_list.size(),
+            dst_list.size());
     size_t src_index = src_list.size()-1;
     size_t dst_index = dst_list.size()-1;
 
 
     //walk through the list until the lists diverge
+    debug_string("starting to walk the parent lists");
     while(true){
         assert_string((src_index < src_list.size() || dst_index < dst_list.size())
                 , "Parent lists don't converge, but not same index");
@@ -470,10 +476,14 @@ vector<node_t*> tree_t::get_parents_of(node_t* cur_node){
     vector<node_t*> parent_list;
     parent_list.push_back(cur_node);
 
-    while(cur_node->_parent != cur_node && cur_node->_parent!=0){
+    while(cur_node->_parent && cur_node->_parent != cur_node){
         debug_print("current node: %p", cur_node);
         parent_list.push_back(cur_node->_parent);
+        debug_print("setting current node to parent: %p", cur_node->_parent);
         cur_node = cur_node->_parent;
+    }
+    if(cur_node->_parent == nullptr){
+        parent_list.push_back(nullptr);
     }
     return parent_list;
 }

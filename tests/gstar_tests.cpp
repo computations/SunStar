@@ -29,3 +29,8 @@ TEST_CASE("gstar, testing if a file gtes made", "[gstar][random]"){
     ifile.close();
     std::remove(fname.c_str());
 }
+
+TEST_CASE("gstar, functional, with rerooting", "[reroot]"){
+    std::string ns = "((a,b),(c,d));";
+    auto c = gstar({ns}, "a");
+}

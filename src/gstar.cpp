@@ -76,6 +76,9 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
 
 vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
         const string& filename, size_t trials, string outgroup){
+    if(trials==0){
+        return gstar(newick_strings, outgroup);
+    }
     star_t star(newick_strings);
     if(!outgroup.empty()){
         star.set_outgroup(outgroup);
