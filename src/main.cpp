@@ -24,6 +24,14 @@ void print_usage(){
     "    -o, --outgroup      Taxa label of the outgroup of the gene trees\n";
 }
 
+bool check_rooted(const vector<string>& nstrings){
+    for(auto& t : nstrings){
+        tree_t tmp(t);
+        if(!tmp.is_rooted()) return false;
+    }
+    return true;
+}
+
 int main(int argc, char** argv){
     int c;
     //argument buffers
@@ -73,6 +81,11 @@ int main(int argc, char** argv){
 
     while(std::getline(newick_string_file, line)){
         newick_strings.emplace_back(line);
+    }
+
+    if(outgroup.empty() && !check_rooted(newick_strings)){
+        std::cout<<"Error, trees are not rooted, or an outgroup has not been specified"<<std::endl;
+        return 1;
     }
 
     auto trees = gstar(newick_strings, logfile, trials, outgroup);
