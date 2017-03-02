@@ -56,18 +56,23 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
     if(!outgroup.empty()){
         star.set_outgroup(outgroup);
     }
+    else{
+        outgroup = star.get_first_label();
+    }
     size_t max_depth = star.get_size();
     vector<double> schedule(max_depth, 1.0);
     unordered_map<string, int> counts;
 
     {
-        string s = star.get_tree(schedule).sort().clear_weights().to_string();
+        string s = star.get_tree(schedule).set_outgroup(outgroup).
+            sort().clear_weights().to_string();
         counts[s] +=1;
     }
 
     for(size_t i=0;i<max_depth;++i){
         schedule[i] = 0.0;
-        string s = star.get_tree(schedule).sort().clear_weights().to_string();
+        string s = star.get_tree(schedule).set_outgroup(outgroup).
+            sort().clear_weights().to_string();
         counts[s] +=1;
     }
 
@@ -83,16 +88,18 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
     if(!outgroup.empty()){
         star.set_outgroup(outgroup);
     }
+    else{
+        outgroup = star.get_first_label();
+    }
     size_t max_depth = star.get_size();
     vector<double> schedule (max_depth, 0.0);
     unordered_map<string, int> counts;
-    string newick_root = star.get_first_label();
 
     ofstream outfile(filename.c_str());
-    outfile<<"using root: '"<<newick_root<<"'"<<std::endl;
+    outfile<<"using root: '"<<outgroup<<"'"<<std::endl;
 
     std::mt19937 gen((std::random_device())());
-    std::normal_distribution<> d(1.0,1.0);
+    std::uniform_real_distribution<> d(0.0,1.0);
 
     for(size_t i = 0; i < trials; i++){
         double tmp = 0.0;
@@ -105,7 +112,7 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
             debug_print("setting schedule[%lu]: %f, tmp: %f", k, schedule[k-1] + tmp, tmp);
             schedule[k] = schedule[k-1]+tmp;
         }
-        string s = star.get_tree(schedule).set_outgroup(newick_root).
+        string s = star.get_tree(schedule).set_outgroup(outgroup).
             sort().clear_weights().to_string();
         write_sequence_to_file(schedule, s, outfile);
         counts[s]+=1;
