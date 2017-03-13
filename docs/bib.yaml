@@ -1,0 +1,37 @@
+---
+references:
+    - title: Species Tree Inference by the STAR Method and Its Generalizations
+      authors:
+          - given: Elizabeth
+            family: Allman
+          - given: James
+            family: Degnan
+          - given: John
+            familiy: Rhodes
+      type: article-journal
+      container-title: Journal of Computational Biology
+      volume: 20
+      number: 1
+      page: 50-61
+      DOI: 10.1089/cmb.2012.0101
+      issued:
+          month: January
+          day: 7
+          year: 2013
+    - title: Estimating Species Trees from Unrooted Gene Trees
+      authors:
+          - given: Liang
+            family: Liu
+          - given: Lili
+            family: Yu
+      DOI: 10.1093/sysbio/syr027
+      type: article-journal
+      container-title: Systematic Biology
+      issued:
+          year: 2011
+          day: 28
+          month: March
+      volume: 60
+      issue: 5
+      page: 661-667
+...
