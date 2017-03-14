@@ -1,6 +1,7 @@
 ---
 references:
     - title: Species Tree Inference by the STAR Method and Its Generalizations
+      id: rhodes
       authors:
           - given: Elizabeth
             family: Allman
@@ -19,6 +20,7 @@ references:
           day: 7
           year: 2013
     - title: Estimating Species Trees from Unrooted Gene Trees
+      id: liu
       authors:
           - given: Liang
             family: Liu
