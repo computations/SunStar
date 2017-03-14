@@ -6,6 +6,7 @@ IFLAGS=
 OBJDIR=obj
 SRCDIR=src
 TSTDIR=tests
+DOCDIR=doc
 
 TEST_SOURCES := $(shell find $(TSTDIR) -name '*cpp')
 RELEASE_OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o nj.o gstar.o)
@@ -47,6 +48,9 @@ run-tests: tests
 
 verbose-tests: CFLAGS+= -DEMIT_DEBUG
 verbose-tests: tests
+
+docs:
+	$(MAKE) -C $(DOCDIR)
 
 clean:
 	rm -rf obj gstar gstar_tests *.log
