@@ -19,8 +19,8 @@ void print_usage(){
     "Usage: gstar [options]\n"<<
     "Application Options:\n"<<
     "    -f, --filename      Filename for the set of gene trees in Newick notation\n"<<
-    "    -l, --logfile       File to log the sequences to (default schedule.log)\n"<<
     "    -t, --trials        Number of trials\n"<<
+    "    -l, --logfile       File to log the sequences to (default schedule.log)\n"<<
     "    -o, --outgroup      Taxa label of the outgroup of the gene trees\n";
 }
 
