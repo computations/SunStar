@@ -15,15 +15,15 @@ TEST_OBJS := $(addprefix $(OBJDIR)/, $(TEST_SOURCES:$(TSTDIR)/%.cpp=%.o))
 all: debug
 
 debug: CFLAGS+= -DDEBUG -DEMIT_DEBUG -g -O0
-debug: gstar
+debug: sunstar
 
 release: CFLAGS+= -DRELEASE -Ofast -march=native
-release: gstar
+release: sunstar
 
-gstar: $(RELEASE_OBJS)
+sunstar: $(RELEASE_OBJS)
 	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
 
-gstar_tests: $(TEST_OBJS)
+sunstar_tests: $(TEST_OBJS)
 	$(CXX) $(CFLAGS) -o $@ $^ $(DFLAGS)
 
 %o: CFLAGS+=-c
@@ -38,13 +38,13 @@ $(OBJDIR):
 	mkdir $@
 
 run: debug
-	./gstar
+	./sunstar
 
 tests: CFLAGS+= -DDEBUG -g -O0
-tests: gstar_tests
+tests: sunstar_tests
 
 run-tests: tests
-	./gstar_tests 
+	./sunstar_tests 
 
 verbose-tests: CFLAGS+= -DEMIT_DEBUG
 verbose-tests: tests
@@ -53,4 +53,4 @@ docs:
 	$(MAKE) -C $(DOCDIR)
 
 clean:
-	rm -rf obj gstar gstar_tests *.log
+	rm -rf obj sunstar sunstar_tests *.log

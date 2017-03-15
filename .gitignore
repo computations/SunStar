@@ -4,7 +4,7 @@
 *o
 results/*
 *.bin
-gstar
-gstar_tests
+sunstar
+sunstar_tests
 *.tre
 *.pdf
