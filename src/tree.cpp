@@ -234,6 +234,7 @@ void tree_t::set_root(node_t* outgroup){
 }
 
 tree_t& tree_t::set_outgroup(const string& outgroup){
+    if(_size <= 2) return *this;
     if(is_rooted()){
         debug_string("tree is rooted, unrooting it");
         make_unrooted();

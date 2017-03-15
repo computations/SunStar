@@ -69,14 +69,26 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
         counts[s] +=1;
     }
 
+    size_t trials = 0;
+
     for(size_t i=0;i<max_depth;++i){
-        schedule[i] = 0.0;
-        string s = star.get_tree(schedule).set_outgroup(outgroup).
-            sort().clear_weights().to_string();
-        counts[s] +=1;
+        for(size_t j=i;j<max_depth;++j){
+            for(size_t k = 0;k<schedule.size();++k){
+                if(i<=k && k<=j){
+                    schedule[k] = 1.0;
+                }
+                else{
+                    schedule[k] = 0.0;
+                }
+            }
+            string s = star.get_tree(schedule).set_outgroup(outgroup).
+                sort().clear_weights().to_string();
+            counts[s] +=1;
+            trials++;
+        }
     }
 
-    return make_return_vector(counts, max_depth+1);
+    return make_return_vector(counts, trials+1);
 }
 
 vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
@@ -110,7 +122,7 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
         for(size_t k = 1; k < schedule.size(); ++k){
             while((tmp = d(gen)) < 0){ }
             debug_print("setting schedule[%lu]: %f, tmp: %f", k, schedule[k-1] + tmp, tmp);
-            schedule[k] = schedule[k-1]+tmp;
+            schedule[k] = tmp;
         }
         string s = star.get_tree(schedule).set_outgroup(outgroup).
             sort().clear_weights().to_string();
