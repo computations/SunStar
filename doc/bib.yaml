@@ -1,14 +1,14 @@
 ---
 references:
     - title: Species Tree Inference by the STAR Method and Its Generalizations
-      id: rhodes
-      authors:
+      id: rhodes_star
+      author:
           - given: Elizabeth
             family: Allman
           - given: James
             family: Degnan
           - given: John
-            familiy: Rhodes
+            family: Rhodes
       type: article-journal
       container-title: Journal of Computational Biology
       volume: 20
@@ -19,21 +19,44 @@ references:
           month: January
           day: 7
           year: 2013
-    - title: Estimating Species Trees from Unrooted Gene Trees
-      id: liu
-      authors:
+    - title: Estimating Species Phylogenies Using Coalescence Times among Sequences
+      id: liu09
+      author:
           - given: Liang
             family: Liu
           - given: Lili
             family: Yu
-      DOI: 10.1093/sysbio/syr027
+          - given: Dennis
+            family: Pearl
+          - given: Scott
+            family: Edwards
+      DOI: 10.1093/sysbio/syp031
       type: article-journal
       container-title: Systematic Biology
       issued:
-          year: 2011
-          day: 28
-          month: March
-      volume: 60
+          year: 2009
+          day: 16
+          month: July
+      volume: 58
       issue: 5
-      page: 661-667
+      page: 468-477
+    - title: "Lecture Notes: The Mathematics of Phylogenetics"
+      id: rhodes_book
+      author:
+          - given: Elizabeth 
+            family: Allman
+          - given: John
+            family: Rhodes
+      type: book
+      URL: http://www.dms.uaf.edu/~jrhodes/PhyloBook.pdf
+      issued:
+          year: 2016
+    - title: The Newick tree format
+      id: newick_format
+      type: webpage
+      URL: http://evolution.genetics.washington.edu/phylip/newicktree.html
+      accessed:
+          year: 2017
+          month: March
+          day: 15
 ...
