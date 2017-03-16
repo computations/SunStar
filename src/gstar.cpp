@@ -60,35 +60,28 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
         outgroup = star.get_first_label();
     }
     size_t max_depth = star.get_size();
-    vector<double> schedule(max_depth, 1.0);
+    vector<double> schedule(max_depth, 0.0);
     unordered_map<string, int> counts;
 
-    {
+    size_t trials = 1<<(max_depth);
+    print_progress(0ul, trials);
+
+    for(size_t i=0;i<trials;++i){
+        if(i % 100 == 0) {print_progress(i,trials);}
+        schedule[0]+=1.0;
+        for(size_t k = 0;k<schedule.size()-1;++k){
+            if(schedule[k]>1.0){
+                schedule[k]=0.0;
+                schedule[k+1]+=1.0;
+            }
+        }
+        if(schedule.back()> 1.0){ schedule.back()=0.0;}
         string s = star.get_tree(schedule).set_outgroup(outgroup).
             sort().clear_weights().to_string();
         counts[s] +=1;
     }
 
-    size_t trials = 0;
-
-    for(size_t i=0;i<max_depth;++i){
-        for(size_t j=i;j<max_depth;++j){
-            for(size_t k = 0;k<schedule.size();++k){
-                if(i<=k && k<=j){
-                    schedule[k] = 1.0;
-                }
-                else{
-                    schedule[k] = 0.0;
-                }
-            }
-            string s = star.get_tree(schedule).set_outgroup(outgroup).
-                sort().clear_weights().to_string();
-            counts[s] +=1;
-            trials++;
-        }
-    }
-
-    return make_return_vector(counts, trials+1);
+    return make_return_vector(counts, trials);
 }
 
 vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,

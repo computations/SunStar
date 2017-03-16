@@ -13,3 +13,12 @@ TEST_CASE("debug, debug_print", "[debug]"){
 TEST_CASE("debug, debug_string", "[debug]"){
     debug_string("here is a test string");
 }
+
+TEST_CASE("debug, print_progress", "[.][debug]"){
+    print_progress(0ul,100ul);
+    fprintf(stdout,"\n");
+    print_progress(50ul,100ul);
+    fprintf(stdout,"\n");
+    print_progress(100ul,100ul);
+    fprintf(stdout,"\n");
+}

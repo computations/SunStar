@@ -90,7 +90,7 @@ int main(int argc, char** argv){
 
     auto trees = gstar(newick_strings, logfile, trials, outgroup);
     for(const auto& kv:trees){
-        std::cout<<kv.first<<kv.second<<std::endl;
+        std::cout<<std::endl<<kv.first<<kv.second<<std::endl;
     }
     
     return 0;
