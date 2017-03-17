@@ -43,7 +43,7 @@ references:
     - title: "Lecture Notes: The Mathematics of Phylogenetics"
       id: rhodes_book
       author:
-          - given: Elizabeth 
+          - given: Elizabeth
             family: Allman
           - given: John
             family: Rhodes
@@ -59,4 +59,102 @@ references:
           year: 2017
           month: March
           day: 15
+    - title: "The neighbor-joining method: a new method for reconstructing phylogenetic trees."
+      id: saito87
+      type: article-journal
+      author:
+          - given: Naruya
+            family: Saitou
+          - given: Masatoshi
+            family: Nei
+      issued:
+          year: 1978
+          month: July
+          day: 01
+      DOI: 10.1093/oxfordjournals.molbev.a040454
+      container-title: Molecular Biology and Evolution
+      volume: 4
+      issue: 4
+      page: 406-425
+    - title: Relationships between gene trees and species trees.
+      id: pamilo88
+      type: article-journal
+      author:
+          - family: Pamilo
+            given: P
+          - family: Nei
+            given: Masatoshi
+      DOI: 10.1093/oxfordjournals.molbev.a040517
+      issued:
+          year: 1988
+          month: September
+          day: 01
+      container-title: Molecular Biology and Evolution
+      volume: 5
+      issue: 5
+      pages: 568-583
+    - title: "ASTRAL-II: coalescent-based species tree estimation with many hundreds of taxa and thousands of genes"
+      id: astral
+      type: article-journal
+      author:
+          - given: Siavash
+            family: Mirarab
+          - given: Tandy
+            family: Warnow
+      issued:
+          year: 2015
+          month: June
+          day: 10
+      container-title: Bioinformatics
+      volume: 31
+      issue: 12
+      DOI: 10.1093/bioinformatics/btv234
+      page: i44-i52
+    - title: Estimating Species Trees from Unrooted Gene Trees
+      id: njst
+      type: article-journal
+      author:
+          - given: Liang
+            family: Liu
+          - given: Lili
+            family: Yu
+      DOI: 10.1093/sysbio/syr027
+      issued:
+          year: 2011
+          month: March
+          day: 28
+      volume: 60
+      issue: 5
+      page: 661-667
+    - title: "BEST: Bayesian estimation of species trees under the coalescent model"
+      id: best
+      type: article-journal
+      author:
+          - given: Liang
+            family: Liu
+      DIO: 10.1093/bioinformatics/btn484
+      issued:
+          year: 2008
+          month: September
+          day: 17
+      container-title: Bioinformatics
+      volume: 24
+      issue: 21
+      pages: 2542-2543
+    - title: "ASTRID: Accurate Species TRees from Internode Distances"
+      id: astrid
+      type: article-journal
+      author:
+          - given: Pranjal
+            family: Vachaspati
+          - given: Tandy
+            family: Warnow
+      DIO: 10.1186/1471-2164-16-S10-S3
+      issued:
+          year: 2015
+          month: October
+          day: 02
+      container-title: BMC Genomics
+      volume: 16
+      issue: 10
 ...

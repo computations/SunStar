@@ -1,7 +1,9 @@
 ---
-author: Ben Bettisworth
-title: "SunStar: an Implementation of the Generalized STAR Method"
+author: Ben Bettisworth, University of Alaska Fairbanks
+title: "SunStar: An Implementation of the Generalized STAR Method \\ DRAFT 1"
+subtitle: DRAFT 1
 date: 2017-03-13
+documentclass: article
 bibliography: bib.yaml
 numbersections: true
 geometry: margin=1in
@@ -23,8 +25,42 @@ Introduction
 \SunStar[^SunStar_name] is a program designed to infer the support for
 a species tree that has been inferred from gene trees via the STAR method.
 
-[^SunStar_name]: The name is a slight pun on GSTAR. The sun that earth orbits
-is a g-class star, therefore SunStar.
+[^SunStar_name]: The name is a slight pun on G-STAR, the original name for this
+project. The sun that earth orbits is a g-class star, therefore SunStar.
+
+Background
+-------------------------------------------------------------------------------
+
+###Problem Description
+
+Phylogenetics is primarily concerned with the inference of species trees.
+Unfortunately, we cannot directly infer species trees. Instead, phylogenetic
+methods are limited to traits we can observe. Historically, these traits were
+features like morphology of bones and limbs. With the advent of molecular
+sequencing, observation of traits using DNA sequences became common, and with
+those observations came the early mathematical methods of phylogenetics.
+
+These methods were primarily using gene trees as proxies for species trees. Due
+to incomplete lineage sorting (ILS) [@pamilo88] this is not sufficient for
+inferring species trees. Informally, this means that genes might diverge
+differently than the species diverge. Therefore, just using a single gene tree
+as a proxy for species doesn't work. More advanced methods of inferring
+species trees get around the ILS method by using information from multiple
+genes.
+
+###Prior Work
+
+Previous software that does gene tree summary includes ASTRAL [@astral], NJst
+[@njst], STAR[@liu09], BEST[@best] and ASTRID[@astrid]. All of these programs
+will compute species trees from existing gene trees. ASTRAL is the exception in
+this group, in that it does not compute a distance table from the set of gene
+trees passed to it. For the rest of the software, they all compute a version of
+a distance table.
+
+In particular, STAR and ASTRID are a very similar method to the method used in
+\SunStar, with one important difference, they do not attempt to infer the
+support for the tree reported. \SunStar does, using the results from
+generalized STAR [@rhodes_star].
 
 Notation, Conventions and Definitions
 -------------------------------------------------------------------------------
@@ -48,26 +84,52 @@ that relates the divergence of species.
 An _ultrametric_ tree is a tree where all the distance to the root vertex are
 the same.
 
-A tree is said to be in _Newick Notation_ when it is represented as a string
-according to the standard found
-[here](http://evolution.genetics.washington.edu/phylip/newicktree.html)
-[@newick_format]
-
 We will use the notation $F(n) = \OO(f(n))$ to denote the order of a function
 $F$. Normally, $F$ is not reported, but instead referred to by this notation.
 By convention, this will roughly the smallest $f$ that satisfies the
 relationship.
 
-Background
+Newick Notation
 -------------------------------------------------------------------------------
 
-Phylogenetics is primarily concerned with the inference of species trees, but
-in general we can only observe gene trees. Since organisms are made of genes,
-it follows that the gene trees should be related to the species tree. This
-naturally leads to the problem of combining gene trees together to make a
-species tree. This is the goal of STAR .
+Newick Notation is a format of specifying trees. An example of a Newick tree is
 
-Newick
+```
+((a:.1,b:.3):1.0, (c:.43,d:.5):1.0);
+```
+
+The '`:`' signifies a weight on an edge leading up from the node towards the
+root, and is optional.
+
+One advantage of Newick notation is that the grammar[^newick_ref] for this
+language is quite simple, and requires only a few productions. This makes it
+easy to write a parser to recognize a Newick string. Unfortunately there are
+quite a few disadvantages, one of which is the non-uniqueness of a tree and
+a string. Specifically, there are many strings which represent the same tree.
+The problem is due, largely to the ordering of subtrees. Note that these two
+trees are the same
+
+```
+(a,b); == (b,a);
+```
+
+This causes problems when attempting to compare trees, which is already a hard
+task. Fortunately, we can side step these issues by
+
+-   Enforcing an outgroup (to insure a consistent root), and
+-   Enforcing an order on the taxa and subtrees.
+
+By doing this, we can compare trees by comparing their Newick strings.
+
+One additional problem is the lack of standardized grammar. Some
+implementations allow for taxa labels to start with a number. Some
+implementations require the semicolon at the end, others do not. Its difficult
+to deal with this issue, so instead I documented the grammar I used in section
+\ref{newick-imp}.
+
+[^newick_ref]: See section \ref{newick-imp}
+
+Neighbor Joining
 -------------------------------------------------------------------------------
 
 STAR(estimating Species Trees using Average Ranks)
@@ -113,25 +175,16 @@ come out of the tree creation step. This is the primary goal of \SunStar.
 
 -   `-f` `--filename`: Filename for a set of Newick trees. These trees must all
 together be rooted or unrooted. If they are all unrooted trees, then the `-o`
--   `t` `--trials`: The number of trials using random weights. If this flag
-is not present, then a default schedule will be used.
+is required.
+-   `t` `--trials`: The number of trials using randomly genereated schedule of
+weights(Section \ref{randomized-schedule}). If this flag is not present, then
+a default schedule (Section \ref{default-schedule})will be used.
 -   `-l` `--logfile`: Filename to log the sequences that are generated by the
 `-t` option
 -   `-o` `--outgroup`: The name of the outgroup taxa. This taxa must be present
 on all of the trees.
 
-###Default Schedule
 
-There is a default schedule for the weights. This schedule starts by assigning
-1 to every edge, and adjusts leaf edges to be ultrametric. Then, all possible
-combinations of weights with at least one weight being 1 are computed[^binary].
-By the results from generalized STAR, if there is no error then the tree should
-come out the same, despite the 0 weights on the edges. But, We believe that it
-is likely that introducing zeros into the system will maximize the exposer of
-any errors, and therefore will cause instabilities.
-
-[^binary]: This should be thought of as counting in binary from 1 to the
-height of the tree.
 
 Algorithms
 ===============================================================================
@@ -161,7 +214,7 @@ $t_2$. So backing up a step, we have the path $t_1, n_1, t_2$. For the taxa
 $t_1$ and $t_4$, the node before the difference is $\rho$. So, the path between
 $t_1$ and $t_4$ is $t_1, n_1, \rho, n_2, t_4$.
 
-![An example tree \label{fig:dist_tree}](./figs/distances.png){width=50%}
+![An example tree \label{fig:dist_tree}](./figs/distances.png){width=30%}
 
 ###Complexity
 
@@ -184,13 +237,6 @@ Finally, summing over the final list of nodes requires iterating through the
 final path. Since the final path is $\OO(n)$, this step is also, and therefore
 this method is as well.
 
-Neighbor Joining
--------------------------------------------------------------------------------
-
-###Specification
-
-###Complexity
-
 STAR
 -------------------------------------------------------------------------------
 
@@ -202,7 +248,6 @@ major steps:
 -   Calculate the distance table for each tree in the set
 -   Average the distance tables
 -   Run Neighbor Joining on the new table.
-
 
 Calculating the distance table requires finding the pairwise distance between
 all the taxa. To do this, we create a matrix with the taxa labeling the rows
@@ -225,11 +270,35 @@ of the $m$ trees in $T$, so $m\OO(n^3) = \OO(mn^3)$.
 Computing the average of the distance matrices involves a series of matrix
 additions ($mn^2$) and a scalar matrix operation ($n^2$). These are less than
 the time required to simply compute a single distance matrix, and so they don't
-change the overall $\OO(mn^3)$.
-
+change the overall $\OO(mn^3)$. Similarly with Neighbor Joining, which has
+a complexity of $\OO(n^3)$, but only needs to be performed once.
 
 Generalized STAR
 -------------------------------------------------------------------------------
+
+As discussed above Generalized STAR works by varying the schedule of weights on
+a set of trees. To implement this algorithm, we simply produce different
+schedules and then run STAR on the tree sets with the different weights. There
+are two strategies by which weight schedules are generated.
+
+###Default Schedule
+
+This schedule starts by assigning 1 to every edge, and adjusts leaf edges to be
+ultrametric. Then, all possible combinations of weights with at least one
+weight being 1 are computed[^binary]. By the results from generalized STAR, if
+there is no error then the tree should come out the same, despite the 0 weights
+on the edges. But, We believe that it is likely that introducing zeros into the
+system will maximize the exposer of any errors, and therefore will cause
+instabilities.
+
+[^binary]: This should be thought of as counting in binary from 1 to the
+height of the tree.
+
+###Randomized Schedule
+
+The other strategy to generate weight schedules is to generate them randomly.
+This strategy works by generating a list of numbers from a uniform distribution
+from 0 to 1. These numbers are then used as the schedule for a run of STAR.
 
 Implementation
 ===============================================================================
@@ -237,7 +306,7 @@ Implementation
 \texttt{tree.h}
 -------------------------------------------------------------------------------
 
-\texttt{newick.h}
+\texttt{newick.h}{#newick-imp}
 -------------------------------------------------------------------------------
 
 \texttt{nj.h}
