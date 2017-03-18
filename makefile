@@ -12,7 +12,7 @@ TEST_SOURCES := $(shell find $(TSTDIR) -name '*cpp')
 RELEASE_OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o nj.o gstar.o)
 TEST_OBJS := $(addprefix $(OBJDIR)/, $(TEST_SOURCES:$(TSTDIR)/%.cpp=%.o))
 
-all: debug
+all: release
 
 debug: CFLAGS+= -DDEBUG -DEMIT_DEBUG -g -O0
 debug: sunstar

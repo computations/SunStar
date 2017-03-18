@@ -101,7 +101,7 @@ int main(int argc, char** argv){
     std::sort(trees.begin(), trees.end(), pc_lambda);
 
     for(const auto& kv:trees){
-        std::cout<<std::endl<<kv.first<<kv.second<<std::endl;
+        std::cout<<kv.first<<kv.second<<std::endl;
     }
     
     return 0;

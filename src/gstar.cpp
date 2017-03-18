@@ -81,6 +81,8 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
         counts[s] +=1;
     }
 
+    print_progress(trials, trials);
+    finish_progress();
     return make_return_vector(counts, trials);
 }
 
@@ -106,6 +108,7 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
     std::mt19937 gen((std::random_device())());
     std::uniform_real_distribution<> d(0.0,1.0);
 
+    print_progress(0ul, trials);
     for(size_t i = 0; i < trials; i++){
         double tmp = 0.0;
         //Need to randomize the schedule
@@ -113,6 +116,7 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
         debug_print("setting schedule[0]: %f", tmp);
         schedule[0] = tmp;
         for(size_t k = 1; k < schedule.size(); ++k){
+            if(i % 100 == 0) {print_progress(i,trials);}
             while((tmp = d(gen)) < 0){ }
             debug_print("setting schedule[%lu]: %f, tmp: %f", k, schedule[k-1] + tmp, tmp);
             schedule[k] = tmp;
@@ -122,5 +126,7 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
         write_sequence_to_file(schedule, s, outfile);
         counts[s]+=1;
     }
+    print_progress(trials, trials);
+    finish_progress();
     return make_return_vector(counts, trials);
 }

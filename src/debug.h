@@ -85,3 +85,5 @@ const clock_t CLOCK_START = clock();
     fprintf(stdout,"\e[31m");for(size_t i = 0; i<left_cols; ++i){ fprintf(stdout,"-"); }\
     fprintf(stdout,"\e[0m[\e[33m%lu\e[0m/\e[33m%lu\e[0m]", done, total); fprintf(stdout, "\e[0m");fflush(stdout);\
 }
+
+#define finish_progress(){fprintf(stdout, "\n"); fflush(stdout);}
