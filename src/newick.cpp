@@ -135,7 +135,8 @@ std::vector<node_t*> make_tree_from_newick(const string& newick_string, size_t& 
         }
         else if(cur == ')'){
             idx++;
-            assert_string(newick_string[idx] == ';', "end of input was not a semicolon");
+            assert_string(idx < newick_string.size() 
+                    && newick_string[idx] == ';', "end of input was not a semicolon");
             break;
         }
         else{

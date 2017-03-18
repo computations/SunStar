@@ -161,7 +161,7 @@ void join_pair(d2vector_t& dists, vector<node_t*>& unroot){
      *
      * The following distance relation holds
      *
-     *      d_xr = d_yx + d_xz - d_yz
+     *      d_xr = (d_yx + d_xz - d_yz)/2
      *
      * But in this case its dispite the possibly longer path from r to x. Since
      * the only nodes left in the table are "working" nodes, ie they are yet to
