@@ -12,6 +12,8 @@ using std::vector;
 using std::string;
 #include <fstream>
 using std::ifstream;
+#include <algorithm>
+//for std::sort
 #include <getopt.h>
 
 void print_usage(){
@@ -89,6 +91,15 @@ int main(int argc, char** argv){
     }
 
     auto trees = gstar(newick_strings, logfile, trials, outgroup);
+    //sort the trees
+    
+    auto pc_lambda = [](auto lhs, auto rhs){
+        return lhs.second>rhs.second;
+    };
+
+
+    std::sort(trees.begin(), trees.end(), pc_lambda);
+
     for(const auto& kv:trees){
         std::cout<<std::endl<<kv.first<<kv.second<<std::endl;
     }
