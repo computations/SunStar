@@ -14,10 +14,14 @@ abstract: STAR[@liu09] is a method of computing species trees from gene trees. L
     the species tree inference process, which will produce instabilities in the
     tree resulting from STAR. We have developed a piece of software that does
     this called \texttt{SunStar}.
+header-includes:
+    -   \usepackage[linesnumbered,lined,ruled,vlined]{algorithm2e}
 ...
 
 \newcommand{\OO}{\mathcal{O}}
 \newcommand{\SunStar}{\texttt{SunStar}}
+\newcommand{\margalg}[1]{\IncMargin{1.5em}\begin{algorithm}[H] #1
+\end{algorithm}\DecMargin{1.5em}}
 
 Introduction
 ===============================================================================
@@ -79,7 +83,9 @@ degree 2. All trees discussed here will be trivalent unless otherwise noted.
 
 A _gene tree_ is a rooted or unrooted tree that has been inferred from gene
 sequences, and relates the divergence of those genes. A _species tree_ is a tree
-that relates the divergence of species.
+that relates the divergence of species. An unrooted tree is often made rooted
+by using an _outgroup_. This is a taxa that is intensionally distant from the
+other taxa, ensuring that the root is connected directly to the outgroup.
 
 An _ultrametric_ tree is a tree where all the distance to the root vertex are
 the same.
@@ -306,11 +312,198 @@ Implementation
 \texttt{tree.h}
 -------------------------------------------------------------------------------
 
+At a high level, phylogenetic trees are implemented as doubly linked binary
+trees. This is to say, each node on the tree has a parent, and two children.
+This also means that there is a sense of directionality towards the root. This
+makes finding paths between nodes easier, as we don't have to search in all
+directions to find the other node.
+
+There is also an odd concept of an `unroot`. The `unroot` is the special node
+that is the root, for the sake of starting to find things on the tree, of an
+unrooted tree. It is implemented as a vector of pointers to the node class.
+
+The `node` class contains the information relating to each individual
+node in the tree. This includes data including the label of the node, the
+weight of the edge towards the parent, and pointers to the children and parent.
+
+The `tree` class is the main workhorse of the tree implementation. It contains
+the tree and the `unroot`. Since these trees don't have the normal CRUD
+operations, we can predetermine the size of the tree. This allows us to
+preallocate a contiguous section of memory to store the `node`s that make up
+the tree, as opposed to each node being potentially distant from other nodes.
+By doing this, we can take advantage of cache locality, which can be
+a potentially large speed up on some systems. This technique I call tree
+packing, which is discussed in section \ref{tree-packing}.
+
+The `tree` class is also responsible for setting the weights of the tree. This
+can be done few ways. The first is to pass the `set_weight` function a function
+that takes a `size_t` or equivalent, and returns a `double`. Another is to
+pass it a vector of weights which is indexed by depth. Yet another way is to
+pass a constant to the function, which will set the weights to be the constant,
+with the exception of the leaves. In all these cases, the ultrametricity of the
+tree is preserved, i.e. the leaf edges are adjusted to ensure it.
+
+###Tree Packing
+
+\margalg{
+\caption{Tree Packing}
+\KwData{List of pointers to tree roots $r$}
+\KwResult{A packed representation of a tree in memory}
+stack $s$\;
+queue $q$\;
+
+\For{$n$ in $r$}{
+    push $n$ onto $s$\;
+    push $n$ onto $q$\;
+}
+
+\While{$s$ is not empty}{
+    $n \leftarrow$ top of $s$\;
+    pop top of $s$\;
+    \If{n has children}{
+        push children of $n$ onto $s$\;
+        push children of $n$ onto $q$\;
+    }
+}
+
+$tree \leftarrow$ array the size of $q$\;
+\For{n in q}{
+    push $n$ onto $tree$\;
+    update pointers of $n$\;
+}
+}
+
+
+###Set Root
+
+The final major role of the tree is to set and reset the root. Sometimes,
+unrooted trees might be passed to this function, but the algorithms only work
+on rooted trees. So we must be able to root a tree. To do this, the following
+algorithm is used.
+
+\begin{function}
+\caption{SwapParent(node $n$, node $p$)}
+    \If{p is $n$'s left child}{
+        swap $n$'s parent and left child\;
+        \SwapParent (left child, n)\;
+    }
+    \ElseIf{p is $n$'s left child}{
+        swap $n$'s parent and right child\;
+        \SwapParent (right child, n)\;
+    }
+\end{function}
+
+\margalg{
+\caption{Set Root}
+\KwData{List of pointers to roots of subtrees $r$ representing the unroot of an
+unrooted tree, outgroup pointer $o$}
+\KwResult{New root of a rooted tree, with $o$ as an outgroup}
+\If(\tcp*[h]{Unroot is where it should be, just need to root the tree}){$o$ in $r$}{
+    make new node $nr$\;
+    set $nr$'s children to be the two other nodes in $r$\;
+    clear $r$\;
+    add $o$ to $r$\;
+    add $nr$ to $r$\;
+}
+\Else{
+    make new node $n$\;
+    assign $n$'s parents and children to the three nodes of $r$\;
+    clear $r$\;
+    add $o$ to $r$\;
+
+    \For{child, parent $c$ of $n$}{
+        set $c$'s parent to $n$
+    }
+
+    $p \leftarrow$ $o$'s parent\;
+    \If{$o$ is not the left child of $p$}{
+        swap $p$'s left child and right child\;
+    }
+
+    set $p$'s left child to \texttt{null}\;
+    \SwapParent(p, \texttt{null})
+}
+}
+
 \texttt{newick.h}{#newick-imp}
 -------------------------------------------------------------------------------
 
+In order to work with gene trees, I need to be able to parse Newick Notation.
+So, the specification of the parser is as follows.
+
+###Grammar
+
+The grammar used has two 3 productions and 2 terminal lexemes. The terminal
+lexemes are labels and weights. The regular expression for labels and weight are
+
+```
+    weight = [0-9]+('.'[0-9]*)?('e'[0-9]+)
+    label  = [A-z][A-z0-9]
+```
+
+In other words, floating point numbers with possible exponential notation, and
+c identifiers. Every other literal is punctuation, and is there for structure
+only. Below is the grammar that is in the parser
+
+```
+    tree    = '(' subtree ',' subtree [',' subtree] ')' [';']
+    subtree = label [':' weight]
+            | '(' subtree ',' subtree ')' [':' weight]
+```
+
+###Parser/Lexer
+
+Since the language is so small, We have made the parser and lexer tightly
+integrated. This is to say, there really is no lexer. Instead, characters are
+read and dealt with immediately. I read floats with the `stod` function in the
+standard `c++` library.
+
+The parser itself is simple top down recursive decent parser. The parser
+returns a list of nodes pointers to subtrees that make up the tree. This list
+is intended to be the unroot.
+
 \texttt{nj.h}
 -------------------------------------------------------------------------------
+
+This header contains my implementation of the Neighbor Joining[@saito87]
+algorithm. I need to implement the algorithm, because it ends up being tightly
+bound to whatever tree class is used. This makes finding fast libraries hard.
+There will not be much discussion of the theory of Neighbor Joining here, just
+the details of this implementation.
+
+This implementation starts by putting all the nodes into a list, which should
+be thought of as the unroot. It then join pairs until there are only 3 elements
+in the unroot left. To join pairs, it calls the find pair routine. The find
+pair routine finds[^q_store] the lowest entry of a matrix $Q$. $Q$ is
+calculated based of the distance matrix of all the nodes in the unroot. The
+lowest element of $Q$ is identified by its row and column (We don't really
+care about the value of that element, just that its the lowest or tied for it).
+The row and columns of $Q$ are indexes into the unroot, and sow the row column
+pair from this step identify a specific two nodes in the unroot, which are to
+be joined. So the find pair routine returns this pair.
+
+With this found pair, the implementation joins the pair by removing these
+elements from the unroot, making them the children of a new node, and then
+putting that new node back into the unroot. We calculate the distance from the
+new node to the pair by the three point formula[^three_point], and do the same
+for the distance between the new node and all the rest of the nodes in the
+unroot. The net effect of this is that the size of unroot shrinks by one every
+time the implementation joins a pair.
+
+When the unroot size shrinks to 3, we then then take the remaining three and
+use the three point formula to calculate distances between these final three
+nodes. With that, complete, we have a complete unrooted tree.
+
+[^q_store]: I don't actually store the matrix Q. Its only ever used to find the
+smallest element, so I just calculate it and store the smallest so far. This
+is a pretty minor optimization, but saves a $n^2$ memory. Furthermore, $Q$ is
+symmetric, so we only compute the top half of the matrix, and skip the diagonal
+for another minor optimization.
+
+[^three_point]: In a 4 node tree (trivalent), with leaves $x,y,z$ and central
+node $r$, we can calculate and edge length given the distances $d(x,y), d(x,z),
+d(y,z)$ by using the three point formula: $d(r,x) = \frac{1}{2}[d(y,x) + d(x,z)
+- d(y,z)]$
 
 \texttt{star.h}
 -------------------------------------------------------------------------------
@@ -329,7 +522,6 @@ Optimizations
 
 Investigations
 -------------------------------------------------------------------------------
-
 
 Code
 ===============================================================================
