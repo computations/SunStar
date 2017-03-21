@@ -1,6 +1,6 @@
 ---
 author: Ben Bettisworth, University of Alaska Fairbanks
-title: "SunStar: An Implementation of the Generalized STAR Method \\ DRAFT 1"
+title: "SunStar: An Implementation of the Generalized STAR Method \\ DRAFT 2"
 subtitle: DRAFT 1
 date: 2017-03-13
 documentclass: article
@@ -521,6 +521,7 @@ $D\leftarrow 0^{n \times n}$\;
 }
 $D \leftarrow \nicefrac{1}{n} \cdot D$\;
 $s \leftarrow$ tree from neighbor joining with $D$\;
+\Return{$s$}
 }
 
 \texttt{gstar.h}
@@ -528,12 +529,24 @@ $s \leftarrow$ tree from neighbor joining with $D$\;
 
 \margalg{
 \caption{GSTAR-default}
-\KwData{A set of trees $T$, with the same set of taxa $X$ where $|X| = n$, with 
-    weights set.}
+\KwData{A set of trees $T$, with the same set of taxa $X$ where $|X| = n$, with weights set.}
 \KwResult{A set of trees and associated frequencies.}
-$R \leftarrow$ empty list of trees and counts\;
+$R \leftarrow$ map of trees to integers
 $h \leftarrow \max_{t\in T}(\text{height of }t)$\;
 $S \leftarrow$ list of 1's of length $h$\;
+\For{$i$ in $1:2^n$}{
+    set weights by schedule $S$ on the trees of $T$\;
+    $t \leftarrow$ STAR on $T$\;
+    \If{$t \not\in R$}{
+        $R(t) \leftarrow 0$\;
+    }
+    $R(t) \leftarrow R(t) + 1$\;
+    decrement $S$\;
+}
+\For{$r$ in $R$}{
+    $R(r) \leftarrow \nicefrac{1}{2^n} \cdot R(r)$\;
+}
+\Return{$R$}
 }
 
 Conclusion
