@@ -5,7 +5,7 @@ BIBFILE=bib.yaml
 all: $(DOCNAME)
 
 $(DOCNAME): $(MDFILE) $(BIBFILE)
-	pandoc --filter=pandoc-citeproc $(MDFILE) -o $@
+	pandoc --filter=pandoc-citeproc -f markdown-superscript $(MDFILE) -o $@
 
 see: $(DOCNAME)
 	evince $(DOCNAME)

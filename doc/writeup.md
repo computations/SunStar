@@ -16,21 +16,22 @@ abstract: STAR[@liu09] is a method of computing species trees from gene trees. L
     this called \texttt{SunStar}.
 header-includes:
     -   \usepackage[linesnumbered,lined,ruled,vlined]{algorithm2e}
+    -   \usepackage{nicefrac}
 ...
 
 \newcommand{\OO}{\mathcal{O}}
-\newcommand{\SunStar}{\texttt{SunStar}}
-\newcommand{\margalg}[1]{\IncMargin{1.5em}\begin{algorithm}[H] #1
-\end{algorithm}\DecMargin{1.5em}}
+\newcommand{\SunStar}{{\tt SunStar}}
+\newcommand{\margalg}[1]{\IncMargin{0em}\begin{algorithm}[H] #1
+\end{algorithm}\DecMargin{0em}}
 
 Introduction
 ===============================================================================
 
-\SunStar[^SunStar_name] is a program designed to infer the support for
+\texttt{SunStar}[^SunStar_name] is a program designed to infer the support for
 a species tree that has been inferred from gene trees via the STAR method.
 
 [^SunStar_name]: The name is a slight pun on G-STAR, the original name for this
-project. The sun that earth orbits is a g-class star, therefore SunStar.
+project. The sun that earth orbits is a g-class star, therefore \SunStar.
 
 Background
 -------------------------------------------------------------------------------
@@ -508,8 +509,32 @@ d(y,z)$ by using the three point formula: $d(r,x) = \frac{1}{2}[d(y,x) + d(x,z)
 \texttt{star.h}
 -------------------------------------------------------------------------------
 
+\margalg{
+\caption{STAR}
+\KwData{A set of trees $T$, with the same set of taxa $X$ where $|X| = n$, with 
+    weights set.}
+\KwResult{A single tree $s$}
+$D\leftarrow 0^{n \times n}$\;
+\For{$t$ in $T$}{
+    $d \leftarrow$ distance table of $t$\;
+    $D \leftarrow D + d$\;
+}
+$D \leftarrow \nicefrac{1}{n} \cdot D$\;
+$s \leftarrow$ tree from neighbor joining with $D$\;
+}
+
 \texttt{gstar.h}
 -------------------------------------------------------------------------------
+
+\margalg{
+\caption{GSTAR-default}
+\KwData{A set of trees $T$, with the same set of taxa $X$ where $|X| = n$, with 
+    weights set.}
+\KwResult{A set of trees and associated frequencies.}
+$R \leftarrow$ empty list of trees and counts\;
+$h \leftarrow \max_{t\in T}(\text{height of }t)$\;
+$S \leftarrow$ list of 1's of length $h$\;
+}
 
 Conclusion
 ===============================================================================
