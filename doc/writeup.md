@@ -8,12 +8,12 @@ bibliography: bib.yaml
 numbersections: true
 geometry: margin=1in
 toc: true
-abstract: STAR[@liu09] is a method of computing species trees from gene trees. Later,
-    STAR was proven to be statistically consistent given a few conditions
-    [@rhodes_star]. Using these conditions, it is possible to detect errors in
-    the species tree inference process, which will produce instabilities in the
-    tree resulting from STAR. We have developed a piece of software that does
-    this called \texttt{SunStar}.
+abstract: STAR[@liu09] is a method of computing species trees from gene trees.
+    Later, STAR was generalized and proven to be statistically consistent given
+    a few conditions [@rhodes_star]. Using these conditions, it is possible to
+    investigate robustness in the species tree inference process, which will
+    produce instabilities in the tree resulting from STAR. We have developed
+    a piece of software that does this called \texttt{SunStar}.
 header-includes:
     -   \usepackage[linesnumbered,lined,ruled,vlined]{algorithm2e}
     -   \usepackage{nicefrac}
@@ -27,8 +27,9 @@ header-includes:
 Introduction
 ===============================================================================
 
-\texttt{SunStar}[^SunStar_name] is a program designed to infer the support for
-a species tree that has been inferred from gene trees via the STAR method.
+\texttt{SunStar}[^SunStar_name] is a program designed to investigate the
+support for a species tree that has been inferred from gene trees via the STAR
+method.
 
 [^SunStar_name]: The name is a slight pun on G-STAR, the original name for this
 project. The sun that earth orbits is a g-class star, therefore \SunStar.
@@ -49,38 +50,48 @@ These methods were primarily using gene trees as proxies for species trees. Due
 to incomplete lineage sorting (ILS) [@pamilo88] this is not sufficient for
 inferring species trees. Informally, this means that genes might diverge
 differently than the species diverge. Therefore, just using a single gene tree
-as a proxy for species doesn't work. More advanced methods of inferring
-species trees get around the ILS method by using information from multiple
+as a proxy for species can be misleading. More advanced methods of inferring
+species trees get around the ILS difficulties by using information from multiple
 genes.
+
+An example of this is the multispecies coalescent model, which is a probabilistic
+model of the ILS process. Using this model we can describe the way gene trees
+form from species trees. The methods that are discussed in this paper are shown
+to be statistically consistent under this model. In this context, statistically
+constistent means that we can make the probability of inferring the correct
+species tree equal to 1 if we make the sample large enough. Informally, given
+enough perfect data, we always get the right tree.
 
 ###Prior Work
 
-Previous software that does gene tree summary includes ASTRAL [@astral], NJst
-[@njst], STAR[@liu09], BEST[@best] and ASTRID[@astrid]. All of these programs
-will compute species trees from existing gene trees. ASTRAL is the exception in
-this group, in that it does not compute a distance table from the set of gene
-trees passed to it. For the rest of the software, they all compute a version of
-a distance table.
+Previous software that infer species trees from from gene tree summaries
+includes ASTRAL [@astral], NJst [@njst], STAR[@liu09]  and ASTRID[@astrid]. All
+of these programs will compute species trees from existing gene trees. ASTRAL
+is the exception in this group, in that it does not compute a distance table
+from the set of gene trees passed to it. For the rest of the software, they all
+compute a version of a distance table.
 
 In particular, STAR and ASTRID are a very similar method to the method used in
 \SunStar, with one important difference, they do not attempt to infer the
-support for the tree reported. \SunStar does, using the results from
+support for the tree reported.  \texttt{SunStar} does, using the results from
 generalized STAR [@rhodes_star].
 
 Notation, Conventions and Definitions
 -------------------------------------------------------------------------------
 
-A _tree_ is a set of vertices(or nodes) and a set of edges that connect them.
-A vertex with no children is called a _leaf_, plural _leaves_. A tree can have
-a special node that is designated the _root_. The root of a tree is often
-labeled as $\rho$. A node is called an _interior_ node if it is not a leaf.
+A _tree_ is a set of vertices (or nodes) and a set of edges that connect them
+with no cycles. A vertex with only one edge incident is called a _leaf_, plural
+_leaves_. A tree can have a special node that is designated the _root_. The
+root of a tree is often labeled as $\rho$. A node is called an _interior_ node
+if it is not a leaf.
 
 Edges can have have tags which are numbers. These are typically called
 _weights_ or _lengths_, and are often a measure of a notion of distance.
 
-A tree is _trivalent_  when all vertices of the tree have degree 3 or 1. A
-rooted trivalent tree is a tree that is allowed to have a single vertex with
-degree 2. All trees discussed here will be trivalent unless otherwise noted.
+A tree is _trivalent_  when all vertices of the tree have degree 3 or 1.
+A rooted trivalent tree is a tree that is allowed to have a single vertex, the
+root, with degree 2. All trees discussed here will be trivalent unless otherwise
+noted.
 
 A _gene tree_ is a rooted or unrooted tree that has been inferred from gene
 sequences, and relates the divergence of those genes. A _species tree_ is a tree
@@ -88,18 +99,19 @@ that relates the divergence of species. An unrooted tree is often made rooted
 by using an _outgroup_. This is a taxa that is intensionally distant from the
 other taxa, ensuring that the root is connected directly to the outgroup.
 
-An _ultrametric_ tree is a tree where all the distance to the root vertex are
-the same.
+An _ultrametric_ tree is a tree where all the distance to the root vertex to
+the leaves are the same.
 
 We will use the notation $F(n) = \OO(f(n))$ to denote the order of a function
 $F$. Normally, $F$ is not reported, but instead referred to by this notation.
-By convention, this will roughly the smallest $f$ that satisfies the
-relationship.
+By convention, the $f$ reported will be close to as small as possible.
+
 
 Newick Notation
 -------------------------------------------------------------------------------
 
-Newick Notation is a format of specifying trees. An example of a Newick tree is
+Newick Notation is a format for specifying trees. An example of a Newick tree
+is
 
 ```
 ((a:.1,b:.3):1.0, (c:.43,d:.5):1.0);
@@ -111,10 +123,10 @@ root, and is optional.
 One advantage of Newick notation is that the grammar[^newick_ref] for this
 language is quite simple, and requires only a few productions. This makes it
 easy to write a parser to recognize a Newick string. Unfortunately there are
-quite a few disadvantages, one of which is the non-uniqueness of a tree and
-a string. Specifically, there are many strings which represent the same tree.
-The problem is due, largely to the ordering of subtrees. Note that these two
-trees are the same
+quite a few disadvantages, one of which is the non-uniqueness of the string for
+a tree. Specifically, there are many strings which represent the same tree. The
+problem is due, largely to the ordering of subtrees. Note that these two trees
+are the same
 
 ```
 (a,b); == (b,a);
@@ -144,13 +156,12 @@ STAR(estimating Species Trees using Average Ranks)
 
 STAR infers a species tree by calculating a distance table of ranks[^1], and
 then a tree building algorithm to generate a new tree [@liu09]. The algorithm
-is as follows: Given a set of gene trees, do the following for each tree.
+is as follows: Given a set of gene rooted trees, do the following for each tree.
 
 -   Set all the edge weights
     -   If the edge is not connected to a leaf, set the weight to 1.
-    -   If the edge is connected to a root, set the weight to .5
-    -   Otherwise set it to the height of the tree minus the distance to the
-    root.
+    -   If the edge is connected to a leaf, set it so that the tree will be
+    ultrametric[^ultrametric_note].
 -   Calculate pairwise distance, put them into a table.
 
 Once all the tables have been calculated, do an entry wise sum, and divide each
@@ -161,15 +172,19 @@ a tree building algorithm on it, such as Neighbor Joining.
 [^1]: Here the term rank is used to mean edge length or weight, and will be
   referred to as edge length in the future.
 
+[^ultrametric_note]: Practically this means that we can take the number of taxa
+    and subtract the depth, then use that for the edge weight.
+
 Generalized STAR
 -------------------------------------------------------------------------------
 
 Generalized star [@rhodes_star] is version of STAR where the edge weight
 schedule is allowed to vary. In this version, edge weights of an equal distance
-from the root are given the same weight. Weights need only be non-negative
-except for one. Additionally, the edges connected to leaves are adjusted to
-make the tree ultrametric, as in STAR. Other than weight assignment, algorithm
-proceeds the same.
+from the root (using graph-theoretic distance of counting edges in a path) are
+given the same weight. Weights need only be non-negative except for one.
+Additionally, the edges connected to leaves are adjusted to make the tree
+ultrametric, as in STAR. Other than weight assignment, algorithm proceeds the
+same.
 
 Additionally, we can attempt to infer the stability of the species tree
 produced by STAR by varying the weights and reporting the different trees that
@@ -183,7 +198,7 @@ come out of the tree creation step. This is the primary goal of \SunStar.
 -   `-f` `--filename`: Filename for a set of Newick trees. These trees must all
 together be rooted or unrooted. If they are all unrooted trees, then the `-o`
 is required.
--   `t` `--trials`: The number of trials using randomly genereated schedule of
+-   `-t` `--trials`: The number of trials using randomly genereated schedule of
 weights(Section \ref{randomized-schedule}). If this flag is not present, then
 a default schedule (Section \ref{default-schedule})will be used.
 -   `-l` `--logfile`: Filename to log the sequences that are generated by the
@@ -205,8 +220,8 @@ In order to calculate the distance table, we have to calculate the distance
 between any two taxa. Fortunately we are working with trees, so the path to any
 two nodes is unique. Therefore, if we find a path, we have found the only path.
 So, the strategy to find a path between to nodes is to calculate the list of
-parents for each node. Once we have this list, we walk the list, starting from
-the parent side, until we find a difference. Then, the remaining nodes in the
+ancestors for each node. Once we have this list, we walk the list, starting from
+the rootside, until we find a difference. Then, the remaining nodes in the
 list, plus the node right before the divergence, is the path between the two
 nodes.
 
@@ -234,7 +249,7 @@ with this algorithm. They are
 -   Create new path,
 -   Sum edge weights over path.
 
-Note that the number of nodes on a rooted tree with $n$ taxa is $2n-3$. Since
+Note that the number of nodes on a rooted tree with $n$ taxa is $2n-1$. Since
 a tree is acyclic, each node in the path is visited at most once. Therefore the
 size of the lists from taxa to root is at most $\OO(n)$. Since the lists are
 bounded by $n$, walking along them is also bounded by $n$. Creating a new
@@ -249,7 +264,7 @@ STAR
 
 ###Specification
 
-The algorithm requires a set of rooted trees $|T| = m$. STAR involves three
+The algorithm requires a set of $m$ rooted trees. STAR involves three
 major steps:
 
 -   Calculate the distance table for each tree in the set
@@ -269,10 +284,11 @@ Neighbor Joining and get a new tree.
 
 ###Complexity
 
-The complexity of STAR is $\OO(mn^3)$. Calculating the distance matrix requires
-a call to a $\OO(n)$ algorithm, and there are $n^2$ elements in the matrix.
-Therefore $n^2\OO(n) = \OO(n^3)$. We need compute this distance matrix for each
-of the $m$ trees in $T$, so $m\OO(n^3) = \OO(mn^3)$.
+The complexity of STAR is $\OO(mn^3)$. Calculating a single entry in the
+distance matrix requires a call to a $\OO(n)$ algorithm, and there are $n^2$
+elements in the matrix. Therefore the complexity of computing each table is
+$n^2\OO(n) = \OO(n^3)$. We need compute this distance matrix for each of the
+$m$ trees in $T$, so $m\OO(n^3) = \OO(mn^3)$.
 
 Computing the average of the distance matrices involves a series of matrix
 additions ($mn^2$) and a scalar matrix operation ($n^2$). These are less than
@@ -293,10 +309,10 @@ are two strategies by which weight schedules are generated.
 This schedule starts by assigning 1 to every edge, and adjusts leaf edges to be
 ultrametric. Then, all possible combinations of weights with at least one
 weight being 1 are computed[^binary]. By the results from generalized STAR, if
-there is no error then the tree should come out the same, despite the 0 weights
-on the edges. But, We believe that it is likely that introducing zeros into the
-system will maximize the exposer of any errors, and therefore will cause
-instabilities.
+there is no a very large sample of gene trees with error then the tree should
+come out the same, despite the 0 weights on the edges. But, we believe that it
+is likely that introducing zeros into the system will maximize the exposer of
+any errors, and therefore will cause instabilities.
 
 [^binary]: This should be thought of as counting in binary from 1 to the
 height of the tree.
@@ -511,7 +527,7 @@ d(y,z)$ by using the three point formula: $d(r,x) = \frac{1}{2}[d(y,x) + d(x,z)
 
 \margalg{
 \caption{STAR}
-\KwData{A set of trees $T$, with the same set of taxa $X$ where $|X| = n$, with 
+\KwData{A set of trees $T$, with the same set of taxa $X$ where $|X| = n$, with
     weights set.}
 \KwResult{A single tree $s$}
 $D\leftarrow 0^{n \times n}$\;
