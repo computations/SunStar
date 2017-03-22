@@ -50,7 +50,7 @@ verbose-tests: CFLAGS+= -DEMIT_DEBUG
 verbose-tests: tests
 
 docs:
-	$(MAKE) -C $(DOCDIR)
+	make -C $(DOCDIR)
 
 clean:
 	rm -rf obj sunstar sunstar_tests *.log

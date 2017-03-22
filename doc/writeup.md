@@ -236,7 +236,7 @@ $t_2$. So backing up a step, we have the path $t_1, n_1, t_2$. For the taxa
 $t_1$ and $t_4$, the node before the difference is $\rho$. So, the path between
 $t_1$ and $t_4$ is $t_1, n_1, \rho, n_2, t_4$.
 
-![An example tree \label{fig:dist_tree}](./figs/distances.png){width=30%}
+![An example tree \label{fig:dist_tree}](./figs/distances.pdf)
 
 ###Complexity
 
