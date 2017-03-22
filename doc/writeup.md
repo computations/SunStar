@@ -525,7 +525,12 @@ d(y,z)$ by using the three point formula: $d(r,x) = \frac{1}{2}[d(y,x) + d(x,z)
 \texttt{star.h}
 -------------------------------------------------------------------------------
 
+The STAR algorithm is straight forward. Most of the complexity of the code
+comes from the tree itself, but once that is implemented, the algorithm is
+simple. Please refer to algorithm \ref{alg:STAR} for the details.
+
 \margalg{
+\label{alg:STAR}
 \caption{STAR}
 \KwData{A set of trees $T$, with the same set of taxa $X$ where $|X| = n$, with
     weights set.}
@@ -543,27 +548,60 @@ $s \leftarrow$ tree from neighbor joining with $D$\;
 \texttt{gstar.h}
 -------------------------------------------------------------------------------
 
+
 \margalg{
 \caption{GSTAR-default}
-\KwData{A set of trees $T$, with the same set of taxa $X$ where $|X| = n$, with weights set.}
+\KwData{A set of $n$ trees, $T$, which all have the same set of taxa.}
 \KwResult{A set of trees and associated frequencies.}
-$R \leftarrow$ map of trees to integers
+$R \leftarrow$ map of trees to integers\;
 $h \leftarrow \max_{t\in T}(\text{height of }t)$\;
 $S \leftarrow$ list of 1's of length $h$\;
 \For{$i$ in $1:2^n$}{
-    set weights by schedule $S$ on the trees of $T$\;
-    $t \leftarrow$ STAR on $T$\;
-    \If{$t \not\in R$}{
-        $R(t) \leftarrow 0$\;
+    \For{$t$ in $T$}{
+        set weights of $t$ by schedule $S$\;
     }
-    $R(t) \leftarrow R(t) + 1$\;
-    decrement $S$\;
+    $t_s \leftarrow$ STAR on $T$\;
+    \If{$t_s \not\in R$}{
+        $R(t_s) \leftarrow 0$\;
+    }
+    $R(t_s) \leftarrow R(t_s) + 1$\;
+    \tcc{Here we treat S as a binary number, and decrement it}
+    decrement $S$\; 
 }
+\tcc{Normalize the counts into proportions}
 \For{$r$ in $R$}{
     $R(r) \leftarrow \nicefrac{1}{2^n} \cdot R(r)$\;
 }
 \Return{$R$}
 }
+
+\margalg{
+\caption{GSTAR-random}
+\KwData{A set of $n$ trees, $T$, which all have the same set of taxa. A
+number of trials $t$.}
+\KwResult{A set of trees and associated frequencies.}
+$R \leftarrow$ map of trees to integers\;
+$h \leftarrow \max_{t\in T}(\text{height of }t)$\;
+$S \leftarrow$ a list of $h$ random numbers, uniformly distributed on $[0,1]$\;
+\For{$i$ in $t$}{
+    \For{$t$ in $T$}{
+        set weights of $t$ by schedule $S$\;
+    }
+    $t_s \leftarrow$ STAR on $T$\;
+    \If{$t_s \not\in R$}{
+        $R(t_s) \leftarrow 0$\;
+    }
+    $R(t_s) \leftarrow R(t_s) + 1$\;
+    $S \leftarrow$ a list of $h$ random numbers, uniformly distributed on $[0,1]$\;
+}
+\tcc{Normalize the counts into proportions}
+\For{$r$ in $R$}{
+    $R(r) \leftarrow \nicefrac{1}{2^n} \cdot R(r)$\;
+}
+\Return{$R$}
+}
+
+
 
 Conclusion
 ===============================================================================
