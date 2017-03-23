@@ -1,0 +1,21 @@
+\documentclass{standalone}
+\usepackage{forest}
+\begin{document}
+\begin{forest}
+[
+[,draw, circle, inner sep=0pt, minimum size = 4mm
+    [Squirrel,tier=taxa]
+    [,draw, circle, inner sep=0pt, minimum size = 4mm
+        [Guinea Pig,tier=taxa]
+        [,draw, circle, inner sep=0pt, minimum size = 4mm
+            [Kangaroo Rat,tier=taxa]
+            [,draw, circle, inner sep=0pt, minimum size = 4mm
+                [Mouse,tier=taxa]
+                [Rat,tier=taxa]
+            ]
+        ]
+    ]
+]
+]
+\end{forest}
+\end{document}
