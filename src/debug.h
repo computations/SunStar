@@ -19,6 +19,7 @@
 #include <unistd.h>
 
 const clock_t CLOCK_START = clock();
+extern bool __PROGRESS_BAR_FLAG__;
 
 #ifdef DEBUG
 #define DEBUG_IF_FLAG 1
@@ -73,10 +74,17 @@ const clock_t CLOCK_START = clock();
     }\
 } }
 
+#define turn_on_progress(){ __PROGRESS_BAR_FLAG__ = true; }
+
+#define turn_off_progress(){ __PROGRESS_BAR_FLAG__ = false; } 
+
+#define toggle_progress(){ __PROGRESS_BAR_FLAG__ = !__PROGRESS_BAR_FLAG__; }
+
+
 #define print_progress(done, total) { struct winsize w; ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);\
     print_progress_cols(done, total, w.ws_col); }
 
-#define print_progress_cols(done, total, cols) {\
+#define print_progress_cols(done, total, cols) { if(__PROGRESS_BAR_FLAG__){\
     size_t adj_cols = cols - 3; if(done == 0) adj_cols--;\
     size_t total_padding=0; size_t tmp = total; while(tmp!=0){ tmp/=10; adj_cols--; total_padding++;}\
     size_t done_padding=total_padding;tmp = done; while(tmp!=0){ tmp/=10; adj_cols--; done_padding--;} \
@@ -88,6 +96,6 @@ const clock_t CLOCK_START = clock();
     fprintf(stdout, "\e[0m[");\
     for(size_t _i_ =0; _i_<done_padding; ++_i_){ fprintf(stdout," "); }\
     fprintf(stdout,"\e[33m%lu\e[0m/\e[33m%lu\e[0m]", done, total); fprintf(stdout, "\e[0m");fflush(stdout);\
-}
+}}
 
 #define finish_progress(){fprintf(stdout, "\n"); fflush(stdout);}

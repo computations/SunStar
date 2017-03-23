@@ -16,6 +16,9 @@ using std::ifstream;
 //for std::sort
 #include <getopt.h>
 
+//dumb hack to get the progress bar crap to work
+bool __PROGRESS_BAR_FLAG__=true;
+
 void print_usage(){
     std::cout<<
     "Usage: gstar [options]\n"<<
@@ -23,7 +26,8 @@ void print_usage(){
     "    -f, --filename      Filename for the set of gene trees in Newick notation\n"<<
     "    -t, --trials        Number of trials\n"<<
     "    -l, --logfile       File to log the sequences to (default schedule.log)\n"<<
-    "    -o, --outgroup      Taxa label of the outgroup of the gene trees\n";
+    "    -o, --outgroup      Taxa label of the outgroup of the gene trees\n"<<
+    "    -s, --silent        Silence the progress bar, only output results\n";
 }
 
 bool check_rooted(const vector<string>& nstrings){
@@ -45,6 +49,7 @@ int main(int argc, char** argv){
     while(true){
         static struct option long_options[] = 
         {
+            {"silent",    no_argument, 0, 's'},
             {"filename",    required_argument,  0,   'f'},
             {"outgroup",    required_argument,  0,   'o'},
             {"logfile",    required_argument,  0,   'l'},
@@ -52,7 +57,7 @@ int main(int argc, char** argv){
             {0,0,0,0}
         };
         int option_index = 0;
-        c = getopt_long(argc, argv, "f:o:t:l:", long_options, &option_index);
+        c = getopt_long(argc, argv, "sf:o:t:l:", long_options, &option_index);
         if(c==-1){
             break;
         }
@@ -68,6 +73,9 @@ int main(int argc, char** argv){
                 break;
             case 't':
                 trials = std::stoi(optarg);
+                break;
+            case 's':
+                turn_off_progress();
                 break;
             default:
                 break;
