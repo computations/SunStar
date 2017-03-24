@@ -2,6 +2,7 @@
 #include "catch.hpp"
 
 #include "../src/debug.h"
+bool __PROGRESS_BAR_FLAG = false;
 #include "../src/tree.h"
 #include "../src/newick.h"
 #include "../src/star.h"

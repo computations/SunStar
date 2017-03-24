@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "../src/debug.h"
+bool __PROGRESS_BAR_FLAG__=false;
 
 TEST_CASE("debug, print clock", "[debug]"){
     print_clock;
