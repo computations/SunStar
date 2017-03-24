@@ -81,8 +81,8 @@ extern bool __PROGRESS_BAR_FLAG__;
 #define toggle_progress(){ __PROGRESS_BAR_FLAG__ = !__PROGRESS_BAR_FLAG__; }
 
 
-#define print_progress(done, total) { struct winsize w; ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);\
-    print_progress_cols(done, total, w.ws_col); }
+#define print_progress(done, total) { if(__PROGRESS_BAR_FLAG__){ struct winsize w; ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);\
+    print_progress_cols(done, total, w.ws_col); }}
 
 #define print_progress_cols(done, total, cols) { if(__PROGRESS_BAR_FLAG__){\
     size_t adj_cols = cols - 3; if(done == 0) adj_cols--;\
@@ -98,4 +98,4 @@ extern bool __PROGRESS_BAR_FLAG__;
     fprintf(stdout,"\e[33m%lu\e[0m/\e[33m%lu\e[0m]", done, total); fprintf(stdout, "\e[0m");fflush(stdout);\
 }}
 
-#define finish_progress(){fprintf(stdout, "\n"); fflush(stdout);}
+#define finish_progress(){if(__PROGRESS_BAR_FLAG__){fprintf(stdout, "\n"); fflush(stdout);}}
