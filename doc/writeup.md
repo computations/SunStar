@@ -548,6 +548,13 @@ $s \leftarrow$ tree from neighbor joining with $D$\;
 \texttt{gstar.h}
 -------------------------------------------------------------------------------
 
+As stated before, there are two schedules for \SunStar. The first is the
+default schedule, which is run when the `--trials` option is not specified. The
+other is the randomized schedule, which is run when `--trials` is specified.
+
+The default schedule is an attempt to find an error by brute force. We treat
+each level of edges as either having a weight of 0 or 1. We then try every
+possible assignment of 0s and 1s.
 
 \margalg{
 \caption{GSTAR-default}
@@ -575,6 +582,9 @@ $S \leftarrow$ list of 1's of length $h$\;
 \Return{$R$}
 }
 
+The random schedule proceeds by randomly generating weights, and assigning them
+to the trees in the set. 
+
 \margalg{
 \caption{GSTAR-random}
 \KwData{A set of $n$ trees, $T$, which all have the same set of taxa. A
@@ -601,19 +611,65 @@ $S \leftarrow$ a list of $h$ random numbers, uniformly distributed on $[0,1]$\;
 \Return{$R$}
 }
 
-
+Early tests have shown that the default and random schedules are about
+equivalent in detecting error, though the proportions differ.
 
 Conclusion
 ===============================================================================
 
+We have created a software package, \SunStar, that will use Generalized STAR to
+infer the stability of a species tree inferred by STAR. Furthermore, we have
+found early results that suggest that this technique might be useful. 
+
 Future Work
 ===============================================================================
+
+There are many optimizations, enhancements, and investigations we would like to
+do with \SunStar. Like many software projects \SunStar could be developed
+forever barring resources. What follows is a short list of priority items that
+should be done before other options.
 
 Optimizations
 -------------------------------------------------------------------------------
 
+There are many optimizations that we would like to implement. They are in no
+particular order:
+
+-   Refactor distance table data structure, so that we can take advantage of
+    symmetry.
+-   Refactor the node class, investigate making the class smaller in memory
+-   Implement OpenMP routines on the GSTAR level of computation (Give each STAR
+    inference a thread).
+-   Optimize the default schedule, find unnecessary steps
+
+Enhancements
+-------------------------------------------------------------------------------
+
+There are a few enhancements that are possible for \SunStar. Some of these are
+only necessary if the technique turns out to be very successful, but are
+included as a roadmap nonetheless.
+
+-   More distributions/schedules for weights in GSTAR.
+-   Add MPI support
+-   Add "Full Pipeline" inference. Specifically, take in gene sequences and
+    return a set of trees with support.
+
 Investigations
 -------------------------------------------------------------------------------
+
+To really investigate this method of detecting errors, we would like a study
+that
+
+1.   Models gene trees from a species tree using the multispecies coalescent
+    model
+2.   Generate gene sequences from those gene trees
+3.   Infer new gene trees with error from the generated sequences
+4.   Run \SunStar and examine the error rate.
+
+Most of these computations are relatively fast, except for step 3. Inferring
+gene trees from sequences can take quite a while. Therefore, this investigation
+will likely take several months of work.
+
 
 Code
 ===============================================================================
