@@ -342,6 +342,8 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
 }
 
 tree_t::tree_t(const vector<node_t*>& unroot){
+    _unroot = unroot;
+    debug_string(to_string().c_str());
     make_flat_tree(unroot);
 }
 
