@@ -92,6 +92,7 @@ std::pair<size_t, size_t> find_pair(const d2vector_t& dists){
  * to be updated.
  */
 void join_pair(d2vector_t& dists, vector<node_t*>& unroot){
+
     auto p = find_pair(dists);
 
     debug_print("pair found: (%lu, %lu)", p.first, p.second);
@@ -225,6 +226,7 @@ tree_t nj(const vector<double>& d, const vector<string>& labels){
 
     vector<node_t*> unroot(row_size, nullptr);
     for(size_t i = 0;i<unroot.size();++i){
+        debug_print("making a new node with label: %s", labels[i].c_str());
         unroot[i] = new node_t(labels[i]);
     }
     while(unroot.size() > 3){

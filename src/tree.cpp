@@ -342,6 +342,8 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
 }
 
 tree_t::tree_t(const vector<node_t*>& unroot){
+    _unroot = unroot;
+    debug_string(to_string().c_str());
     make_flat_tree(unroot);
 }
 
@@ -475,7 +477,7 @@ double tree_t::calc_distance(node_t* src, node_t* dst){
 vector<node_t*> tree_t::get_parents_of(node_t* cur_node){
     debug_print("getting the parents of %s", cur_node->_label.c_str());
     vector<node_t*> parent_list;
-    parent_list.reserve(_size/2);
+    parent_list.reserve(_size);
     parent_list.push_back(cur_node);
 
     while(cur_node->_parent && cur_node->_parent != cur_node){

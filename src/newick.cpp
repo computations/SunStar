@@ -15,6 +15,11 @@ using std::isalpha;
 using std::string;
 #include <memory>
 using std::shared_ptr;
+#include <set>
+#include <exception>
+
+
+std::set<string> label_set;
 
 void skip_whitespace(const string& s, size_t& idx){
     while(isspace(s[idx])!=0 && idx < s.size()) idx++;
@@ -41,6 +46,12 @@ string parse_label(const string& newick_string, size_t& idx){
         end++;
     }
     idx = end;
+    string label = newick_string.substr(start, end-start);
+    auto rp = label_set.insert(label);
+    if(!rp.second){
+        throw std::logic_error("Duplicate taxa label: '" + label 
+                + "' at character " + std::to_string(idx));
+    }
     return newick_string.substr(start, end-start);
 }
 
@@ -69,7 +80,10 @@ node_t* parse_subtree(const string& newick, size_t& idx, node_t*& next_node){
             idx++;
             node_stack.push(next_node);
             next_node++;
-            node_stack.top()->_label = parse_label(newick, idx);
+            skip_whitespace(newick, idx);
+            if(newick[idx] != '('){
+                node_stack.top()->_label = parse_label(newick, idx);
+            }
             node_stack.top()->_weight = 1.0;
         }
         else if(cur == ':'){
@@ -116,6 +130,7 @@ node_t* parse_subtree(const string& newick, size_t& idx, node_t*& next_node){
 //comments are only supported after the semicolon
 std::vector<node_t*> make_tree_from_newick(const string& newick_string, size_t& tree_size){
     debug_string("starting newick parse");
+    label_set.clear();
 
     tree_size = scan_nodes(newick_string);
     debug_print("tree size: %lu", tree_size);

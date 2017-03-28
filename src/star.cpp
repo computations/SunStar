@@ -67,12 +67,12 @@ void star_t::calc_average_distances(){
 }
 
 vector<string> invert_label_map(unordered_map<string, size_t> lm){
+    debug_print_map("label map before inversion", lm);
     vector<string> ret;
     ret.resize(lm.size());
     for(auto &&kv_pair : lm){
         ret[kv_pair.second] = kv_pair.first;
     }
-
     return ret;
 }
 
