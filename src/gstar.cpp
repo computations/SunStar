@@ -27,14 +27,14 @@ vector<std::pair<string, double>> make_return_vector(
 void write_sequence_to_file(const vector<double>& s, string newick_string,
         ofstream& outfile){
     
-    outfile<<"This newick string: "<<newick_string<<"\n\tusing the sequence: ";
+    outfile<<"{\"tree\":\""<<newick_string<<"\",\"weights\": [";
     for(size_t i = 0; i < s.size(); ++i){
         outfile<<s[i];
         if(i!=s.size()-1){
             outfile<<',';
         }
     }
-    outfile<<"\n";
+    outfile<<"]}\n";
 }
 
 /*
@@ -63,7 +63,7 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
     vector<double> schedule(max_depth, 0.0);
     unordered_map<string, int> counts;
 
-    size_t trials = 1<<(max_depth);
+    size_t trials = (1<<max_depth) - 1;
     print_progress(0ul, trials);
 
     for(size_t i=0;i<trials;++i){
