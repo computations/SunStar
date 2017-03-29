@@ -557,7 +557,7 @@ void tree_t::set_weights(function<double(size_t)> w_func, double max){
         _unroot.front()->set_weights_as_root(w_func, 0, max);
     }
     else{
-        for(auto n : _unroot){
+        for(auto& n : _unroot){
             n->set_weights(w_func, 0, max);
         }
     }

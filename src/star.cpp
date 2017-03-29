@@ -47,7 +47,6 @@ void star_t::calc_average_distances(){
 
     for(size_t i=0;i<_tree_collection.size();++i){
         init_array(dists, row_size);
-        _tree_collection[i].set_weights(1.0);
         debug_print("current tree with set weights: %s", _tree_collection[i].to_string().c_str());
         _tree_collection[i].calc_distance_matrix(_label_map, dists);
         debug_print("current tree: %s", _tree_collection[i].print_labels().c_str());
@@ -57,12 +56,11 @@ void star_t::calc_average_distances(){
             }
         }
     }
-    for(size_t j=0;j<row_size*row_size; ++j){
-        debug_print("_avg_dists no average: %f", _avg_dists[j]);
-    }
+    debug_matrix("dists before average", _avg_dists, row_size);
     for(size_t i=0; i<row_size*row_size;++i){
         _avg_dists[i]/=(double)_tree_collection.size();
     }
+    debug_matrix("dists after average", _avg_dists, row_size);
     delete[] dists;
 }
 
@@ -92,6 +90,7 @@ tree_t star_t::get_tree(const function<double(size_t)>& f){
 tree_t star_t::get_tree(const vector<double>& v){
     for(auto& t:_tree_collection){
         t.set_weights(v);
+        debug_string(t.to_string().c_str());
     }
     calc_average_distances();
     return nj(_avg_dists, invert_label_map(_label_map));

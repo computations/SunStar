@@ -37,7 +37,7 @@ TEST_CASE("star, two different trees", "[star]"){
 }
 
 
-TEST_CASE("star, one large trees", "[star][regression]"){
+TEST_CASE("star, one large tree", "[star][regression]"){
     std::string newick_tree = "(((a,b),(c,d)),(((e,f),g),h));";
     std::vector<std::string> vt;
     vt.push_back(newick_tree);
@@ -46,7 +46,7 @@ TEST_CASE("star, one large trees", "[star][regression]"){
     auto star_tree = s.get_tree();
     star_tree.clear_weights();
     star_tree.sort();
-    REQUIRE(star_tree.to_string() == "(((a,b),(c,d)),((e,f),g),h);");
+    REQUIRE(star_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
 }
 
 TEST_CASE("star, two large cloned trees", "[star][regression]"){
@@ -59,13 +59,13 @@ TEST_CASE("star, two large cloned trees", "[star][regression]"){
     auto star_tree = s.get_tree();
     star_tree.clear_weights();
     star_tree.sort();
-    REQUIRE(star_tree.to_string() == "(((a,b),(c,d)),((e,f),g),h);");
+    REQUIRE(star_tree.to_string() == "(a,b,((c,d),(((e,f),g),h)));");
 
 }
 
-TEST_CASE("star, with weight schedule as vector", "[star][regression]"){
+TEST_CASE("star, with weight schedule as vector", "[star][regression][vweights]"){
     std::string newick_tree = "(((a,b),(c,d)),(((e,f),g),h));";
-    std::vector<double> v = {1.0, 2.0, 3.0, 4.0, 5.0};
+    std::vector<double> v = {1,1,1,1,1,1};
 
     star_t s({newick_tree});
     auto star_tree = s.get_tree(v);
@@ -74,9 +74,9 @@ TEST_CASE("star, with weight schedule as vector", "[star][regression]"){
     REQUIRE(star_tree.to_string() == "(((a,b),(c,d)),((e,f),g),h);");
 }
 
-TEST_CASE("star, with weight schedule as function", "[star][regression]"){
+TEST_CASE("star, with weight schedule as function", "[star][regression][fweights]"){
     std::string newick_tree = "(((a,b),(c,d)),(((e,f),g),h));";
-    auto f = [](size_t d) {return 2.0*d;};
+    auto f = [](size_t) {return 1.0;};
 
     star_t s({newick_tree});
     auto star_tree = s.get_tree(f);
