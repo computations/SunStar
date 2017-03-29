@@ -79,7 +79,12 @@ tree_t star_t::get_tree(){
     return nj(_avg_dists, invert_label_map(_label_map));
 }
 
-tree_t star_t::get_tree(const function<double(size_t)>& f, double max){
+tree_t star_t::get_tree(const function<double(size_t)>& f){
+    double max = 0.0;
+    size_t depth = get_size();
+    for(size_t i =0;i<depth;++i){
+        max+= f(i);
+    }
     for(auto& t:_tree_collection){
         t.set_weights(f, max);
     }
@@ -87,7 +92,12 @@ tree_t star_t::get_tree(const function<double(size_t)>& f, double max){
     return nj(_avg_dists, invert_label_map(_label_map));
 }
 
-tree_t star_t::get_tree(const vector<double>& v, double max){
+tree_t star_t::get_tree(const vector<double>& v){
+    double max = 0.0;
+    size_t depth = get_size();
+    for(size_t i =0;i<depth;++i){
+        max+= v[i];
+    }
     for(auto& t:_tree_collection){
         t.set_weights(v, max);
         debug_string(t.to_string().c_str());

@@ -15,8 +15,8 @@ class star_t{
     public:
         star_t(const std::vector<std::string>&);
         tree_t get_tree();
-        tree_t get_tree(const std::function<double(size_t)>&, double max=0.0);
-        tree_t get_tree(const std::vector<double>&, double max=0.0);
+        tree_t get_tree(const std::function<double(size_t)>&);
+        tree_t get_tree(const std::vector<double>&);
         size_t get_size();
         void set_outgroup(const std::string&);
         std::string get_first_label();
