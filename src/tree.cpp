@@ -68,7 +68,7 @@ void node_t::set_weights(function<double(size_t)> w_func, size_t depth,
 
     if(!_children){
         double total=0;
-        for(size_t i = 0; i<= depth; ++i){
+        for(size_t i = 0; i < depth; ++i){
           total+= w_func(i);
           debug_print("total: %f", total);
         }
@@ -77,7 +77,7 @@ void node_t::set_weights(function<double(size_t)> w_func, size_t depth,
     else{
         _lchild->set_weights(w_func, depth+1, max);
         _rchild->set_weights(w_func, depth+1, max);
-        _weight = (depth==0) ? w_func(depth)/2.0 : w_func(depth);
+        _weight = w_func(depth);
     }
 }
 
@@ -501,28 +501,28 @@ double tree_t::parent_distance(node_t* child, node_t* parent){
     return distance;
 }
 
-string node_t::to_string(){
+string node_t::to_string(int p){
     ostringstream ret;
     if(_lchild && _rchild){
-        ret<<"("<<_lchild->to_string()
-            <<","<<_rchild->to_string()<<")";
+        ret<<"("<<_lchild->to_string(p)
+            <<","<<_rchild->to_string(p)<<")";
     }
     else{
         ret<<_label;
     }
     if(_weight!=0.0){
-        ret<<":"<<std::fixed<<std::setprecision(1)<<_weight;
+        ret<<":"<<std::fixed<<std::setprecision(p)<<_weight;
     }
     return ret.str();
 }
 
-string tree_t::to_string() const{
+string tree_t::to_string(int p) const{
     ostringstream ret;
 
     if(_unroot.size()>1)
         ret<<"(";
     for(size_t i=0;i<_unroot.size();++i){
-        ret<<_unroot[i]->to_string();
+        ret<<_unroot[i]->to_string(p);
         if(i!=_unroot.size()-1)
             ret<<",";
     }
@@ -548,9 +548,11 @@ string tree_t::print_labels() const{
 void tree_t::set_weights(function<double(size_t)> w_func, double max){
     size_t depth = get_depth();
     debug_print("max depth: %lu", depth);
-    for(size_t i=0;i<depth;++i){
-        max+=w_func(i);
-        debug_print("w_func(%lu)=%f", i, w_func(i));
+    if(max==0.0){
+        for(size_t i=0;i<depth;++i){
+            max+=w_func(i);
+            debug_print("w_func(%lu)=%f", i, w_func(i));
+        }
     }
     debug_print("max: %f", max);
     if(_unroot.size() == 1){
@@ -566,12 +568,12 @@ void tree_t::set_weights(function<double(size_t)> w_func, double max){
 void tree_t::set_weights(const vector<double>& w_vec, double max){
     set_weights([&w_vec](size_t d){
         assert_string(d < w_vec.size(), "out of bounds for passed double vector");
-        return w_vec[d];
+        return d==0 ? w_vec[d]/2.0 : w_vec[d];
     }, max);
 }
 
 void tree_t::set_weights(double w, double max){
-    set_weights([w](size_t) -> double {return w;}, max);
+    set_weights([w](size_t d) -> double {return d==0 ? w/2.0 : w;}, max);
 }
 
 void tree_t::set_weights_constant(double c){

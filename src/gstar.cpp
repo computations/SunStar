@@ -76,7 +76,13 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
             }
         }
         if(schedule.back()> 1.0){ schedule.back()=0.0;}
-        string s = star.get_tree(schedule).set_outgroup(outgroup).
+
+        double max=0.0;
+        for(size_t k=0;k<schedule.size()-1;++k){
+            max+=schedule[k];
+        }
+
+        string s = star.get_tree(schedule,max).set_outgroup(outgroup).
             sort().clear_weights().to_string();
         counts[s] +=1;
     }
@@ -111,14 +117,15 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
     print_progress(0ul, trials);
     for(size_t i = 0; i < trials; i++){
         if(i % 100 == 0) {print_progress(i,trials);}
-        double tmp = 0.0;
+        double max=0.0;
         //Need to randomize the schedule
         for(size_t k = 0; k < schedule.size(); ++k){
-            tmp = d(gen);
+            double tmp = d(gen);
             debug_print("setting schedule[%lu]: %f", k, tmp);
             schedule[k] = tmp;
+            max+=tmp;
         }
-        string s = star.get_tree(schedule).set_outgroup(outgroup).
+        string s = star.get_tree(schedule,max).set_outgroup(outgroup).
             sort().clear_weights().to_string();
         write_sequence_to_file(schedule, s, outfile);
         counts[s]+=1;

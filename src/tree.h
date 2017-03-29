@@ -27,7 +27,7 @@ class node_t{
         node_t(std::string s):_label(s), _parent(0), _weight(0.0), _lchild(0), 
             _rchild(0), _children(0) {};
 
-        std::string to_string();
+        std::string to_string(int p=1);
 
         void set_weights_constant(double);
         void set_weights(std::function<double(size_t)>, size_t, double);
@@ -67,7 +67,7 @@ class tree_t{
 
         std::vector<node_t*> get_parents_of(node_t*);
 
-        std::string to_string() const;
+        std::string to_string(int p=1) const;
         std::string print_labels() const;
 
         std::unordered_map<std::string, size_t> make_label_map();
@@ -84,9 +84,9 @@ class tree_t{
         tree_t& set_outgroup(const std::string& );
 
         double parent_distance(node_t* child, node_t* parent);
-        void set_weights(const std::vector<double>&, double max = 1.0);
-        void set_weights(std::function<double(size_t)>, double max = 1.0);
-        void set_weights(double, double max = 1.0);
+        void set_weights(const std::vector<double>&, double max = 0.0);
+        void set_weights(std::function<double(size_t)>, double max = 0.0);
+        void set_weights(double, double max = 0.0);
         void set_weights_constant(double);
         tree_t& clear_weights();
 

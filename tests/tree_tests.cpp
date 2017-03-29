@@ -218,7 +218,7 @@ TEST_CASE("tree, setting weights with a function","[tree]"){
 
 TEST_CASE("tree, setting weights on a larger tree", "[tree]"){
     tree_t t(tree_strings[4]);
-    t.set_weights([](size_t) ->double {return 1.0;});
+    t.set_weights(1.0);
     string s= t.sort().to_string();
     REQUIRE(s == "(((a:2.0,b:2.0):1.0,(c:2.0,d:2.0):1.0):0.5,(((e:1.0,f:1.0):1.0,g:2.0):1.0,h:3.0):0.5);");
 }
@@ -228,7 +228,7 @@ TEST_CASE("tree, setting weights on a larger tree 2", "[tree]"){
     vector<double> weights = {.32,.24,.12,.75,.66,.80,.34};
     t.set_weights(weights);
     string s= t.sort().to_string();
-    REQUIRE(s == "(((a:1.8,b:1.8):0.2,(c:1.8,d:1.8):0.2):0.2,(((e:1.0,f:1.0):0.1,g:1.8):0.2,h:1.9):0.2);");
+    REQUIRE(s == "(((a:0.9,b:0.9):0.2,(c:0.9,d:0.9):0.2):0.2,(((e:0.8,f:0.8):0.1,g:0.9):0.2,h:1.1):0.2);");
 }
 
 TEST_CASE("tree, setting weights on a larger tree 3", "[tree]"){
@@ -236,7 +236,7 @@ TEST_CASE("tree, setting weights on a larger tree 3", "[tree]"){
     vector<double> weights = {.52,.34,.22,.71,.26,.30,.84};
     t.set_weights(weights);
     string s= t.sort().to_string();
-    REQUIRE(s == "(((a:1.7,b:1.7):0.3,(c:1.7,d:1.7):0.3):0.3,(((e:1.0,f:1.0):0.2,g:1.7):0.3,h:1.9):0.3);");
+    REQUIRE(s == "(((a:0.9,b:0.9):0.3,(c:0.9,d:0.9):0.3):0.3,(((e:0.7,f:0.7):0.2,g:0.9):0.3,h:1.3):0.3);");
 }
 
 TEST_CASE("tree, getting the correct depth", "[tree]"){

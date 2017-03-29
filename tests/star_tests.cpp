@@ -80,9 +80,9 @@ TEST_CASE("star, with weight schedule as function", "[star][regression][fweights
 
     star_t s({newick_tree});
     auto star_tree = s.get_tree(f);
-    star_tree.sort();
+    star_tree.set_outgroup("h").sort();
     star_tree.clear_weights();
-    REQUIRE(star_tree.to_string() == "(((a,b),(c,d)),((e,f),g),h);");
+    REQUIRE(star_tree.to_string() == "((((a,b),(c,d)),((e,f),g)),h);");
 }
 
 TEST_CASE("star, massive trees from ASTRID","[star][astrid]"){
