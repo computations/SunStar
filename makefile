@@ -17,7 +17,7 @@ all: release
 debug: CFLAGS+= -DDEBUG -DEMIT_DEBUG -g -O0
 debug: sunstar
 
-release: CFLAGS+= -DRELEASE -Ofast -march=native
+release: CFLAGS+= -DRELEASE -O3 -march=native
 release: sunstar
 
 sunstar: $(RELEASE_OBJS)

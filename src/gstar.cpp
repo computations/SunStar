@@ -110,15 +110,12 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
 
     print_progress(0ul, trials);
     for(size_t i = 0; i < trials; i++){
+        if(i % 100 == 0) {print_progress(i,trials);}
         double tmp = 0.0;
         //Need to randomize the schedule
-        while((tmp = d(gen)) < 0){}
-        debug_print("setting schedule[0]: %f", tmp);
-        schedule[0] = tmp;
-        for(size_t k = 1; k < schedule.size(); ++k){
-            if(i % 100 == 0) {print_progress(i,trials);}
-            while((tmp = d(gen)) < 0){ }
-            debug_print("setting schedule[%lu]: %f, tmp: %f", k, schedule[k-1] + tmp, tmp);
+        for(size_t k = 0; k < schedule.size(); ++k){
+            tmp = d(gen);
+            debug_print("setting schedule[%lu]: %f", k, tmp);
             schedule[k] = tmp;
         }
         string s = star.get_tree(schedule).set_outgroup(outgroup).
