@@ -34,3 +34,22 @@ TEST_CASE("gstar, functional, with rerooting", "[reroot]"){
     std::string ns = "((a,b),(c,d));";
     auto c = gstar({ns}, "a");
 }
+
+TEST_CASE("gstar, small regression", "[gstar][regression]"){
+    std::string s1 = "((a,((b,c),k)),e);";
+    std::string s2 = "((b,((a,c),k)),e);";
+    auto trees = gstar({s1,s2});
+    std::unordered_map<std::string, double> tree_map;
+    for(auto &t : trees){
+        tree_map[t.first] = t.second;
+    }
+    std::vector<std::pair<std::string, double>>ans {
+        {"((((a,e),k),c),b);", 0.625},
+        {"(((a,(c,k)),e),b);", 0.125},
+        {"(((a,(e,k)),c),b);", 0.125},
+        {"(((a,e),(c,k)),b);", 0.125}};
+    for(auto& a : ans){
+        REQUIRE(tree_map.count(a.first));
+        REQUIRE(tree_map[a.first] == a.second);
+    }
+}
