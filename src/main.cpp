@@ -21,13 +21,23 @@ bool __PROGRESS_BAR_FLAG__=true;
 
 void print_usage(){
     std::cout<<
-    "Usage: gstar [options]\n"<<
-    "Application Options:\n"<<
-    "    -f, --filename      Filename for the set of gene trees in Newick notation\n"<<
-    "    -t, --trials        Number of trials\n"<<
-    "    -l, --logfile       File to log the sequences to (default schedule.log)\n"<<
-    "    -o, --outgroup      Taxa label of the outgroup of the gene trees\n"<<
-    "    -s, --silent        Silence the progress bar, only output results\n";
+"Usage: gstar [options]\n"<<
+"Application Options:\n"<<
+"    -f, --filename [FILE]\n"<<
+"           Filename of a file that contains a list of newick strings,\n"<<
+"           representing gene trees to summarize\n"<<
+"    -t, --trials [NUMBER]\n"<<
+"           Number of trials. This will induce the random schedule\n"<<
+"    -r, --required-ratio [RATIO]\n"<<
+"           The minimum ratio required for a tree to be output at the end.\n"<<
+"           Trees below this threshold will be silenced. Intended to be bewteen\n"<<
+"           0 and 1\n"<<
+"    -l, --logfile [FILE]\n"<<
+"           File to log the sequences to (defaults to schedule.log)\n"<<
+"    -o, --outgroup [STRING]\n"<<
+"           Taxa label of the outgroup of the gene trees\n"<<
+"    -s, --silent\n"<<
+"           Silence the progress bar, only output results\n";
 }
 
 bool check_rooted(const vector<string>& nstrings){
@@ -45,11 +55,13 @@ int main(int argc, char** argv){
     std::string outgroup;
     std::string logfile="schedule.log";
     size_t trials=0;
+    double threshold=0;
 
     while(true){
         static struct option long_options[] = 
         {
             {"silent",    no_argument, 0, 's'},
+            {"require-ratio", required_argument, 0, 'r'},
             {"filename",    required_argument,  0,   'f'},
             {"outgroup",    required_argument,  0,   'o'},
             {"logfile",    required_argument,  0,   'l'},
@@ -57,7 +69,7 @@ int main(int argc, char** argv){
             {0,0,0,0}
         };
         int option_index = 0;
-        c = getopt_long(argc, argv, "sf:o:t:l:", long_options, &option_index);
+        c = getopt_long(argc, argv, "sf:o:t:l:p:", long_options, &option_index);
         if(c==-1){
             break;
         }
@@ -74,6 +86,9 @@ int main(int argc, char** argv){
             case 't':
                 trials = std::stoi(optarg);
                 break;
+            case 'p':
+                threshold = std::stod(optarg);
+                break;
             case 's':
                 turn_off_progress();
                 break;
@@ -88,6 +103,11 @@ int main(int argc, char** argv){
     ifstream newick_string_file(filename.c_str());
     std::string line;
     std::vector<std::string> newick_strings;
+
+    if(!newick_string_file){
+        std::cerr<<"Failed to open newick string file"<<std::endl;
+        return 1;
+    }
 
     while(std::getline(newick_string_file, line)){
         newick_strings.emplace_back(line);
@@ -105,10 +125,10 @@ int main(int argc, char** argv){
         return lhs.second>rhs.second;
     };
 
-
     std::sort(trees.begin(), trees.end(), pc_lambda);
 
     for(const auto& kv:trees){
+        if(kv.second<threshold) break;
         std::cout<<kv.first<<kv.second<<std::endl;
     }
     
