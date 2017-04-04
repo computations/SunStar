@@ -44,7 +44,7 @@ Unfortunately, we cannot directly infer species trees. Instead, phylogenetic
 methods are limited to traits we can observe. Historically, these traits were
 features like morphology of bones and limbs. With the advent of molecular
 sequencing, observation of traits using DNA sequences became common, and with
-those observations came the early mathematical methods of phylogenetics.
+hose observations came the early mathematical methods of phylogenetics.
 
 These methods were primarily using gene trees as proxies for species trees. Due
 to incomplete lineage sorting (ILS) [@pamilo88] this is not sufficient for
