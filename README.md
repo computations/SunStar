@@ -10,13 +10,13 @@ Purpose
 -------------------------------------------------------------------------------
 
 The purpose of `SunStar` is to infer the errors associated with inferring
-species trees using the STAR method[^1]. It does this by varying weight
+species trees using the STAR method[1]. It does this by varying weight
 schedules while running STAR.
 
 Usage
 -------------------------------------------------------------------------------
 
-\SunStar currently has only a few options. Here they are:
+`SunStar` currently has only a few options. Here they are:
 
 -   `-f` `--filename`: Filename for a set of Newick trees. These trees must all
 together be rooted or unrooted. If they are all unrooted trees, then the `-o`
@@ -32,6 +32,5 @@ weights. If this flag is not present, then a default schedule will be used.
 on all of the trees.
 -   `-s` `--silent`: Silence progress bar output. Only output the final trees.
 
-[^1]: Estimating Species Phylogenies Using Coalescence Times among Sequences
-(Liu et. al. 2009).
+[1]: Estimating Species Phylogenies Using Coalescence Times among Sequences (Liu et. al. 2009).
 
