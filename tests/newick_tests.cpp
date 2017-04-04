@@ -9,6 +9,14 @@ TEST_CASE("newick label parser, simple", "[newick]"){
     REQUIRE(idx == l.size());
 }
 
+TEST_CASE("newick label parser, number","[newick]"){
+    size_t idx = 0;
+    string l = "123";
+    auto ret = parse_label(l, idx);
+    REQUIRE(ret == l);
+    REQUIRE(idx == l.size());
+}
+
 TEST_CASE("newick label parser, with colon at end", "[newick]"){
     size_t idx = 0;
     string l = "abdc:";
