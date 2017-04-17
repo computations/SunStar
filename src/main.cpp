@@ -14,10 +14,19 @@ using std::string;
 using std::ifstream;
 #include <algorithm>
 //for std::sort
+#include <cmath>
 #include <getopt.h>
 
 //dumb hack to get the progress bar crap to work
 bool __PROGRESS_BAR_FLAG__=true;
+
+double calc_perplexity(std::vector<std::pair<std::string, double>> trees){
+    double total = 0;
+    for(auto&& kv : trees){
+        total += -1*std::log2(kv.second) * kv.second;
+    }
+    return std::pow(2, total);
+}
 
 void print_usage(){
     std::cout<<
@@ -131,6 +140,7 @@ int main(int argc, char** argv){
         if(kv.second<threshold) break;
         std::cout<<kv.first<<kv.second<<std::endl;
     }
+    std::cout<<"Perplexity: "<<calc_perplexity(trees)<<std::endl;
     
     return 0;
 }
