@@ -1,0 +1,20 @@
+\documentclass{standalone}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{forest}
+\begin{document}
+\begin{forest}
+for tree={l sep = 10mm}
+[,draw, circle
+    [ ,draw, circle, edge label={node[midway, left]{$1.0$}} 
+        [\texttt{a} ,edge label={node[midway, left]{$.1$}}, tier=taxa, outer sep = 2pt]
+        [\texttt{b} ,edge label={node[midway, right]{$.3$}}, tier=taxa]
+    ]
+    [ ,draw,circle ,edge label={node[midway, right]{$1.0$}}
+        [\texttt{c},edge label={node[midway, left]{$.43$}}, tier=taxa, outer sep = 2.5pt]
+        [\texttt{d} ,edge label={node[midway, right]{$.5$}}, tier=taxa]
+    ]
+]
+\end{forest}
+\end{document}

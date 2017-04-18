@@ -1,26 +1,27 @@
 ---
 author: Ben Bettisworth, University of Alaska Fairbanks
-title: "SunStar: An Implementation of the Generalized STAR Method \\ DRAFT 2"
-subtitle: DRAFT 1
+title: "SunStar: An Implementation of the Generalized STAR Method \\ DRAFT 3"
 date: 2017-03-13
 documentclass: article
 bibliography: bib.yaml
 numbersections: true
 geometry: margin=1in
+linkcolor: blue
 toc: true
-abstract: STAR[@liu09] is a method of computing species trees from gene trees.
+abstract: STAR [@liu09] is a method of computing species trees from gene trees.
     Later, STAR was generalized and proven to be statistically consistent given
     a few conditions [@rhodes_star]. Using these conditions, it is possible to
-    investigate robustness in the species tree inference process, which will
-    produce instabilities in the tree resulting from STAR. We have developed
-    a piece of software that does this called \texttt{SunStar}.
+    investigate robustness in the species tree inference process, the lack of
+    which will produce instabilities in the tree resulting from STAR. We have
+    developed
+    a software package that does this called \texttt{SunStar}.
 header-includes:
     -   \usepackage[linesnumbered,lined,ruled,vlined]{algorithm2e}
     -   \usepackage{nicefrac}
 ...
 
 \newcommand{\OO}{\mathcal{O}}
-\newcommand{\SunStar}{{\tt SunStar}}
+\newcommand{\SunStar}{{\tt SunStar }}
 \newcommand{\margalg}[1]{\IncMargin{0em}\begin{algorithm}[H] #1
 \end{algorithm}\DecMargin{0em}}
 
@@ -40,11 +41,12 @@ Background
 ###Problem Description
 
 Phylogenetics is primarily concerned with the inference of species trees.
-Unfortunately, we cannot directly infer species trees. Instead, phylogenetic
-methods are limited to traits we can observe. Historically, these traits were
-features like morphology of bones and limbs. With the advent of molecular
-sequencing, observation of traits using DNA sequences became common, and with
-hose observations came the early mathematical methods of phylogenetics.
+Unfortunately, we canot directly infer species trees (defined in
+\ref{notation}). Instead, phylogenetic methods are limited to traits we can
+observe. Historically, these traits were features like morphology of bones and
+limbs. With the advent of molecular sequencing, observation of traits using DNA
+sequences became common, and with hose observations came the early mathematical
+methods of phylogenetics.
 
 These methods were primarily using gene trees as proxies for species trees. Due
 to incomplete lineage sorting (ILS) [@pamilo88] this is not sufficient for
@@ -54,39 +56,43 @@ as a proxy for species can be misleading. More advanced methods of inferring
 species trees get around the ILS difficulties by using information from multiple
 genes.
 
-An example of this is the multispecies coalescent model, which is a probabilistic
-model of the ILS process. Using this model we can describe the way gene trees
-form from species trees. The methods that are discussed in this paper are shown
-to be statistically consistent under this model. In this context, statistically
-constistent means that we can make the probability of inferring the correct
-species tree equal to 1 if we make the sample large enough. Informally, given
-enough perfect data, we always get the right tree.
+An example of this is the multispecies coalescent model [@maddison97], which is
+a probabilistic model of the ILS process. Using this model we can describe the
+way gene trees form from species trees. The methods that are discussed in this
+paper are shown to be statistically consistent under this model. In this
+context, statistically constistent means that we can make the probability of
+inferring the correct species tree equal to 1 if we make the sample large
+enough. Informally, given enough perfect data, we always get the right tree.
 
 ###Prior Work
 
 Previous software that infer species trees from from gene tree summaries
-includes ASTRAL [@astral], NJst [@njst], STAR[@liu09]  and ASTRID[@astrid]. All
-of these programs will compute species trees from existing gene trees. ASTRAL
-is the exception in this group, in that it does not compute a distance table
-from the set of gene trees passed to it. For the rest of the software, they all
-compute a version of a distance table.
+includes ASTRAL [@astral], NJst [@njst], STAR [@liu09]  and ASTRID [@astrid].
+All of these programs will compute species trees from existing gene trees.
+ASTRAL is the exception in this group, in that it does not compute a distance
+table from the set of gene trees passed to it. For the rest of the software,
+they all compute a version of a distance table.
 
 In particular, STAR and ASTRID are a very similar method to the method used in
-\SunStar, with one important difference, they do not attempt to infer the
+\SunStar, with one important difference: they do not attempt to infer the
 support for the tree reported.  \texttt{SunStar} does, using the results from
 generalized STAR [@rhodes_star].
 
-Notation, Conventions and Definitions
+Notation, Conventions and Definitions{#notation}
 -------------------------------------------------------------------------------
 
 A _tree_ is a set of vertices (or nodes) and a set of edges that connect them
 with no cycles. A vertex with only one edge incident is called a _leaf_, plural
-_leaves_. A tree can have a special node that is designated the _root_. The
-root of a tree is often labeled as $\rho$. A node is called an _interior_ node
-if it is not a leaf.
+_leaves_ (we often call these _taxa_ as well). 
+
+A _rooted tree_ is a tree with a special node designated the _root_. The root
+of a tree is often labeled as $\rho$. A node is called an _interior_ node if it
+is not a leaf.
 
 Edges can have have tags which are numbers. These are typically called
-_weights_ or _lengths_, and are often a measure of a notion of distance.
+_weights_ or _lengths_, and are often a measure of a notion of distance. The
+_distance_ between two taxa, often written $d(a,b)$, is the sum of edge weights
+on the path between $a$ and $b$.
 
 A tree is _trivalent_  when all vertices of the tree have degree 3 or 1.
 A rooted trivalent tree is a tree that is allowed to have a single vertex, the
@@ -94,38 +100,57 @@ root, with degree 2. All trees discussed here will be trivalent unless otherwise
 noted.
 
 A _gene tree_ is a rooted or unrooted tree that has been inferred from gene
-sequences, and relates the divergence of those genes. A _species tree_ is a tree
-that relates the divergence of species. An unrooted tree is often made rooted
-by using an _outgroup_. This is a taxa that is intensionally distant from the
+sequences, and relates how a gene has diverged over time. Gene trees are
+usually inferred from sequences of genes, which have some mutations which
+differentiate them from each other. In contrast a _species tree_ is a tree that
+relates the divergence of species. An unrooted tree is often made rooted by
+using an _outgroup_. This is a taxa that is intensionally distant from the
 other taxa, ensuring that the root is connected directly to the outgroup.
 
-An _ultrametric_ tree is a tree where all the distance to the root vertex to
-the leaves are the same.
+An _ultrametric_ tree is a tree where all the distance from the root vertex to
+the leaves are the same. 
+
+A _distance table_ for a specices or gene tree is a table relating the
+distances between the taxa on a tree. The distance is calculated by summing the
+edge weights on the path between the two taxa.
 
 We will use the notation $F(n) = \OO(f(n))$ to denote the order of a function
 $F$. Normally, $F$ is not reported, but instead referred to by this notation.
 By convention, the $f$ reported will be close to as small as possible.
+
+The term _stability_ will be used to refer to the sensitivity of algorithms
+like STAR and GSTAR to inputs with equivalent topology, but different weight
+schedules. In general, STAR should output the same tree regardless of weight
+schedule, (by GSTAR, see section \ref{sec:gstar}). Furthermore, we refer to the
+lack of this property as _instability_.
 
 
 Newick Notation
 -------------------------------------------------------------------------------
 
 Newick Notation is a format for specifying trees. An example of a Newick tree
-is
+and its associated tree is
 
 ```
 ((a:.1,b:.3):1.0, (c:.43,d:.5):1.0);
 ```
 
-The '`:`' signifies a weight on an edge leading up from the node towards the
-root, and is optional.
+![The associated tree](./figs/newicktree.pdf)
+
+The '`:`' denotes a weight on an edge leading up from the node towards the
+root, and is optional[^newick_weights]. 
+
+[^newick_weights]: In particular, \SunStar only cares about the topology of the
+trees that it is fed, so information about edge weights is usually discarded.
+The exception is in the testing suite, where setting weights in this way is
+convenient.
 
 One advantage of Newick notation is that the grammar[^newick_ref] for this
 language is quite simple, and requires only a few productions. This makes it
 easy to write a parser to recognize a Newick string. Unfortunately there are
 quite a few disadvantages, one of which is the non-uniqueness of the string for
 a tree. Specifically, there are many strings which represent the same tree. The
-problem is due, largely to the ordering of subtrees. Note that these two trees
+problem is due largely to the ordering of subtrees. Note that these two trees
 are the same
 
 ```
@@ -142,49 +167,49 @@ By doing this, we can compare trees by comparing their Newick strings.
 
 One additional problem is the lack of standardized grammar. Some
 implementations allow for taxa labels to start with a number. Some
-implementations require the semicolon at the end, others do not. Its difficult
-to deal with this issue, so instead I documented the grammar I used in section
-\ref{newick-imp}.
+implementations require the semicolon at the end, others do not. It is
+difficult to deal with this issue, so instead I documented the grammar I used
+in section \ref{newick-imp}.
 
-[^newick_ref]: See section \ref{newick-imp}
 
 Neighbor Joining
 -------------------------------------------------------------------------------
 
-STAR(estimating Species Trees using Average Ranks)
+
+WRITE THIS
+
+
+STAR (estimating Species Trees using Average Ranks)
 -------------------------------------------------------------------------------
 
-STAR infers a species tree by calculating a distance table of ranks[^1], and
-then a tree building algorithm to generate a new tree [@liu09]. The algorithm
+STAR infers a species tree by calculating a distance table of ranks, and
+then a tree building algorithm to generate a new tree [@liu09]. Here, the term
+rank is used to mean edge length, and will be referred to as edge length in the
+future. We use the term here once to be consistent with Liu et al. The algorithm
 is as follows: Given a set of gene rooted trees, do the following for each tree.
 
 -   Set all the edge weights
     -   If the edge is not connected to a leaf, set the weight to 1.
     -   If the edge is connected to a leaf, set it so that the tree will be
-    ultrametric[^ultrametric_note].
+        ultrametric. Practically this means that we can take the number of taxa
+        and subtract the depth, then use that for the edge weight.
 -   Calculate pairwise distance, put them into a table.
 
-Once all the tables have been calculated, do an entry wise sum, and divide each
+Once all the tables have been calculated, do an entrywise sum, and divide each
 entry by the number of gene trees. Informally, think of this as taking the
 average of the distance table. Once we have the "average" distance table, run
 a tree building algorithm on it, such as Neighbor Joining.
 
-[^1]: Here the term rank is used to mean edge length or weight, and will be
-  referred to as edge length in the future.
-
-[^ultrametric_note]: Practically this means that we can take the number of taxa
-    and subtract the depth, then use that for the edge weight.
-
-Generalized STAR
+Generalized STAR{#sec:gstar}
 -------------------------------------------------------------------------------
 
-Generalized star [@rhodes_star] is version of STAR where the edge weight
-schedule is allowed to vary. In this version, edge weights of an equal distance
+Generalized STAR [@rhodes_star] is version of STAR where the edge weight
+schedule is allowed to vary. In this version, edge weights at an equal distance
 from the root (using graph-theoretic distance of counting edges in a path) are
-given the same weight. Weights need only be non-negative except for one.
-Additionally, the edges connected to leaves are adjusted to make the tree
-ultrametric, as in STAR. Other than weight assignment, algorithm proceeds the
-same.
+given the same weight. All weights must be non-negative, and all but one of the
+weights can be 0.  Additionally, the edges connected to leaves are adjusted to
+make the tree ultrametric, as in STAR. Other than weight assignment, the
+algorithm proceeds the same.
 
 Additionally, we can attempt to infer the stability of the species tree
 produced by STAR by varying the weights and reporting the different trees that
@@ -193,7 +218,9 @@ come out of the tree creation step. This is the primary goal of \SunStar.
 \texttt{SunStar}
 -------------------------------------------------------------------------------
 
-\SunStar currently has only a few options. Here they are:
+\SunStar is a software package primarily intended to be used on a \*nix command
+line, and is invoked with the command `sunstar [options]`. Currently \SunStar
+has only a few options. Here they are:
 
 -   `-f` `--filename`: Filename for a set of Newick trees. These trees must all
 together be rooted or unrooted. If they are all unrooted trees, then the `-o`
@@ -211,21 +238,36 @@ on all of the trees.
 Algorithms
 ===============================================================================
 
+Basic Operations
+-------------------------------------------------------------------------------
+
+In the following sections about complexity, we count the following as basic
+operations:
+
+-   Node accessess, and
+-   Basic Arithmetic.
+
+Also of note is what is _not_ counted. Specifically, we do not count the basic
+operations of most of the data structures used in computation. Counting the
+operations of these data structures would not change the complexity class of
+the problem, as the operations used on relevant data structures, mainly create
+and update, are constant time.
+
 Finding the distance between two taxa
 -------------------------------------------------------------------------------
 
 ###Specification
 
 In order to calculate the distance table, we have to calculate the distance
-between any two taxa. Fortunately we are working with trees, so the path to any
-two nodes is unique. Therefore, if we find a path, we have found the only path.
-So, the strategy to find a path between to nodes is to calculate the list of
-ancestors for each node. Once we have this list, we walk the list, starting from
-the rootside, until we find a difference. Then, the remaining nodes in the
-list, plus the node right before the divergence, is the path between the two
-nodes.
+between any two taxa. Fortunately we are working with trees, so the path
+between any two nodes is unique. Therefore, if we find a path, we have found
+the only path.  So, the strategy to find a path between two nodes is to
+calculate the list of ancestors for each node. Once we have this list, we walk
+the list, starting from the root, until we find a difference. Then, the
+remaining nodes in the list, plus the node right before the divergence, form the
+path between the two nodes.
 
-For example, suppose we the tree in figure \ref{fig:dist_tree}. Then the
+For example, suppose we have the tree in figure \ref{fig:dist_tree}. Then the
 sequences of parents associated with that tree are
 $$s_1 : \rho, n_1, t_1$$
 $$s_2 : \rho, n_1, t_2$$
@@ -240,9 +282,9 @@ $t_1$ and $t_4$ is $t_1, n_1, \rho, n_2, t_4$.
 
 ###Complexity
 
-The complexity of finding the distance between two nodes for this is $\OO(n)$,
-where $n$ is the number of taxa on the tree. First, consider the steps involved
-with this algorithm. They are
+The complexity of finding the distance between two nodes is $\OO(n)$, where $n$
+is the number of taxa on the tree. First, consider the steps involved with this
+algorithm. They are
 
 -   Make a list from taxa to root,
 -   Walk along that list,
@@ -282,10 +324,14 @@ in the tree, for each tree in $T$. To average, we simply add each matrix, and
 then divide by $m$. Once we have this new distance matrix, we pass it to
 Neighbor Joining and get a new tree.
 
+####Example
+
+MAKE AN EXAMPLE
+
 ###Complexity
 
 The complexity of STAR is $\OO(mn^3)$. Calculating a single entry in the
-distance matrix requires a call to a $\OO(n)$ algorithm, and there are $n^2$
+distance matrix requires a call to an $\OO(n)$ algorithm, and there are $n^2$
 elements in the matrix. Therefore the complexity of computing each table is
 $n^2\OO(n) = \OO(n^3)$. We need compute this distance matrix for each of the
 $m$ trees in $T$, so $m\OO(n^3) = \OO(mn^3)$.
@@ -299,20 +345,26 @@ a complexity of $\OO(n^3)$, but only needs to be performed once.
 Generalized STAR
 -------------------------------------------------------------------------------
 
-As discussed above Generalized STAR works by varying the schedule of weights on
-a set of trees. To implement this algorithm, we simply produce different
+As discussed above, Generalized STAR works by varying the schedule of weights
+on a set of trees. To implement this algorithm, we simply produce different
 schedules and then run STAR on the tree sets with the different weights. There
-are two strategies by which weight schedules are generated.
+are two strategies by which weight schedules are generated: the default
+schedule and the randomized. These are discussed in the two following sections.
 
 ###Default Schedule
 
-This schedule starts by assigning 1 to every edge, and adjusts leaf edges to be
-ultrametric. Then, all possible combinations of weights with at least one
-weight being 1 are computed[^binary]. By the results from generalized STAR, if
-there is no a very large sample of gene trees with error then the tree should
-come out the same, despite the 0 weights on the edges. But, we believe that it
-is likely that introducing zeros into the system will maximize the exposer of
-any errors, and therefore will cause instabilities.
+This schedule starts by assigning a weight of 1 to every edge, and then adjusts
+leaf edges to be ultrametric. Then, all possible combinations of weights with
+at least one weight being 1 are computed[^binary]. By the results from
+generalized STAR, if we have a very large sample of gene trees without
+inference error then the tree should come out the same, despite the 0 weights
+on the edges. 
+
+Intuitively, this is like canceling out parts of the tree which carry
+information about the differences between taxa. By setting edge weights to 0 in
+key places, we can possibly find that there are different outputs than other
+weights. It is our belief that this is a good strategy is effective, and early
+results agree.
 
 [^binary]: This should be thought of as counting in binary from 1 to the
 height of the tree.
@@ -321,7 +373,9 @@ height of the tree.
 
 The other strategy to generate weight schedules is to generate them randomly.
 This strategy works by generating a list of numbers from a uniform distribution
-from 0 to 1. These numbers are then used as the schedule for a run of STAR.
+from 0 to 1. After a schedule generated and assigned, the leaf edges need to be
+adjusted to ensure ultrametricity. These numbers are then used as the schedule
+for a run of STAR.
 
 Implementation
 ===============================================================================
@@ -329,11 +383,33 @@ Implementation
 \texttt{tree.h}
 -------------------------------------------------------------------------------
 
+###Purpose
+
+This file implements the class `tree_t` (read "tree type"), which is intended
+to store both the topology and metric information about a tree. In particular,
+this class needs to support the ability to store metric information, and
+calculate distances between taxa.  
+
+A major complication of `tree_t` is the need to support both rooted and
+unrooted trees. There are two reasons for this: Neighbor Joining produces
+unrooted trees, and input might be in the form of unrooted trees. It might be
+possible to side step the Neighbor Joining issue, but the requirement to take
+in unrooted trees from the user is something we need to support anyways.
+
+The support for unrooted trees also informs another requirement for `tree_t`,
+the ability to make minor modifications to the topology of a tree.
+Specifically, we need to be able to root a tree by a specified taxa called an
+outgroup. Therefore, there is a reroot functionality implemented.
+
+###Implementation
+
 At a high level, phylogenetic trees are implemented as doubly linked binary
-trees. This is to say, each node on the tree has a parent, and two children.
-This also means that there is a sense of directionality towards the root. This
-makes finding paths between nodes easier, as we don't have to search in all
-directions to find the other node.
+trees. This is to say, each node on the tree has a reference to a parent (if it
+exists), and references to two children (if they exist). Note that due to the
+nature of phylogenetic trees, nodes either have two children, or none. This
+also means that there is a sense of directionality towards the root. This makes
+finding paths between nodes easy, as we can begin at leaf nodes and proceed
+towards the root.
 
 There is also an odd concept of an `unroot`. The `unroot` is the special node
 that is the root, for the sake of starting to find things on the tree, of an
@@ -350,17 +426,24 @@ preallocate a contiguous section of memory to store the `node`s that make up
 the tree, as opposed to each node being potentially distant from other nodes.
 By doing this, we can take advantage of cache locality, which can be
 a potentially large speed up on some systems. This technique I call tree
-packing, which is discussed in section \ref{tree-packing}.
+packing; it is discussed in section \ref{tree-packing}.
 
 The `tree` class is also responsible for setting the weights of the tree. This
-can be done few ways. The first is to pass the `set_weight` function a function
-that takes a `size_t` or equivalent, and returns a `double`. Another is to
-pass it a vector of weights which is indexed by depth. Yet another way is to
-pass a constant to the function, which will set the weights to be the constant,
-with the exception of the leaves. In all these cases, the ultrametricity of the
-tree is preserved, i.e. the leaf edges are adjusted to ensure it.
+can be done in three ways. The first is to pass the `set_weight` function a
+function that takes a `size_t` or equivalent, and returns a `double`. Another
+is to pass it a vector of weights which is indexed by depth. Yet another way is
+to pass a constant to the function, which will set the weights to be the
+constant, with the exception of the leaves. In all these cases, the
+ultrametricity of the tree is preserved, i.e. the leaf edges are adjusted to
+ensure it.
 
 ###Tree Packing
+
+Tree packing is the name for producing a tree topology in memory in a
+contiguous section of memory. At a high level this algorithm performs a
+preorder traversal of the tree, and pushes nodes onto a queue. After the
+traversal is complete, the queue contains the packed tree. The final step is to
+update the references inside the tree.
 
 \margalg{
 \caption{Tree Packing}
@@ -398,17 +481,6 @@ unrooted trees might be passed to this function, but the algorithms only work
 on rooted trees. So we must be able to root a tree. To do this, the following
 algorithm is used.
 
-\begin{function}
-\caption{SwapParent(node $n$, node $p$)}
-    \If{p is $n$'s left child}{
-        swap $n$'s parent and left child\;
-        \SwapParent (left child, n)\;
-    }
-    \ElseIf{p is $n$'s left child}{
-        swap $n$'s parent and right child\;
-        \SwapParent (right child, n)\;
-    }
-\end{function}
 
 \margalg{
 \caption{Set Root}
@@ -438,12 +510,27 @@ unrooted tree, outgroup pointer $o$}
     }
 
     set $p$'s left child to \texttt{null}\;
-    \SwapParent(p, \texttt{null})
+    \FuncSty{SwapParent}\ArgSty{(p, \texttt{null})} \tcp{See Below}
 }
 }
 
+\begin{function}
+\caption{SwapParent(node $n$, node $p$)}
+    \If{p is $n$'s left child}{
+        swap $n$'s parent and left child\;
+        \SwapParent {(left child, n)}\;
+    }
+    \ElseIf{p is $n$'s left child}{
+        swap $n$'s parent and right child\;
+        \SwapParent {(right child, n)}\;
+    }
+\end{function}
+
+
 \texttt{newick.h}{#newick-imp}
 -------------------------------------------------------------------------------
+
+###Purpose
 
 In order to work with gene trees, I need to be able to parse Newick Notation.
 So, the specification of the parser is as follows.
@@ -471,11 +558,11 @@ only. Below is the grammar that is in the parser
 ###Parser/Lexer
 
 Since the language is so small, We have made the parser and lexer tightly
-integrated. This is to say, there really is no lexer. Instead, characters are
+integrated. Thus, there is no separate lexer module. Instead, characters are
 read and dealt with immediately. I read floats with the `stod` function in the
 standard `c++` library.
 
-The parser itself is simple top down recursive decent parser. The parser
+The parser itself is simple top down recursive descent parser. The parser
 returns a list of nodes pointers to subtrees that make up the tree. This list
 is intended to be the unroot.
 
@@ -483,10 +570,11 @@ is intended to be the unroot.
 -------------------------------------------------------------------------------
 
 This header contains my implementation of the Neighbor Joining[@saito87]
-algorithm. I need to implement the algorithm, because it ends up being tightly
-bound to whatever tree class is used. This makes finding fast libraries hard.
-There will not be much discussion of the theory of Neighbor Joining here, just
-the details of this implementation.
+algorithm. Neighbor Joining has been implemented previously. Howwever efficient
+implementations are not generic, as they are specific to the tree structure
+being used. Therefore it was necessary to reimplement the algorithm here. This
+makes finding fast libraries hard.  There will not be much discussion of the
+theory of Neighbor Joining here, just the details of this implementation.
 
 This implementation starts by putting all the nodes into a list, which should
 be thought of as the unroot. It then join pairs until there are only 3 elements
@@ -495,7 +583,7 @@ pair routine finds[^q_store] the lowest entry of a matrix $Q$. $Q$ is
 calculated based of the distance matrix of all the nodes in the unroot. The
 lowest element of $Q$ is identified by its row and column (We don't really
 care about the value of that element, just that its the lowest or tied for it).
-The row and columns of $Q$ are indexes into the unroot, and sow the row column
+The row and columns of $Q$ are indexes into the unroot, and so the row column
 pair from this step identify a specific two nodes in the unroot, which are to
 be joined. So the find pair routine returns this pair.
 
@@ -674,8 +762,8 @@ will likely take several months of work.
 Code
 ===============================================================================
 
-The entire code base, including this write up, is located on
-[GitHub](https://github.com/computations/SunStar)
+The entire code base, including this write up, is located on GitHub
+[here](https://github.com/computations/SunStar)
 
 References
 ===============================================================================

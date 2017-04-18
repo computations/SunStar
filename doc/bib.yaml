@@ -157,4 +157,19 @@ references:
       container-title: BMC Genomics
       volume: 16
       issue: 10
+    - title: "Gene Trees in Species Trees"
+      id: maddison97
+      type: article-journal
+      author:
+          - given: Wayne
+            family: Maddison
+      DIO: 10.1093/sysbio/46.3.523
+      issued:
+          year: 1997
+          month: September
+          day: 1
+      container-title: Systematic Biology
+      volume: 46
+      issue: 3
+      pages: 523-536
 ...

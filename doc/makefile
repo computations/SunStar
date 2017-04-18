@@ -5,7 +5,7 @@ FIGDIR=figs
 
 all: $(DOCNAME)
 
-$(DOCNAME): $(MDFILE) $(BIBFILE)
+$(DOCNAME): $(MDFILE) $(BIBFILE) 
 	make -C $(FIGDIR)
 	pandoc --filter=pandoc-citeproc -f markdown-superscript $(MDFILE) -o $@
 
@@ -13,4 +13,5 @@ see: $(DOCNAME)
 	evince $(DOCNAME)
 
 clean: 
+	make -C $(FIGDIR) clean
 	rm -rf $(DOCNAME)
