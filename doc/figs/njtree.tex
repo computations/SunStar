@@ -1,0 +1,22 @@
+\documentclass{standalone}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\begin{document}
+
+\begin{tikzpicture}[taxa/.style ={circle}]
+    \node[taxa, scale=0.01] (rho1){};
+    \node[taxa, scale=0.01] (rho2) [right =of rho1]{};
+    \node[taxa] (a) [above left =of rho1]{$a$};
+    \node[taxa] (b) [below left =of rho1]{$b$};
+    \node[taxa] (c) [above right =of rho2]{$c$};
+    \node[taxa] (d) [below right =of rho2]{$d$};
+
+    \path (a) edge (rho1);
+    \path (b) edge (rho1);
+    \path (rho1) edge (rho2);
+    \path (c) edge (rho2);
+    \path (d) edge (rho2);
+\end{tikzpicture}
+\end{document}
