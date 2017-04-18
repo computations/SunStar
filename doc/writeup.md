@@ -107,6 +107,12 @@ relates the divergence of species. An unrooted tree is often made rooted by
 using an _outgroup_. This is a taxa that is intensionally distant from the
 other taxa, ensuring that the root is connected directly to the outgroup.
 
+A useful bit of notation for a pair of taxa with the same parent is a _cherry_.
+Its called that because its a looks like a pair of cherries hanging of the stem
+cherry. There is an example of a cherry in figure \ref{fig:cherry}
+
+![Example of a cherry](./figs/cherry_fig.pdf){#fig:cherry}
+
 An _ultrametric_ tree is a tree where all the distance from the root vertex to
 the leaves are the same. 
 
@@ -570,11 +576,18 @@ is intended to be the unroot.
 -------------------------------------------------------------------------------
 
 This header contains my implementation of the Neighbor Joining[@saito87]
-algorithm. Neighbor Joining has been implemented previously. Howwever efficient
+algorithm. Neighbor Joining has been implemented previously. However efficient
 implementations are not generic, as they are specific to the tree structure
 being used. Therefore it was necessary to reimplement the algorithm here. This
 makes finding fast libraries hard.  There will not be much discussion of the
 theory of Neighbor Joining here, just the details of this implementation.
+
+Our implementation of Neighbor Joining starts by creating a node for every
+taxa. Then, a central node is created and every set to be every taxa's parent.
+The next step of the algorithm is to find a pair to join into a _cherry_. We
+choose the cherry based off the 
+
+![Illistration of the](./figs/disance
 
 This implementation starts by putting all the nodes into a list, which should
 be thought of as the unroot. It then join pairs until there are only 3 elements
