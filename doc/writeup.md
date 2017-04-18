@@ -135,13 +135,13 @@ Newick Notation
 -------------------------------------------------------------------------------
 
 Newick Notation is a format for specifying trees. An example of a Newick tree
-and its associated tree is
+is as follows, with the associated tree in figure \ref{fig:newicktree}
 
 ```
 ((a:.1,b:.3):1.0, (c:.43,d:.5):1.0);
 ```
 
-![The associated tree](./figs/newicktree.pdf)
+![The associated tree](./figs/newicktree.pdf){#fig:newicktree}
 
 The '`:`' denotes a weight on an edge leading up from the node towards the
 root, and is optional[^newick_weights]. 
@@ -178,12 +178,74 @@ difficult to deal with this issue, so instead I documented the grammar I used
 in section \ref{newick-imp}.
 
 
-Neighbor Joining
+Neighbor Joining{#nj}
 -------------------------------------------------------------------------------
 
+Neighbor Joining [@saito87] is a tree construction algorithm that proceeds by
+iteratively joining pairs together that have been selected by the four-point
+condition. Consider the tree in figure \ref{fig:njtree}. Note that if the edges
+have non-negative edge weights, it must be true that
 
-WRITE THIS
+$$d(a,b) + d(c,d) \leq d(a,d) + d(b,c) = d(a,c) + d(b,d).$$
 
+Specifically, the weight on the middle edge joining the two cherries matters.
+Also note that this relationship involves only distances between the leaves,
+and not distances between interior nodes. This is important, because we
+generally don't have distances from taxa to ancestor species. 
+
+![A 4 taxon unrooted tree](./figs/njtree.pdf){#fig:njtree}
+
+This fact informs the Neighbor Joining algorithm. By using the four point
+criterion, we can select pairs to join. At a High level the algorithm proceeds
+like so:
+
+-   Initialize the tree by creating nodes for all the taxa, and connect them to
+    a central node $t$.
+-   Select a pair of nodes.
+-   Join the pair of nodes to a new parent node, and connect the new parent
+    back to the central node.
+-   Calculate distances for the three new nodes.
+-   Repeat until there are 3 nodes left connected to the central node.
+
+Selecting a pair to join is done by calculating a matrix $Q$, whose entries are
+the following
+
+$$Q_{a,b} = (N - 2) d(a,b) - R_a - R_b$$
+
+Where $a$ and $b$ are indexes associated with nodes waiting to be joined, $N$
+is the number of node connected to the central node, $d(a,b)$ is the distance
+between $a$ and $b$, and the quantity $R_k$ is the sum of the distances from
+$k$ to all other nodes. By calculating this matrix, and finding the smallest
+value in it, we can find the pair to join. Specifically, the row and column
+indices of the lowest entry, $(a,b)$ correspond to the pair to join.
+
+Using this pair $(a,b)$, the implementation joins the pair by removing these
+elements from the unroot, making them the children of a new node, and then
+putting that new node back into the unroot. We calculate the distance from the
+new node to the pair by the three point formula. The three point formula is for
+a 3 node tree, leaves $x,y$ and $z$ and central node $r$, and known distances
+between the leaves, we can calculate the distance between the leaves like so:
+
+$$d(r, x) = \frac{1}{2}[d(y,x) + d(x,z) - d(y,z)],$$
+$$d(r, y) = \frac{1}{2}[d(y,x) + d(y,z) - d(x,z)],$$
+$$d(r, z) = \frac{1}{2}[d(z,x) + d(y,z) - d(y,x)].$$
+
+To use the three point formula on a tree with more than tree points to join, we
+compute the average distance between $a$, $b$ and the rest of the nodes in
+consideration. This way, we have the 6 distances needed for the three point
+formula.
+
+This process of selecting, joining, and re-inserting leaves a net $-1$ taxa
+connected to the central node. We repeat the process by calculating $Q$ again,
+but this time only treating the nodes connected to the central node $t$ as
+taxa. In this way, we shrink the problem size down by 1 each iteration
+
+When the number of nodes connected to $t$ reaches 3, we skip calculating $Q$ and 
+just apply the three-point formulas to the remaining nodes. Importantly, this
+leaves us with an unrooted tree, which is the result of Neighbor Joining.
+
+A final note, which will remain unjustified, is that Neighbor Joining has
+a complexity of $\OO(n^3)$, where $n$ is the number of taxa to be joined.
 
 STAR (estimating Species Trees using Average Ranks)
 -------------------------------------------------------------------------------
@@ -520,17 +582,17 @@ unrooted tree, outgroup pointer $o$}
 }
 }
 
-\begin{function}
+\margalg{
 \caption{SwapParent(node $n$, node $p$)}
     \If{p is $n$'s left child}{
         swap $n$'s parent and left child\;
-        \SwapParent {(left child, n)}\;
+        \FuncSty{SwapParent}\ArgSty{ {(left child, n)}}\;
     }
     \ElseIf{p is $n$'s left child}{
         swap $n$'s parent and right child\;
-        \SwapParent {(right child, n)}\;
+        \FuncSty{SwapParent}\ArgSty{ {(right child, n)}}\;
     }
-\end{function}
+}
 
 
 \texttt{newick.h}{#newick-imp}
@@ -579,54 +641,20 @@ This header contains my implementation of the Neighbor Joining[@saito87]
 algorithm. Neighbor Joining has been implemented previously. However efficient
 implementations are not generic, as they are specific to the tree structure
 being used. Therefore it was necessary to reimplement the algorithm here. This
-makes finding fast libraries hard.  There will not be much discussion of the
-theory of Neighbor Joining here, just the details of this implementation.
+makes finding fast libraries hard. A full specification of the algorithm can be
+found in section \ref{nj}.
 
-Our implementation of Neighbor Joining starts by creating a node for every
-taxa. Then, a central node is created and every set to be every taxa's parent.
-The next step of the algorithm is to find a pair to join into a _cherry_. We
-choose the cherry based off the 
-
-![Illistration of the](./figs/disance
-
-This implementation starts by putting all the nodes into a list, which should
-be thought of as the unroot. It then join pairs until there are only 3 elements
-in the unroot left. To join pairs, it calls the find pair routine. The find
-pair routine finds[^q_store] the lowest entry of a matrix $Q$. $Q$ is
-calculated based of the distance matrix of all the nodes in the unroot. The
-lowest element of $Q$ is identified by its row and column (We don't really
-care about the value of that element, just that its the lowest or tied for it).
-The row and columns of $Q$ are indexes into the unroot, and so the row column
-pair from this step identify a specific two nodes in the unroot, which are to
-be joined. So the find pair routine returns this pair.
-
-With this found pair, the implementation joins the pair by removing these
-elements from the unroot, making them the children of a new node, and then
-putting that new node back into the unroot. We calculate the distance from the
-new node to the pair by the three point formula[^three_point], and do the same
-for the distance between the new node and all the rest of the nodes in the
-unroot. The net effect of this is that the size of unroot shrinks by one every
-time the implementation joins a pair.
-
-When the unroot size shrinks to 3, we then then take the remaining three and
-use the three point formula to calculate distances between these final three
-nodes. With that, complete, we have a complete unrooted tree.
-
-[^q_store]: I don't actually store the matrix Q. Its only ever used to find the
-smallest element, so I just calculate it and store the smallest so far. This
-is a pretty minor optimization, but saves a $n^2$ memory. Furthermore, $Q$ is
-symmetric, so we only compute the top half of the matrix, and skip the diagonal
-for another minor optimization.
-
-[^three_point]: In a 4 node tree (trivalent), with leaves $x,y,z$ and central
-node $r$, we can calculate and edge length given the distances $d(x,y), d(x,z),
-d(y,z)$ by using the three point formula: $d(r,x) = \frac{1}{2}[d(y,x) + d(x,z)
-- d(y,z)]$
+Some optimizations have been performed over the naïve implementation. The
+first, and largest, is that the matrix $Q$, which is calculated in each
+iteration of the algorithm is not stored. Instead, we just store the lowest
+value of $Q$ so far, and the pair associated with it. When we have finished
+iterating through the matrix, we simply return the pair with the lowest
+associated value of $Q$.
 
 \texttt{star.h}
 -------------------------------------------------------------------------------
 
-The STAR algorithm is straight forward. Most of the complexity of the code
+The STAR algorithm is straightforward. Most of the complexity of the code
 comes from the tree itself, but once that is implemented, the algorithm is
 simple. Please refer to algorithm \ref{alg:STAR} for the details.
 
@@ -718,8 +746,8 @@ equivalent in detecting error, though the proportions differ.
 Conclusion
 ===============================================================================
 
-We have created a software package, \SunStar, that will use Generalized STAR to
-infer the stability of a species tree inferred by STAR. Furthermore, we have
+We have created a software package, \SunStar, that uses Generalized STAR to
+infer the stability of a species tree produced by STAR. Furthermore, we have
 found early results that suggest that this technique might be useful. 
 
 Future Work
@@ -738,10 +766,10 @@ particular order:
 
 -   Refactor distance table data structure, so that we can take advantage of
     symmetry.
--   Refactor the node class, investigate making the class smaller in memory
+-   Refactor the node class; investigate making the class smaller in memory.
 -   Implement OpenMP routines on the GSTAR level of computation (Give each STAR
     inference a thread).
--   Optimize the default schedule, find unnecessary steps
+-   Optimize the default schedule, find unnecessary steps.
 
 Enhancements
 -------------------------------------------------------------------------------
@@ -751,7 +779,7 @@ only necessary if the technique turns out to be very successful, but are
 included as a roadmap nonetheless.
 
 -   More distributions/schedules for weights in GSTAR.
--   Add MPI support
+-   Add MPI support.
 -   Add "Full Pipeline" inference. Specifically, take in gene sequences and
     return a set of trees with support.
 
@@ -762,9 +790,9 @@ To really investigate this method of detecting errors, we would like a study
 that
 
 1.   Models gene trees from a species tree using the multispecies coalescent
-    model
-2.   Generate gene sequences from those gene trees
-3.   Infer new gene trees with error from the generated sequences
+    model,
+2.   Generate gene sequences from those gene trees,
+3.   Infer new gene trees with error from the generated sequences,
 4.   Run \SunStar and examine the error rate.
 
 Most of these computations are relatively fast, except for step 3. Inferring
