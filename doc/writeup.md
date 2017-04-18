@@ -1,7 +1,7 @@
 ---
 author: Ben Bettisworth, University of Alaska Fairbanks
 title: "SunStar: An Implementation of the Generalized STAR Method \\ DRAFT 3"
-date: 2017-03-13
+date: \today
 documentclass: article
 bibliography: bib.yaml
 numbersections: true
@@ -83,7 +83,7 @@ Notation, Conventions and Definitions{#notation}
 
 A _tree_ is a set of vertices (or nodes) and a set of edges that connect them
 with no cycles. A vertex with only one edge incident is called a _leaf_, plural
-_leaves_ (we often call these _taxa_ as well). 
+_leaves_ (we often call these _taxa_ as well).
 
 A _rooted tree_ is a tree with a special node designated the _root_. The root
 of a tree is often labeled as $\rho$. A node is called an _interior_ node if it
@@ -114,7 +114,7 @@ cherry. There is an example of a cherry in figure \ref{fig:cherry}
 ![Example of a cherry](./figs/cherry_fig.pdf){#fig:cherry}
 
 An _ultrametric_ tree is a tree where all the distance from the root vertex to
-the leaves are the same. 
+the leaves are the same.
 
 A _distance table_ for a specices or gene tree is a table relating the
 distances between the taxa on a tree. The distance is calculated by summing the
@@ -130,8 +130,7 @@ schedules. In general, STAR should output the same tree regardless of weight
 schedule, (by GSTAR, see section \ref{sec:gstar}). Furthermore, we refer to the
 lack of this property as _instability_.
 
-
-Newick Notation
+Newick Notation{#newicknotation}
 -------------------------------------------------------------------------------
 
 Newick Notation is a format for specifying trees. An example of a Newick tree
@@ -144,7 +143,7 @@ is as follows, with the associated tree in figure \ref{fig:newicktree}
 ![The associated tree](./figs/newicktree.pdf){#fig:newicktree}
 
 The '`:`' denotes a weight on an edge leading up from the node towards the
-root, and is optional[^newick_weights]. 
+root, and is optional[^newick_weights].
 
 [^newick_weights]: In particular, \SunStar only cares about the topology of the
 trees that it is fed, so information about edge weights is usually discarded.
@@ -191,7 +190,7 @@ $$d(a,b) + d(c,d) \leq d(a,d) + d(b,c) = d(a,c) + d(b,d).$$
 Specifically, the weight on the middle edge joining the two cherries matters.
 Also note that this relationship involves only distances between the leaves,
 and not distances between interior nodes. This is important, because we
-generally don't have distances from taxa to ancestor species. 
+generally don't have distances from taxa to ancestor species.
 
 ![A 4 taxon unrooted tree](./figs/njtree.pdf){#fig:njtree}
 
@@ -240,7 +239,7 @@ connected to the central node. We repeat the process by calculating $Q$ again,
 but this time only treating the nodes connected to the central node $t$ as
 taxa. In this way, we shrink the problem size down by 1 each iteration
 
-When the number of nodes connected to $t$ reaches 3, we skip calculating $Q$ and 
+When the number of nodes connected to $t$ reaches 3, we skip calculating $Q$ and
 just apply the three-point formulas to the remaining nodes. Importantly, this
 leaves us with an unrooted tree, which is the result of Neighbor Joining.
 
@@ -394,7 +393,22 @@ Neighbor Joining and get a new tree.
 
 ####Example
 
-MAKE AN EXAMPLE
+Consider the trees in figure \ref{fig:startree}. If we were to run the STAR
+algorithm by hand on these trees, we would first produce total table in figure
+\ref{fig:startable}, by computing the distance between each taxa, and then
+adding them together. 
+
+![An example tree](./figs/star_tree.pdf){#fig:startree}
+
+![Total distance table associated with the trees in figure
+\ref{fig:startree}](./figs/star_table.pdf){#fig:startable}
+
+The next step is to average the entries in the table, by dividing through by
+the number of trees. The result of this computation can be seen in figure
+\ref{fig:staravg}.
+
+![Average distance table associated with the trees in figure
+\ref{fig:startree}](./figs/star_table_avg.pdf){#fig:staravg}
 
 ###Complexity
 
@@ -426,7 +440,7 @@ leaf edges to be ultrametric. Then, all possible combinations of weights with
 at least one weight being 1 are computed[^binary]. By the results from
 generalized STAR, if we have a very large sample of gene trees without
 inference error then the tree should come out the same, despite the 0 weights
-on the edges. 
+on the edges.
 
 Intuitively, this is like canceling out parts of the tree which carry
 information about the differences between taxa. By setting edge weights to 0 in
@@ -456,7 +470,7 @@ Implementation
 This file implements the class `tree_t` (read "tree type"), which is intended
 to store both the topology and metric information about a tree. In particular,
 this class needs to support the ability to store metric information, and
-calculate distances between taxa.  
+calculate distances between taxa.
 
 A major complication of `tree_t` is the need to support both rooted and
 unrooted trees. There are two reasons for this: Neighbor Joining produces
@@ -487,7 +501,7 @@ The `node` class contains the information relating to each individual
 node in the tree. This includes data including the label of the node, the
 weight of the edge towards the parent, and pointers to the children and parent.
 
-The `tree` class is the main workhorse of the tree implementation. It contains
+The `tree_t` class is the main workhorse of the tree implementation. It contains
 the tree and the `unroot`. Since these trees don't have the normal CRUD
 operations, we can predetermine the size of the tree. This allows us to
 preallocate a contiguous section of memory to store the `node`s that make up
@@ -496,7 +510,7 @@ By doing this, we can take advantage of cache locality, which can be
 a potentially large speed up on some systems. This technique I call tree
 packing; it is discussed in section \ref{tree-packing}.
 
-The `tree` class is also responsible for setting the weights of the tree. This
+The `tree_t` class is also responsible for setting the weights of the tree. This
 can be done in three ways. The first is to pass the `set_weight` function a
 function that takes a `size_t` or equivalent, and returns a `double`. Another
 is to pass it a vector of weights which is indexed by depth. Yet another way is
@@ -600,10 +614,14 @@ unrooted tree, outgroup pointer $o$}
 
 ###Purpose
 
-In order to work with gene trees, I need to be able to parse Newick Notation.
-So, the specification of the parser is as follows.
+In order to work with gene trees, I need to be able to parse Newick Notation,
+as specified in section \ref{newicknotation}. In this implementation, we expose
+a function `nj` which given a string returns a parsed tree. This is done via
+a recursive descent parser.
 
-###Grammar
+###Implementation
+
+####Grammar
 
 The grammar used has two 3 productions and 2 terminal lexemes. The terminal
 lexemes are labels and weights. The regular expression for labels and weight are
@@ -623,7 +641,7 @@ only. Below is the grammar that is in the parser
             | '(' subtree ',' subtree ')' [':' weight]
 ```
 
-###Parser/Lexer
+####Parser/Lexer
 
 Since the language is so small, We have made the parser and lexer tightly
 integrated. Thus, there is no separate lexer module. Instead, characters are
@@ -653,6 +671,8 @@ associated value of $Q$.
 
 \texttt{star.h}
 -------------------------------------------------------------------------------
+
+###Purpose
 
 The STAR algorithm is straightforward. Most of the complexity of the code
 comes from the tree itself, but once that is implemented, the algorithm is
@@ -702,7 +722,7 @@ $S \leftarrow$ list of 1's of length $h$\;
     }
     $R(t_s) \leftarrow R(t_s) + 1$\;
     \tcc{Here we treat S as a binary number, and decrement it}
-    decrement $S$\; 
+    decrement $S$\;
 }
 \tcc{Normalize the counts into proportions}
 \For{$r$ in $R$}{
@@ -712,7 +732,7 @@ $S \leftarrow$ list of 1's of length $h$\;
 }
 
 The random schedule proceeds by randomly generating weights, and assigning them
-to the trees in the set. 
+to the trees in the set.
 
 \margalg{
 \caption{GSTAR-random}
@@ -748,7 +768,7 @@ Conclusion
 
 We have created a software package, \SunStar, that uses Generalized STAR to
 infer the stability of a species tree produced by STAR. Furthermore, we have
-found early results that suggest that this technique might be useful. 
+found early results that suggest that this technique might be useful.
 
 Future Work
 ===============================================================================

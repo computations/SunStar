@@ -5,8 +5,7 @@
 \usepackage{forest}
 \begin{document}
 \begin{forest}
-for tree={l sep = 20pt}
-[$\rho$
+[,draw,circle
     [ ,draw, circle, edge label={node[midway, left]{1}} 
         [$a$,edge label={node[midway, left]{2}} ]
         [$b$,edge label={node[midway, right]{2}}]
@@ -17,6 +16,36 @@ for tree={l sep = 20pt}
             [$d$ , edge label={node[midway, left]{1}}]
             [$e$ ,edge label={node[midway, right]{1}}]
         ]
+    ]
+]
+\end{forest}
+\begin{forest}
+[,draw,circle
+    [ ,draw, circle, edge label={node[midway, left]{1}} 
+        [$a$,edge label={node[midway, left]{2}} ]
+        [$b$,edge label={node[midway, right]{2}}]
+    ]
+    [ ,draw,circle,edge label={node[midway, right]{1}} 
+        [$c$, edge label={node[midway, left]{2}}]
+        [, draw, circle, edge label={node[midway, right]{1}}
+            [$d$ , edge label={node[midway, left]{1}}]
+            [$e$ ,edge label={node[midway, right]{1}}]
+        ]
+    ]
+]
+\end{forest}
+\begin{forest}
+[,draw, circle
+    [ ,draw, circle, edge label={node[midway, left]{1}} 
+        [$a$,edge label={node[midway, left]{2}} ]
+        [, draw, circle, edge label={node[midway, right]{1}}
+            [$d$ , edge label={node[midway, left]{1}}]
+            [$e$ ,edge label={node[midway, right]{1}}]
+        ]
+    ]
+    [ ,draw,circle,edge label={node[midway, right]{1}} 
+        [$c$, edge label={node[midway, left]{2}}]
+        [$b$,edge label={node[midway, right]{2}}]
     ]
 ]
 \end{forest}
