@@ -300,7 +300,86 @@ a default schedule (Section \ref{default-schedule})will be used.
 -   `-o` `--outgroup`: The name of the outgroup taxa. This taxa must be present
 on all of the trees.
 
+###Running \texttt{SunStar}
 
+To run \texttt{SunStar} with default parameters, enter the following command
+
+```
+sunstar -f example.tree
+```
+
+Where `example.tree` is a list of Newick strings, separated by newlines. A file
+looks like the following for example.
+
+```
+((a,c),(d,e));
+((a,c),(d,e));
+((a,c),(d,e));
+(a,(c,(d,e)));
+(a,(c,(d,e)));
+```
+
+Weights may be included, and don't need to be stripped. Each of the trees needs
+to have the same set of taxa or the program will quit. 
+
+###Output
+
+The output of \SunStar is a list of trees with normalized frequencies
+associated with them. Using the example file from above, \SunStar produces the
+output
+
+```
+sunstart -f example.tree
+[========================================================================][7/7]
+'(a,(c,(d,e)));' : 1
+```
+
+Note that this is a rooted tree. The root is determined by picking an outgroup
+arbitrarily, and is consistent across trees for a run of \texttt{SunStar}. By
+using the outgroup flat `-o`/`--outgroup`. For example if we decide to root by
+`c` instead
+
+```
+sunstar -f demo.tree -o c
+[========================================================================][7/7]
+'((a,(d,e)),c);' : 1
+```
+
+Note that `c` is at the top level of the tree now.
+
+So far only the default schedule has been used. To use the randomized the `-t`
+or `--trials` flag is specified. For example
+
+```
+sunstar -f demo.tree -t 1000
+[==================================================================][1000/1000]
+'(a,(c,(d,e)));' : 1
+```
+
+The random numbers that are used for weighting, and the tree that is produced
+from that sequence are logged to a file. By default this is `schedule.log`,
+which contains a series of json objects. An truncated example from the above
+run is
+
+```
+{"tree":"(a,(c,(d,e)));","weights": [0.713856,0.711066,0.411698]}
+{"tree":"(a,(c,(d,e)));","weights": [0.0549974,0.13108,0.473839]}
+{"tree":"(a,(c,(d,e)));","weights": [0.620542,0.524716,0.9447]}
+{"tree":"(a,(c,(d,e)));","weights": [0.068759,0.0251013,0.694658]}
+{"tree":"(a,(c,(d,e)));","weights": [0.182371,0.31707,0.83606]}
+{"tree":"(a,(c,(d,e)));","weights": [0.701719,0.260946,0.639861]}
+{"tree":"(a,(c,(d,e)));","weights": [0.648678,0.970904,0.509442]}
+{"tree":"(a,(c,(d,e)));","weights": [0.533012,0.101569,0.370654]}
+{"tree":"(a,(c,(d,e)));","weights": [0.567502,0.274677,0.371589]}
+...
+```
+
+The log file name can be specified using the `-l` or `--logfile` switches.
+
+Finally, the progress bar that is output for each run is written to `stdout`. If
+`stdout` is redirected to a file, most of the file will be this progress bar
+output. To prevent this, we can silence the progress bar using `-s` or
+`--silent`, which will suppress the progress bar.
 
 Algorithms
 ===============================================================================
@@ -409,6 +488,9 @@ the number of trees. The result of this computation can be seen in figure
 
 ![Average distance table associated with the trees in figure
 \ref{fig:startree}](./figs/star_table_avg.pdf){#fig:staravg}
+
+After computing the average, the distance table is passed to Neighbor Joining,
+and a tree is built out of that distance table.
 
 ###Complexity
 

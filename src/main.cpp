@@ -138,7 +138,7 @@ int main(int argc, char** argv){
 
     for(const auto& kv:trees){
         if(kv.second<threshold) break;
-        std::cout<<kv.first<<kv.second<<std::endl;
+        std::cout<<"'"<<kv.first<<"' : "<<kv.second<<std::endl;
     }
     std::cout<<"Perplexity: "<<calc_perplexity(trees)<<std::endl;
     
