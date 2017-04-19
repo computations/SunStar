@@ -132,7 +132,7 @@ references:
       author:
           - given: Liang
             family: Liu
-      DIO: 10.1093/bioinformatics/btn484
+      DOI: 10.1093/bioinformatics/btn484
       issued:
           year: 2008
           month: September
@@ -149,7 +149,7 @@ references:
             family: Vachaspati
           - given: Tandy
             family: Warnow
-      DIO: 10.1186/1471-2164-16-S10-S3
+      DOI: 10.1186/1471-2164-16-S10-S3
       issued:
           year: 2015
           month: October
@@ -163,7 +163,7 @@ references:
       author:
           - given: Wayne
             family: Maddison
-      DIO: 10.1093/sysbio/46.3.523
+      DOI: 10.1093/sysbio/46.3.523
       issued:
           year: 1997
           month: September

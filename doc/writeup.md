@@ -325,7 +325,7 @@ looks like the following for example.
 ```
 
 Weights may be included, and don't need to be stripped. Each of the trees needs
-to have the same set of taxa or the program will quit. 
+to have the same set of taxa or the program will quit.
 
 ###Output
 
@@ -482,9 +482,9 @@ Neighbor Joining and get a new tree.
 Consider the trees in figure \ref{fig:startree}. If we were to run the STAR
 algorithm by hand on these trees, we would first produce total table in figure
 \ref{fig:startable}, by computing the distance between each taxa, and then
-adding them together. 
+adding them together.
 
-![An example tree](./figs/star_tree.pdf){#fig:startree}
+![A set of example trees](./figs/star_tree.pdf){#fig:startree}
 
 ![Total distance table associated with the trees in figure
 \ref{fig:startree}](./figs/star_table.pdf){#fig:startable}
@@ -496,8 +496,8 @@ the number of trees. The result of this computation can be seen in figure
 ![Average distance table associated with the trees in figure
 \ref{fig:startree}](./figs/star_table_avg.pdf){#fig:staravg}
 
-After computing the average, the distance table is passed to Neighbor Joining,
-and a tree is built out of that distance table.
+After computing the average, the distance table in figure \ref{fig:staravg} is
+passed to Neighbor Joining, and a tree is built out of that distance table.
 
 ###Complexity
 
@@ -644,14 +644,12 @@ $tree \leftarrow$ array the size of $q$\;
 }
 }
 
-
 ###Set Root
 
 The final major role of the tree is to set and reset the root. Sometimes,
 unrooted trees might be passed to this function, but the algorithms only work
 on rooted trees. So we must be able to root a tree. To do this, the following
 algorithm is used.
-
 
 \margalg{
 \caption{Set Root}
@@ -684,6 +682,8 @@ unrooted tree, outgroup pointer $o$}
     \FuncSty{SwapParent}\ArgSty{(p, \texttt{null})} \tcp{See Below}
 }
 }
+
+\pagebreak
 
 \margalg{
 \caption{SwapParent(node $n$, node $p$)}
