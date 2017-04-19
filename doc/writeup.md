@@ -1,6 +1,6 @@
 ---
 author: Ben Bettisworth, University of Alaska Fairbanks
-title: "SunStar: An Implementation of the Generalized STAR Method \\ DRAFT 3"
+title: "SunStar: An Implementation of the Generalized STAR Method \\ DRAFT 4"
 date: \today
 documentclass: article
 bibliography: bib.yaml
