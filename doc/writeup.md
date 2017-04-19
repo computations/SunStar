@@ -45,7 +45,7 @@ Unfortunately, we canot directly infer species trees (defined in
 \ref{notation}). Instead, phylogenetic methods are limited to traits we can
 observe. Historically, these traits were features like morphology of bones and
 limbs. With the advent of molecular sequencing, observation of traits using DNA
-sequences became common, and with hose observations came the early mathematical
+sequences became common, and with whose observations came the early mathematical
 methods of phylogenetics.
 
 These methods were primarily using gene trees as proxies for species trees. Due
@@ -61,8 +61,9 @@ a probabilistic model of the ILS process. Using this model we can describe the
 way gene trees form from species trees. The methods that are discussed in this
 paper are shown to be statistically consistent under this model. In this
 context, statistically constistent means that we can make the probability of
-inferring the correct species tree equal to 1 if we make the sample large
-enough. Informally, given enough perfect data, we always get the right tree.
+inferring the correct species tree as close as we like to 1 if we make the
+sample large enough. Informally, given enough perfect data, we always get the
+right tree.
 
 ###Prior Work
 
@@ -99,13 +100,13 @@ A rooted trivalent tree is a tree that is allowed to have a single vertex, the
 root, with degree 2. All trees discussed here will be trivalent unless otherwise
 noted.
 
-A _gene tree_ is a rooted or unrooted tree that has been inferred from gene
-sequences, and relates how a gene has diverged over time. Gene trees are
-usually inferred from sequences of genes, which have some mutations which
-differentiate them from each other. In contrast a _species tree_ is a tree that
-relates the divergence of species. An unrooted tree is often made rooted by
-using an _outgroup_. This is a taxa that is intensionally distant from the
-other taxa, ensuring that the root is connected directly to the outgroup.
+A _gene tree_ is a rooted or unrooted tree that  and relates how a gene has
+diverged over time. Gene trees are usually inferred from sequences of genes,
+which have some mutations which differentiate them from each other. In contrast
+a _species tree_ is a tree that relates the divergence of species. An unrooted
+tree is often made rooted by using an _outgroup_. This is a taxa that is
+intentionally distant from the other taxa, ensuring that the root is connected
+directly to the outgroup.
 
 A useful bit of notation for a pair of taxa with the same parent is a _cherry_.
 Its called that because its a looks like a pair of cherries hanging of the stem
@@ -198,8 +199,8 @@ This fact informs the Neighbor Joining algorithm. By using the four point
 criterion, we can select pairs to join. At a High level the algorithm proceeds
 like so:
 
--   Initialize the tree by creating nodes for all the taxa, and connect them to
-    a central node $t$.
+-   Initialize the tree by creating nodes for all the $N$ taxa, and connect
+    them to a central node $t$.
 -   Select a pair of nodes.
 -   Join the pair of nodes to a new parent node, and connect the new parent
     back to the central node.
@@ -209,21 +210,22 @@ like so:
 Selecting a pair to join is done by calculating a matrix $Q$, whose entries are
 the following
 
-$$Q_{a,b} = (N - 2) d(a,b) - R_a - R_b$$
+$$Q_{a,b} = (N - 2) d(a,b) - R_a - R_b,$$
 
-Where $a$ and $b$ are indexes associated with nodes waiting to be joined, $N$
-is the number of node connected to the central node, $d(a,b)$ is the distance
+where $a$ and $b$ are indexes associated with nodes waiting to be joined, $N$
+is the number of nodes connected to the central node, $d(a,b)$ is the distance
 between $a$ and $b$, and the quantity $R_k$ is the sum of the distances from
 $k$ to all other nodes. By calculating this matrix, and finding the smallest
 value in it, we can find the pair to join. Specifically, the row and column
 indices of the lowest entry, $(a,b)$ correspond to the pair to join.
 
 Using this pair $(a,b)$, the implementation joins the pair by removing these
-elements from the unroot, making them the children of a new node, and then
-putting that new node back into the unroot. We calculate the distance from the
-new node to the pair by the three point formula. The three point formula is for
-a 3 node tree, leaves $x,y$ and $z$ and central node $r$, and known distances
-between the leaves, we can calculate the distance between the leaves like so:
+elements from the central node $c$, making them the children of a new node, and
+then putting that new node back into the central node. We calculate the
+distance from the new node to the pair by the three point formula. The three
+point formula is for a 3 node tree, leaves $x,y$ and $z$ and central node $r$,
+and known distances between the leaves, we can calculate the distance between
+the leaves like so:
 
 $$d(r, x) = \frac{1}{2}[d(y,x) + d(x,z) - d(y,z)],$$
 $$d(r, y) = \frac{1}{2}[d(y,x) + d(y,z) - d(x,z)],$$
@@ -234,7 +236,7 @@ compute the average distance between $a$, $b$ and the rest of the nodes in
 consideration. This way, we have the 6 distances needed for the three point
 formula.
 
-This process of selecting, joining, and re-inserting leaves a net $-1$ taxa
+This process of selecting, joining, and re-inserting leaves a  $N-1$ taxa
 connected to the central node. We repeat the process by calculating $Q$ again,
 but this time only treating the nodes connected to the central node $t$ as
 taxa. In this way, we shrink the problem size down by 1 each iteration
@@ -243,8 +245,10 @@ When the number of nodes connected to $t$ reaches 3, we skip calculating $Q$ and
 just apply the three-point formulas to the remaining nodes. Importantly, this
 leaves us with an unrooted tree, which is the result of Neighbor Joining.
 
-A final note, which will remain unjustified, is that Neighbor Joining has
-a complexity of $\OO(n^3)$, where $n$ is the number of taxa to be joined.
+To calculate the complexity informally, we can note that each step requires
+$\OO(N^2)$ work, in the form of calculating the entries of a matrix. The
+algorithm runs for $\OO(N)$ steps. Therefore, the overall complexity is
+$\OO(N^3)$.
 
 STAR (estimating Species Trees using Average Ranks)
 -------------------------------------------------------------------------------
@@ -280,7 +284,8 @@ algorithm proceeds the same.
 
 Additionally, we can attempt to infer the stability of the species tree
 produced by STAR by varying the weights and reporting the different trees that
-come out of the tree creation step. This is the primary goal of \SunStar.
+come out of the tree creation step. This is the primary goal of
+\texttt{SunStar}.
 
 \texttt{SunStar}
 -------------------------------------------------------------------------------
@@ -345,7 +350,9 @@ sunstar -f demo.tree -o c
 '((a,(d,e)),c);' : 1
 ```
 
-Note that `c` is at the top level of the tree now.
+When the `-o` flag is specified, two things happen. First, all the trees in the
+input are rerooted, using the taxa as an outgroup. The second thing is that
+when trees are output, they are also rooted by the specified taxa.
 
 So far only the default schedule has been used. To use the randomized the `-t`
 or `--trials` flag is specified. For example
@@ -519,10 +526,10 @@ schedule and the randomized. These are discussed in the two following sections.
 
 This schedule starts by assigning a weight of 1 to every edge, and then adjusts
 leaf edges to be ultrametric. Then, all possible combinations of weights with
-at least one weight being 1 are computed[^binary]. By the results from
-generalized STAR, if we have a very large sample of gene trees without
-inference error then the tree should come out the same, despite the 0 weights
-on the edges.
+at least one weight being 1 and all others being 0 are computed[^binary]. By
+the results from generalized STAR, if we have a very large sample of gene trees
+without inference error then the tree should come out the same, despite the
+0 weights on the edges.
 
 Intuitively, this is like canceling out parts of the tree which carry
 information about the differences between taxa. By setting edge weights to 0 in
