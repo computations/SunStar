@@ -38,7 +38,7 @@ void print_usage(){
 "    -t, --trials [NUMBER]\n"<<
 "           Number of trials. This will induce the random schedule\n"<<
 "    -r, --required-ratio [RATIO]\n"<<
-"           The minimum ratio required for a tree to be output at the end.\n"<<
+"           The minimum ratio required for a tree to be output.\n"<<
 "           Trees below this threshold will be silenced. Intended to be bewteen\n"<<
 "           0 and 1\n"<<
 "    -l, --logfile [FILE]\n"<<
