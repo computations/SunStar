@@ -1,6 +1,6 @@
 ---
 author: Ben Bettisworth, University of Alaska Fairbanks
-title: "SunStar: An Implementation of the Generalized STAR Method \\ DRAFT 4"
+title: "SunStar: An Implementation of the Generalized STAR Method \\ FINAL DRAFT"
 date: \today
 documentclass: article
 bibliography: bib.yaml
@@ -40,15 +40,20 @@ project. The sun that earth orbits is a g-class star, therefore
 Background
 -------------------------------------------------------------------------------
 
+The problem of phylogentics is an old one, going back as far as Darwin, and is
+a central question in the field of biology. In the following sections, we will
+lay out the problem at hand (Incomplete Lineage Sorting), and the attempts so
+far to solve the problem.
+
 ###Problem Description
 
-Phylogenetics is primarily concerned with the inference of species trees.
-Unfortunately, we canot directly infer species trees (defined in
+Modern phylogenetics is primarily concerned with the inference of species
+trees. Unfortunately, we canot directly infer species trees (defined in
 \ref{notation}). Instead, phylogenetic methods are limited to traits we can
 observe. Historically, these traits were features like morphology of bones and
 limbs. With the advent of molecular sequencing, observation of traits using DNA
-sequences became common, and with whose observations came the early mathematical
-methods of phylogenetics.
+and other molecular sequences became common, and with whose observations came
+the early mathematical methods of phylogenetics.
 
 These methods were primarily using gene trees as proxies for species trees. Due
 to incomplete lineage sorting (ILS) [@pamilo88] this is not sufficient for
@@ -102,7 +107,7 @@ rooted trivalent tree is a rooted tree that is allowed to have a single vertex,
 the root, with degree 2. All trees discussed here will be trivalent unless
 otherwise noted.
 
-A _gene tree_ is a rooted or unrooted tree that  and relates how a gene has
+A _gene tree_ is a (rooted or unrooted) tree that  and relates how a gene has
 diverged over time. Gene trees are usually inferred from sequences of genes,
 which have some mutations which differentiate them from each other. In contrast
 a _species tree_ is a tree that relates the divergence of species. An unrooted
@@ -155,12 +160,11 @@ The exception is in the testing suite, where setting weights in this way is
 convenient.
 
 One advantage of Newick notation is that the grammar for this language is quite
-simple, and requires only a few productions. This makes it easy to write a
-parser to recognize a Newick string. Unfortunately there are quite a few
+simple, and requires only a few productions. This makes it easy to write
+a parser to recognize a Newick string. Unfortunately there are quite a few
 disadvantages, one of which is the non-uniqueness of the string for a tree.
-Specifically, there are many strings which represent the same tree. The problem
-is due largely to the ordering of subtrees. Note that these two trees are the
-same
+Specifically, there are many strings which represent the same tree, due largely
+to the ordering of subtrees. Note that these two trees are the same
 
 ```
 (a,b); == (b,a);
@@ -169,7 +173,7 @@ same
 This causes problems when attempting to compare trees, which is already a hard
 task. Fortunately, we can side step these issues by
 
--   Enforcing an outgroup (to insure a consistent root), and
+-   Enforcing an outgroup to insure a consistent root, and
 -   Enforcing an order on the taxa and subtrees.
 
 By doing this, we can compare trees by comparing their Newick strings.
@@ -204,14 +208,14 @@ like so:
 
 -   Initialize the tree by creating nodes for all the $N$ taxa, and connect
     them to a central node $t$.
--   Select a pair of nodes.
+-   Select a pair of nodes that satisfy the above criterion the "best".
 -   Join the pair of nodes to a new parent node, and connect the new parent
     back to the central node.
 -   Calculate distances for the three new nodes.
 -   Repeat until there are 3 nodes left connected to the central node.
 
-Selecting a pair to join is done by calculating a matrix $Q$, whose entries are
-the following
+Selecting the "best" pair to join is done by calculating a matrix $Q$, whose
+entries are the following
 
 $$Q_{a,b} = (N - 2) d(a,b) - R_a - R_b,$$
 
@@ -241,12 +245,13 @@ formula.
 
 This process of selecting, joining, and re-inserting leaves a  $N-1$ taxa
 connected to the central node. We repeat the process by calculating $Q$ again,
-but this time only treating the nodes connected to the central node $t$ as
-taxa. In this way, we shrink the problem size down by 1 each iteration
+but this time only treating the nodes connected to the central node as taxa. In
+this way, we shrink the problem size down by 1 each iteration
 
-When the number of nodes connected to $t$ reaches 3, we skip calculating $Q$ and
-just apply the three-point formulas to the remaining nodes. Importantly, this
-leaves us with an unrooted tree, which is the result of Neighbor Joining.
+When the number of nodes connected to the central node reaches 3, we skip
+calculating $Q$ and just apply the three-point formulas to the remaining nodes.
+Importantly, this leaves us with an unrooted tree, which is the result of
+Neighbor Joining.
 
 To calculate the complexity informally, we can note that each step requires
 $\OO(N^2)$ work, in the form of calculating the entries of a matrix. The
@@ -299,9 +304,9 @@ line, and is invoked with the command `sunstar [options]`. Currently \SunStar
 has only a few options. Here they are:
 
 -   `-f` `--filename`: Filename for a set of Newick trees. These trees must all
-    together be rooted or unrooted. If they are all unrooted trees, then the
+    be rooted or all be unrooted. If they are all unrooted trees, then the
     `-o` is required.
--   `-t` `--trials`: The number of trials using randomly genereated schedule of
+-   `-t` `--trials`: The number of trials using randomly generated schedule of
     weights (Section \ref{randomized-schedule}). If this flag is not present,
     then a default schedule (Section \ref{default-schedule}) will be used.
 -   `-r` `--required-ratio`: The minimum ratio required for a tree to ouput.
@@ -341,7 +346,7 @@ associated with them. Using the example file from above, \SunStar produces the
 output
 
 ```
-sunstart -f example.tree
+sunstar -f example.tree
 [========================================================================][7/7]
 '(a,(c,(d,e)));' : 1
 ```
@@ -560,8 +565,8 @@ height of the tree.
 The other strategy to generate weight schedules is to generate them randomly.
 This strategy works by generating a list of numbers from a uniform distribution
 from 0 to 1. After a schedule generated and assigned, the leaf edges need to be
-adjusted to ensure ultrametricity. These numbers are then used as the schedule
-for a run of STAR.
+adjusted to make the tree ultrametric. These numbers are then used as the
+schedule for a run of STAR.
 
 Implementation
 ===============================================================================
@@ -637,7 +642,7 @@ _Tree packing_ is the name for producing a tree topology in a contiguous
 section of memory. At a high level this algorithm performs a preorder traversal
 of the tree, and pushes nodes onto a queue. After the traversal is complete,
 the queue contains the packed tree. The final step is to update the references
-inside the tree.
+inside the tree via a map of old references to new references.
 
 \margalg{
 \caption{Tree Packing}
@@ -742,7 +747,7 @@ lexemes are labels and weights. The regular expression for labels and weight are
 ```
 
 In other words, floating point numbers with possible exponential notation, and
-c identifiers. Every other literal is punctuation, and is there for structure
+`c` identifiers. Every other literal is punctuation, and is there for structure
 only. Below is the grammar that is in the parser
 
 ```
@@ -903,8 +908,14 @@ Number of Trees   Number of Taxa    Trials       CPU Time (Seconds)
 424               37                1000                     110.5
 424               37                10000                   1116.2
 
-
-
+As it can be seen, these times fall in line with the predicted complexity of
+the program. Specifically, the program is linear in the number of trees and the
+number of trials, while being non-linear in the number of taxa. It is important
+to note that if we perform the calculation, the 37 taxa trials should be
+approximately 216 times slower than the equivalent 6 taxa trials. In these
+trials, they are faster than 216 times slower, on average only 66.43 times
+slower. Further investigation is required to determine why we see better than
+expected performance in the number of taxa.
 
 Conclusion
 ===============================================================================
