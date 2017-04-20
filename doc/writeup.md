@@ -8,9 +8,14 @@ header-includes:
     -   \usepackage{nicefrac}
     -   \usepackage[final]{pdfpages}
 ...
+
 \begin{titlepage}
 \includepdf{titlepage.pdf}
 \end{titlepage}
+
+\newpage
+\topskip0pt
+\vspace*{\fill}
 \begin{abstract}
 STAR (Liu et al. 2009) is a method of computing species trees from gene trees.
 Later, STAR was generalized and proven to be statistically consistent given a
@@ -20,7 +25,13 @@ lack of which will produce instabilities in the tree resulting from STAR. We
 have developed a software package that estimates support for inferred trees
 called \texttt{SunStar}.
 \end{abstract}
+\vspace*{\fill}
+
+\newpage
+
 \tableofcontents
+
+\newpage
 
 \newcommand{\OO}{\mathcal{O}}
 \newcommand{\SunStar}{{\tt SunStar }}
