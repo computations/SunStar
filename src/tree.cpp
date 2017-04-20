@@ -193,6 +193,9 @@ void tree_t::set_root(node_t* outgroup){
         _unroot.push_back(outgroup);
         _unroot.push_back(tmp);
         make_flat_tree(std::vector<node_t*>(_unroot));
+        tmp->_lchild = nullptr;
+        tmp->_rchild = nullptr;
+        delete tmp;
         return;
     }
 
@@ -231,6 +234,9 @@ void tree_t::set_root(node_t* outgroup){
     debug_print("p->_parent: %p, p->_lchild: %p, p->_rchild: %p", p->_parent,
             p->_lchild, p->_rchild);
     make_flat_tree(std::vector<node_t*>(_unroot));
+    ur->_lchild = nullptr;
+    ur->_rchild = nullptr;
+    delete ur;
 }
 
 tree_t& tree_t::set_outgroup(const string& outgroup){
@@ -287,6 +293,7 @@ node_t* node_factory(node_t* lchild, node_t* rchild){
 }
 
 tree_t::tree_t(const tree_t& t){
+    _tree = nullptr;
     make_flat_tree(t._unroot);
 }
 
@@ -317,6 +324,7 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
     }
 
     _size = node_q.size();
+    auto old_tree = _tree;
     _tree = new node_t[_size];
     debug_print("_tree pointer: %p, last element: %p", _tree, _tree+_size);
     size_t cur_index = 0;
@@ -338,17 +346,22 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
         _unroot.back()->update_children(node_map);
         debug_string(_unroot.back()->to_string().c_str());
     }
+
+    if(old_tree != nullptr){
+        delete[] old_tree;
+    }
     debug_print("new tree to_string(): %s", to_string().c_str());
 }
 
 tree_t::tree_t(const vector<node_t*>& unroot){
-    _unroot = unroot;
+    _tree = nullptr;
     debug_string(to_string().c_str());
     make_flat_tree(unroot);
 }
 
 tree_t::tree_t(const string& newick){
     _unroot = make_tree_from_newick(newick, _size);
+    _tree = nullptr;
     _tree = _unroot.front();
     make_flat_tree(std::vector<node_t*>(_unroot));
 }

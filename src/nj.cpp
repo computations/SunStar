@@ -251,5 +251,9 @@ tree_t nj(const vector<double>& d, const vector<string>& labels){
         unroot[0]->_weight = dists[0][1]/2.0;
         unroot[1]->_weight = dists[0][1]/2.0;
     }
-    return tree_t(unroot);
+    tree_t ret(unroot);
+    for(auto n: unroot){
+        delete n;
+    }
+    return ret;
 }

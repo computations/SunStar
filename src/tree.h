@@ -94,6 +94,7 @@ class tree_t{
 
     private:
 
+
         void make_flat_tree(const std::vector<node_t*>&);
         void set_root(node_t*);
         void make_unrooted();

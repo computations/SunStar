@@ -15,6 +15,14 @@ std::vector<std::string> result_strings {
     "((a:1.0,b:1.0):1.0,(c:1.0,(d:1.0,e:1.0):1.0):1.0);"
 };
 
+TEST_CASE("sizeof(node_t)", "[hide][tree][node]"){
+    REQUIRE(sizeof(node_t) == 72);
+}
+
+TEST_CASE("sizeof(tree_t)", "[hide][tree]"){
+    REQUIRE(sizeof(node_t) == 72);
+}
+
 TEST_CASE("tree, default construct", "[tree]"){
     tree_t t;
     REQUIRE(t.to_string() == "");
@@ -244,31 +252,31 @@ TEST_CASE("tree, getting the correct depth", "[tree]"){
     REQUIRE(t.get_depth() == 4);
 }
 
-TEST_CASE("tree, testing setting root by outgroup string 1", "[tree]"){
+TEST_CASE("tree, testing setting root by outgroup string 1", "[tree][outgroup]"){
     tree_t t(tree_strings[1]);
     t.set_outgroup("a");
     REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,(c,d)));");
 }
 
-TEST_CASE("tree, testing setting root by outgroup string 2", "[tree]"){
+TEST_CASE("tree, testing setting root by outgroup string 2", "[tree][outgroup]"){
     tree_t t(tree_strings[2]);
     t.set_outgroup("a");
     REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,(c,(d,e))));");
 }
 
-TEST_CASE("tree, testing setting root by outgroup string 3", "[tree]"){
+TEST_CASE("tree, testing setting root by outgroup string 3", "[tree][outgroup]"){
     tree_t t(tree_strings[3]);
     t.set_outgroup("a");
     REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,((c,(d,e)),f)));");
 }
 
-TEST_CASE("tree, testing setting root by outgroup string 3, different taxa", "[tree]"){
+TEST_CASE("tree, testing setting root by outgroup string 3, different taxa", "[tree][outgroup]"){
     tree_t t(tree_strings[3]);
     t.set_outgroup("c");
     REQUIRE(t.sort().clear_weights().to_string() == "((((a,b),f),(d,e)),c);");
 }
 
-TEST_CASE("tree, testing setting root by outgroup string 3, 'identity' taxa", "[tree]"){
+TEST_CASE("tree, testing setting root by outgroup string 3, 'identity' taxa", "[tree][outgroup]"){
     tree_t t(tree_strings[3]);
     t.set_outgroup("f");
     REQUIRE(t.sort().clear_weights().to_string() == tree_strings[3]);
