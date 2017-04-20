@@ -1,0 +1,14 @@
+\documentclass{standalone}
+\usepackage{tikz}
+\begin{document}
+\begin{tikzpicture}
+    \node (a) at (0,0) {$a$};
+    \node[draw, circle, inner sep = 2pt] (r) at ({sqrt(2) },0) {$u$};
+    \node (b) at ({sqrt(2)+1},-1) {$b$};
+    \node (c) at ({sqrt(2)+1},1) {$c$};
+
+    \draw (a) -- (r);
+    \draw (b) -- (r);
+    \draw (c) -- (r);
+\end{tikzpicture}
+\end{document}
