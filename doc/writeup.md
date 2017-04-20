@@ -13,8 +13,8 @@ abstract: STAR [@liu09] is a method of computing species trees from gene trees.
     a few conditions [@rhodes_star]. Using these conditions, it is possible to
     investigate robustness in the species tree inference process, the lack of
     which will produce instabilities in the tree resulting from STAR. We have
-    developed
-    a software package that does this called \texttt{SunStar}.
+    developed a software package that estimates support for inferred trees
+    called \texttt{SunStar}.
 header-includes:
     -   \usepackage[linesnumbered,lined,ruled,vlined]{algorithm2e}
     -   \usepackage{nicefrac}
@@ -851,6 +851,34 @@ $S \leftarrow$ a list of $h$ random numbers, uniformly distributed on $[0,1]$\;
 
 Early tests have shown that the default and random schedules are about
 equivalent in detecting error, though the proportions differ.
+
+Results
+===============================================================================
+
+The results that are currently available are empirical investigations of the
+complexity of GSTAR, implemented in \texttt{SunStar}. 
+
+\texttt{SunStar} was built using `clang++` using the `-O3` and `-march=native`
+flags. Tests were performed on a 4.0 GHz processor. The command used to obtain
+these times was 
+
+```
+time ./sunstar -f TESTFILE.tre -t TRIALS
+```
+
+The number reported is the user mode cpu time.
+
+Number of Trees   Number of Taxa    Trials       CPU Time (Seconds)
+---------------   --------------    ------      -------------------
+10                37                1000                       3.2
+10                37                10000                     33.5
+100               37                1000                      26.5
+100               37                10000                    266.3
+424               37                1000                     110.5
+424               37                10000                   1116.2
+
+
+
 
 Conclusion
 ===============================================================================
