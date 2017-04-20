@@ -24,7 +24,6 @@ header-includes:
 \newcommand{\SunStar}{{\tt SunStar }}
 \newcommand{\margalg}[1]{\IncMargin{0em}\begin{algorithm}[H] #1
 \end{algorithm}\DecMargin{0em}}
-\listoffigures
 
 Introduction
 ===============================================================================
