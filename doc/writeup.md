@@ -40,7 +40,7 @@ project. The sun that earth orbits is a g-class star, therefore
 Background
 -------------------------------------------------------------------------------
 
-The problem of phylogentics is an old one, going back as far as Darwin, and is
+The problem of phylogenetics is an old one, going back as far as Darwin, and is
 a central question in the field of biology. In the following sections, we will
 lay out the problem at hand (Incomplete Lineage Sorting), and the attempts so
 far to solve the problem.
@@ -48,7 +48,7 @@ far to solve the problem.
 ###Problem Description
 
 Modern phylogenetics is primarily concerned with the inference of species
-trees. Unfortunately, we canot directly infer species trees (defined in
+trees. Unfortunately, we can not directly infer species trees (defined in
 \ref{notation}). Instead, phylogenetic methods are limited to traits we can
 observe. Historically, these traits were features like morphology of bones and
 limbs. With the advent of molecular sequencing, observation of traits using DNA
@@ -67,7 +67,7 @@ An example of this is the multispecies coalescent model [@maddison97], which is
 a probabilistic model of the ILS process. Using this model we can describe the
 way gene trees form from species trees. The methods that are discussed in this
 paper have been shown to be statistically consistent under this model. In this
-context, statistically constistent means that we can make the probability of
+context, statistically consistent means that we can make the probability of
 inferring the correct species tree as close as we like to 1 if we make the
 sample large enough. Informally, given enough perfect data, we always get the
 right tree.
@@ -125,7 +125,7 @@ cherry off a common stem. There is an example of a cherry in figure
 An _ultrametric_ tree is a tree where all the distances from the root vertex to
 the leaves are the same.
 
-A _distance table_ for a specices or gene tree is a table relating the
+A _distance table_ for a species or gene tree is a table relating the
 distances between the taxa on a tree. The distance is calculated by summing the
 edge weights on the path between the two taxa.
 
@@ -275,7 +275,7 @@ each tree.
         and subtract the depth, then use that for the edge weight.
 -   Calculate pairwise distances, put them into a table.
 
-Once all the tables have been calculated, do an entrywise sum, and divide each
+Once all the tables have been calculated, do an entry-wise sum, and divide each
 entry by the number of gene trees. Informally, think of this as taking the
 average of the distance table. Once we have the "average" distance table, run
 a tree building algorithm on it, such as Neighbor Joining.
@@ -315,7 +315,7 @@ has only a few options. Here they are:
     `-t` option. Defaults to `schedule.log` if not specified.
 -   `-o` `--outgroup`: The name of the outgroup taxa. This taxa must be present
 on all of the trees.
--   `-s` `--silent`: Slence the progerss bar, only output results.
+-   `-s` `--silent`: Silence the progress bar, only output results.
 
 ###Running \texttt{SunStar}
 
@@ -633,8 +633,8 @@ This can be done in three ways. The first is to pass the `set_weight` function
 a function that takes a `size_t` or equivalent, and returns a `double`. Another
 is to pass a vector of weights which is indexed by depth. Yet another way is to
 pass a constant to the function, which will set the weights to be the constant,
-with the exception of the leaves. In all these cases, the ultrametricity of the
-tree is preserved, i.e., the leaf edges are adjusted to ensure it.
+with the exception of the leaves. In all these cases, the tree remains
+ultrametric, i.e., the leaf edges are adjusted to ensure it.
 
 ###Tree Packing
 
@@ -929,7 +929,7 @@ Future Work
 
 There are many optimizations, enhancements, and investigations we would like to
 do with \texttt{SunStar}. Like many software projects, \texttt{SunStar} could be
-developed forever, given sufficent resources. What follows is a short list of
+developed forever, given sufficient resources. What follows is a short list of
 priority items that should be done before other options.
 
 Optimizations
