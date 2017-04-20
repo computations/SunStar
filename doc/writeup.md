@@ -878,11 +878,11 @@ Results
 ===============================================================================
 
 The results that are currently available are empirical investigations of the
-complexity of GSTAR, implemented in \texttt{SunStar}. 
+complexity of GSTAR, implemented in \texttt{SunStar}.
 
 \texttt{SunStar} was built using `clang++` using the `-O3` and `-march=native`
 flags. Tests were performed on a 4.0 GHz processor. The command used to obtain
-these times was 
+these times was
 
 ```
 time ./sunstar -f TESTFILE.tre -t TRIALS
@@ -892,6 +892,10 @@ The number reported is the user mode cpu time.
 
 Number of Trees   Number of Taxa    Trials       CPU Time (Seconds)
 ---------------   --------------    ------      -------------------
+10                6                 1000                      0.06
+10                6                 10000                     0.54
+100               6                 1000                      0.33
+100               6                 10000                     3.23
 10                37                1000                       3.2
 10                37                10000                     33.5
 100               37                1000                      26.5
@@ -914,7 +918,7 @@ Future Work
 
 There are many optimizations, enhancements, and investigations we would like to
 do with \texttt{SunStar}. Like many software projects, \texttt{SunStar} could be
-developed forever, given sufficent resources. What follows is a short list of 
+developed forever, given sufficent resources. What follows is a short list of
 priority items that should be done before other options.
 
 Optimizations
