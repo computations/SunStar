@@ -90,8 +90,8 @@ Previous software that infers species trees from from gene tree summaries
 includes ASTRAL [@astral], NJst [@njst], STAR [@liu09]  and ASTRID [@astrid].
 All of these programs will compute species trees from existing gene trees.
 ASTRAL is the exception in this group, in that it does not compute a distance
-table from the set of gene trees passed to it. For the rest of the software,
-they all compute a version of a distance table.
+table from the set of gene trees passed to it. The rest of the software
+packages in this list compute a distance table, with some variations. 
 
 In particular, STAR and ASTRID use a very similar method to the method used in
 \texttt{SunStar}, with one important difference: they do not attempt to infer the
@@ -765,7 +765,7 @@ lexemes are labels and weights. The regular expression for labels and weight are
 ```
 
 In other words, floating point numbers with possible exponential notation, and
-`c` identifiers. Every other literal is punctuation, and is there for structure
+`C` identifiers. Every other literal is punctuation, and is there for structure
 only. Below is the grammar that is in the parser
 
 ```
@@ -779,7 +779,7 @@ only. Below is the grammar that is in the parser
 Since the language is so small, we have made the parser and lexer tightly
 integrated. Thus, there is no separate lexer module. Instead, characters are
 read and dealt with immediately. I read floats with the `stod` function in the
-standard `c++` library.
+standard `C++` library.
 
 The parser itself is simple top down recursive descent parser. The parser
 returns a list of node pointers representing the subtrees that make up the
@@ -996,7 +996,7 @@ Code
 ===============================================================================
 
 The entire code base, including this write up, is located on
-GitHub[^github_link]:
+GitHub[^github_link]
 
 [^github_link]: <https://github.com/computations/SunStar>.
 
