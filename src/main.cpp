@@ -111,10 +111,12 @@ int main(int argc, char** argv){
                 break;
         }
     }
+
     if(filename.empty()){
         print_usage();
         return 1;
     }
+
     ifstream newick_string_file(filename.c_str());
     std::string line;
     std::vector<std::string> newick_strings;
