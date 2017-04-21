@@ -17,6 +17,11 @@ using std::ifstream;
 #include <cmath>
 #include <getopt.h>
 
+#define STRING(s) #s
+#define STRINGIFY(s) STRING(s)
+#define GIT_REV_STRING STRINGIFY(GIT_REV)
+
+
 //dumb hack to get the progress bar crap to work
 bool __PROGRESS_BAR_FLAG__=true;
 
@@ -31,6 +36,7 @@ double calc_perplexity(std::vector<std::pair<std::string, double>> trees){
 void print_usage(){
     std::cout<<
 "Usage: gstar [options]\n"<<
+"Version: "<<GIT_REV_STRING<<"\n"<<
 "Application Options:\n"<<
 "    -f, --filename [FILE]\n"<<
 "           Filename of a file that contains a list of newick strings,\n"<<

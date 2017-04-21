@@ -8,6 +8,8 @@ SRCDIR=src
 TSTDIR=tests
 DOCDIR=doc
 
+DFLAGS+= -DGIT_REV=$(shell git describe --tags --always)
+
 TEST_SOURCES := $(shell find $(TSTDIR) -name '*cpp')
 RELEASE_OBJS := $(addprefix $(OBJDIR)/,main.o tree.o newick.o star.o nj.o gstar.o)
 TEST_OBJS := $(addprefix $(OBJDIR)/, $(TEST_SOURCES:$(TSTDIR)/%.cpp=%.o))
