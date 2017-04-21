@@ -1,24 +1,37 @@
 ---
-author: Ben Bettisworth, University of Alaska Fairbanks
-title: "SunStar: An Implementation of the Generalized STAR Method \\ FINAL DRAFT"
-date: \today
 documentclass: article
 bibliography: bib.yaml
 numbersections: true
 geometry: margin=1in
-linkcolor: blue
-toc: true
-abstract: STAR [@liu09] is a method of computing species trees from gene trees.
-    Later, STAR was generalized and proven to be statistically consistent given
-    a few conditions [@rhodes_star]. Using these conditions, it is possible to
-    investigate robustness in the species tree inference process, the lack of
-    which will produce instabilities in the tree resulting from STAR. We have
-    developed a software package that estimates support for inferred trees
-    called \texttt{SunStar}.
 header-includes:
     -   \usepackage[linesnumbered,lined,ruled,vlined]{algorithm2e}
     -   \usepackage{nicefrac}
+    -   \usepackage[final]{pdfpages}
 ...
+
+\begin{titlepage}
+\includepdf{titlepage.pdf}
+\end{titlepage}
+
+\newpage
+\topskip0pt
+\vspace*{\fill}
+\begin{abstract}
+STAR (Liu et al. 2009) is a method of computing species trees from gene trees.
+Later, STAR was generalized and proven to be statistically consistent given a
+few conditions (Allman, Degnan, and Rhodes 2013). Using these conditions, it is
+possible to investigate robustness in the species tree inference process, the
+lack of which will produce instabilities in the tree resulting from STAR. We
+have developed a software package that estimates support for inferred trees
+called \texttt{SunStar}.
+\end{abstract}
+\vspace*{\fill}
+
+\newpage
+
+\tableofcontents
+
+\newpage
 
 \newcommand{\OO}{\mathcal{O}}
 \newcommand{\SunStar}{{\tt SunStar }}
@@ -675,12 +688,14 @@ $tree \leftarrow$ array the size of $q$\;
 
 The final major role of the tree is to set and reset the root. Sometimes,
 unrooted trees might be passed to this function, but the algorithms only work
-on rooted trees. So we must be able to root a tree. To do this, the following
-algorithm is used.
+on rooted trees. So we must be able to root a tree. To do this, the algorithm
+\ref{alg:set_root} is used.
 
+\begin{figure}[h!]
 \margalg{
 \caption{Set Root}
 \KwData{List of pointers to roots of subtrees $r$ representing the unroot of an
+\label{alg:set_root}
 unrooted tree, outgroup pointer $o$}
 \KwResult{New root of a rooted tree, with $o$ as an outgroup}
 \If(\tcp*[h]{Unroot is where it should be, just need to root the tree}){$o$ in $r$}{
@@ -706,11 +721,15 @@ unrooted tree, outgroup pointer $o$}
     }
 
     set $p$'s left child to \texttt{null}\;
-    \FuncSty{SwapParent}\ArgSty{(p, \texttt{null})} \tcp{See Below}
+    \FuncSty{SwapParent}\ArgSty{(p, \texttt{null})} \tcp{See algorithm
+    \ref{alg:swap_parent} below}
 }
 }
+\end{figure}
 
+\begin{figure}[h!]
 \margalg{
+\label{alg:swap_parent}
 \caption{SwapParent(node $n$, node $p$)}
     \If{p is $n$'s left child}{
         swap $n$'s parent and left child\;
@@ -721,7 +740,7 @@ unrooted tree, outgroup pointer $o$}
         \FuncSty{SwapParent}\ArgSty{ {(right child, n)}}\;
     }
 }
-
+\end{figure}
 
 \texttt{newick.h}{#newick-imp}
 -------------------------------------------------------------------------------
