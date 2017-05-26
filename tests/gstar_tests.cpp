@@ -3,6 +3,8 @@
 
 #include <cstdio> //for remove
 
+const double epsilon = 1e-9;
+
 
 TEST_CASE("gstar, functionality test","[gstar]"){
     std::string ns = "(a,b);";
@@ -44,12 +46,12 @@ TEST_CASE("gstar, small regression", "[gstar][regression]"){
         tree_map[t.first] = t.second;
     }
     std::vector<std::pair<std::string, double>>ans {
-        {"((((a,e),k),c),b);", 0.625},
-        {"(((a,(c,k)),e),b);", 0.125},
-        {"(((a,(e,k)),c),b);", 0.125},
-        {"(((a,e),(c,k)),b);", 0.125}};
+        {"((((a,e),k),c),b);", 0.3 + 1.0/6.0},
+        {"(((a,(e,k)),c),b);", 0.1 + 1.0/6.0},
+        {"(((a,e),(c,k)),b);", 0.1 + 1.0/6.0}};
     for(auto& a : ans){
         REQUIRE(tree_map.count(a.first));
-        REQUIRE(tree_map[a.first] == a.second);
+        REQUIRE(tree_map[a.first] - a.second < epsilon);
+        REQUIRE(-(tree_map[a.first] - a.second) < epsilon);
     }
 }

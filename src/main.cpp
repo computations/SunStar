@@ -17,6 +17,7 @@ using std::ifstream;
 #include <cmath>
 #include <getopt.h>
 
+//Some macro voodoo to get the git revision number in the source code
 #define STRING(s) #s
 #define STRINGIFY(s) STRING(s)
 #define GIT_REV_STRING STRINGIFY(GIT_REV)
