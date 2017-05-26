@@ -50,15 +50,9 @@ void write_sequence_to_file(const vector<double>& s, string newick_string,
  * the tree as a ratio. The ratio is the number of times the tree was produce
  * over the total trials.
  */
-vector<std::pair<string, double>> gstar(const vector<string>& newick_strings, 
-        string outgroup){
-    star_t star(newick_strings);
-    if(!outgroup.empty()){
-        star.set_outgroup(outgroup);
-    }
-    else{
-        outgroup = star.get_first_label();
-    }
+vector<std::pair<string, double>> gstar_with_default_schedule(
+        star_t& star, string outgroup){
+
     size_t max_depth = star.get_size();
     vector<double> schedule(max_depth, 0.0);
     unordered_map<string, int> counts;
@@ -87,18 +81,9 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
     return make_return_vector(counts, trials);
 }
 
-vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
-        const string& filename, size_t trials, string outgroup){
-    if(trials==0){
-        return gstar(newick_strings, outgroup);
-    }
-    star_t star(newick_strings);
-    if(!outgroup.empty()){
-        star.set_outgroup(outgroup);
-    }
-    else{
-        outgroup = star.get_first_label();
-    }
+vector<std::pair<string, double>> gstar_with_random_schedule(
+        star_t& star, const string& filename, 
+        size_t trials, const string& outgroup){
     size_t max_depth = star.get_size();
     vector<double> schedule (max_depth, 0.0);
     unordered_map<string, int> counts;
@@ -126,4 +111,23 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
     print_progress(trials, trials);
     finish_progress();
     return make_return_vector(counts, trials);
+}
+
+vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
+        string filename, size_t trials, string outgroup, double alpha, 
+        double beta){
+
+    star_t star(newick_strings);
+    if(!outgroup.empty()){
+        star.set_outgroup(outgroup);
+    }
+    else{
+        outgroup = star.get_first_label();
+    }
+    if(trials==0){
+        return gstar_with_default_schedule(star, outgroup);
+    }
+    else{
+        return gstar_with_random_schedule(star, filename, trials, outgroup);
+    }
 }
