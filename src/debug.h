@@ -41,6 +41,10 @@ extern bool __PROGRESS_BAR_FLAG__;
 
 #define debug_string(x) { debug_print("%s", x)}
 
+#define debug_vector(desc,x){ if(DEBUG_IF_FLAG && EMIT_DEBUG_FLAG){\
+    debug_string(desc);\
+    print_clock; for(size_t i=0;i<x.size();++i){fprintf(stderr,"%.1f\t",x[i]);}fprintf(stderr,"\n");}}
+
 #define debug_matrix(desc,x,s) { if(DEBUG_IF_FLAG && EMIT_DEBUG_FLAG){\
     debug_string(desc);\
     for(size_t i=0;i<s;++i){fprintf(stderr, "[%f]\t", ((double)clock() - CLOCK_START)/CLOCKS_PER_SEC); for(size_t j=0;j<s;++j){fprintf(stderr, "%.1f\t", x[i*s+j]);} fprintf(stderr, "\n");}}}

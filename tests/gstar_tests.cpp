@@ -55,3 +55,13 @@ TEST_CASE("gstar, small regression", "[gstar][regression]"){
         REQUIRE(-(tree_map[a.first] - a.second) < epsilon);
     }
 }
+
+TEST_CASE("dirichlet random numbers 1", "[gstar][dirichlet]"){
+    auto dv = dirichlet(3);
+    double total = 0.0;
+    for(auto&& v : dv){
+        total+=v;
+    }
+    REQUIRE( (total-1.0) < epsilon);
+    REQUIRE(-(total-1.0) < epsilon);
+}
