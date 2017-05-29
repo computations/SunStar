@@ -162,10 +162,23 @@ node_t* parse_subtree(const string& newick, size_t& idx, node_t*& next_node){
             break;
         }
         /*
+         * MrBayes outputs weights like 
+         *  (a:12,b:12)12
+         * So this rule is here to support it. Fortunatly, it seems like
+         * leading zeros are something we can rely on.
+         */
+        else if(isdigit(cur)){
+            node_stack.top()->_weight = parse_weight(newick, idx);
+        }
+        /*
          * The character is something unexpected, time to give up!
          */
         else{
-            throw std::runtime_error("Error in parsing, did not expect current character");
+            string message = "Error in parsing, did not expect current character: '";
+            message+= cur;
+            message+="' at position: ";
+            message+=std::to_string(idx);
+            throw std::runtime_error(message);
         }
     }
     /*

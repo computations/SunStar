@@ -26,7 +26,6 @@ class node_t{
         node_t(node_t* s, double w): _parent(s), _weight(w){};
         node_t(std::string s):_label(s), _parent(0), _weight(0.0), _lchild(0), 
             _rchild(0), _children(0) {};
-
         std::string to_string(int p=1);
 
         void set_weights_constant(double);

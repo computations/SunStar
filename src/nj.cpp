@@ -74,7 +74,8 @@ std::pair<size_t, size_t> find_pair(const d2vector_t& dists){
     for(size_t i = 0;i<row_size;++i){
         for(size_t j=i+1;j<row_size;++j){
             double tmp = (row_size-2)*dists[i][j] -R[i] - R[j];
-            debug_print("current M[%lu][%lu] = %f, lowest = %f", i,j,tmp, lowest);
+            debug_print("current M[%lu][%lu] = %f, lowest = %f", i, j, tmp, 
+                    lowest);
             if(tmp <= lowest){
                 _i = i; _j = j;
                 lowest = tmp;
@@ -91,7 +92,8 @@ std::pair<size_t, size_t> find_pair(const d2vector_t& dists){
  * then this one will will actually join the pair. Finally, the dists will need
  * to be updated.
  */
-void join_pair(d2vector_t& dists, vector<node_t*>& unroot){
+void join_pair(d2vector_t& dists, vector<node_t*>& unroot, 
+        vector<node_t*>& tree){
 
     auto p = find_pair(dists);
 
@@ -113,7 +115,9 @@ void join_pair(d2vector_t& dists, vector<node_t*>& unroot){
 
     node_t* lchild = unroot[p.first];
     node_t* rchild = unroot[p.second];
-    node_t* v = node_factory(lchild,rchild);
+    node_t* v = node_factory(lchild, rchild);
+    tree.push_back(v);
+
     double die = 0.0, dje = 0.0;
     for(size_t k = 0;k<dists.size();++k){
         if(k==p.first || k==p.second) continue;
@@ -196,8 +200,7 @@ void join_pair(d2vector_t& dists, vector<node_t*>& unroot){
  *          map. It is assumed that every taxa (i.e. leaf) has a label.
  * For an introduction to the NJ algorithm, please refer to
  *      https://en.wikipedia.org/wiki/Neighbor_joining
- * and
- *      Saito, 1987.
+ * and Saito, 1987.
  * Plan:
  *  -   join pairs until 3
  *      -   calculate q
@@ -224,16 +227,19 @@ tree_t nj(const vector<double>& d, const vector<string>& labels){
     }
     debug_d2vector_t("dists, after conversion", dists);
 
-    vector<node_t*> unroot(row_size, nullptr);
-    for(size_t i = 0;i<unroot.size();++i){
-        debug_print("making a new node with label: %s", labels[i].c_str());
-        unroot[i] = new node_t(labels[i]);
+    vector<node_t*> unroot;
+    vector<node_t*> tree;
+    for(auto && l: labels){
+        debug_print("making a new node with label: %s", l.c_str());
+        auto tn = new node_t(l);
+        unroot.push_back(tn);
+        tree.push_back(tn);
     }
     while(unroot.size() > 3){
-        join_pair(dists, unroot);
+        join_pair(dists, unroot, tree);
     }
     /*
-     * Time for the FINAL JOIN!
+     * Time for the FINAL JOIN (DU DU DU DUUU)!
      * to do this, we have to take the final three taxa in the unroot and set
      * their distances based on the three point formula. The tree looks like
      *              0
@@ -252,7 +258,7 @@ tree_t nj(const vector<double>& d, const vector<string>& labels){
         unroot[1]->_weight = dists[0][1]/2.0;
     }
     tree_t ret(unroot);
-    for(auto n: unroot){
+    for(auto&& n: tree){
         delete n;
     }
     return ret;
