@@ -91,11 +91,14 @@ auto dirichlet(size_t len){
  * over the total trials.
  */
 vector<std::pair<string, double>> gstar_with_default_schedule(
-        star_t& star, string outgroup){
+        star_t& star, const string& logfile, const string& outgroup){
 
     size_t max_depth = star.get_size();
     vector<double> schedule(max_depth, 0.0);
     unordered_map<string, int> counts;
+
+    ofstream outfile(logfile.c_str());
+    outfile<<"using root: '"<<outgroup<<"'"<<std::endl;
 
     size_t trials = (1<<max_depth) - 1;
     print_progress(0ul, trials);
@@ -113,6 +116,7 @@ vector<std::pair<string, double>> gstar_with_default_schedule(
 
         string s = star.get_tree(schedule).set_outgroup(outgroup).
             sort().clear_weights().to_string();
+        write_sequence_to_file(schedule, s, outfile);
         counts[s] +=1;
     }
 
@@ -131,12 +135,12 @@ vector<std::pair<string, double>> gstar_with_default_schedule(
  * lot of reason to use the default schedule
  */
 vector<std::pair<string, double>> gstar_with_random_schedule(
-        star_t& star, const string& filename, size_t trials, 
+        star_t& star, const string& logfile, size_t trials, 
         const string& outgroup){
     size_t max_depth = star.get_size();
     unordered_map<string, int> counts;
 
-    ofstream outfile(filename.c_str());
+    ofstream outfile(logfile.c_str());
     outfile<<"using root: '"<<outgroup<<"'"<<std::endl;
 
     print_progress(0ul, trials);
@@ -154,7 +158,7 @@ vector<std::pair<string, double>> gstar_with_random_schedule(
 }
 
 vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
-        string filename, size_t trials, string outgroup){
+        size_t trials, string filename, string outgroup){
     star_t star(newick_strings);
     if(!outgroup.empty()){
         star.set_outgroup(outgroup);
@@ -163,7 +167,7 @@ vector<std::pair<string, double>> gstar(const vector<string>& newick_strings,
         outgroup = star.get_first_label();
     }
     if(trials==0){
-        return gstar_with_default_schedule(star, outgroup);
+        return gstar_with_default_schedule(star, filename, outgroup);
     }
     else{
         return gstar_with_random_schedule(star, filename, trials, outgroup);

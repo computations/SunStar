@@ -74,7 +74,7 @@ int main(int argc, char** argv){
     double threshold=0;
 
     while(true){
-        static struct option long_options[] = 
+        static struct option long_options[] =
         {
             {"silent",    no_argument, 0, 's'},
             {"require-ratio", required_argument, 0, 'r'},
@@ -136,9 +136,9 @@ int main(int argc, char** argv){
         return 1;
     }
 
-    auto trees = gstar(newick_strings, logfile, trials, outgroup);
+    auto trees = gstar(newick_strings, trials, logfile, outgroup);
     //sort the trees
-    
+
     auto pc_lambda = [](auto lhs, auto rhs){
         return lhs.second>rhs.second;
     };
@@ -150,6 +150,6 @@ int main(int argc, char** argv){
         std::cout<<"'"<<kv.first<<"' : "<<kv.second<<std::endl;
     }
     std::cout<<"Perplexity: "<<calc_perplexity(trees)<<std::endl;
-    
+
     return 0;
 }

@@ -22,10 +22,10 @@ TEST_CASE("gstar, functional test, larger class", "[gstar]"){
     auto c = gstar({ns});
 }
 
-TEST_CASE("gstar, testing if a file gtes made", "[gstar][random]"){
+TEST_CASE("gstar, testing if a file gets made", "[gstar][random]"){
     std::string ns = "(((a,b),(c,d)),(((e,f),g),h));";
     std::string fname = "schedule.log";
-    auto c = gstar({ns}, fname, 10);
+    auto c = gstar({ns}, 10, fname);
     std::ifstream ifile(fname.c_str());
     REQUIRE(ifile.good());
     ifile.close();
@@ -34,7 +34,9 @@ TEST_CASE("gstar, testing if a file gtes made", "[gstar][random]"){
 
 TEST_CASE("gstar, functional, with rerooting", "[reroot]"){
     std::string ns = "((a,b),(c,d));";
-    auto c = gstar({ns}, "a");
+    std::string fname = "schedule.log";
+    auto c = gstar({ns}, 10, fname, "a");
+    std::remove(fname.c_str());
 }
 
 TEST_CASE("gstar, small regression", "[gstar][regression]"){
@@ -54,6 +56,12 @@ TEST_CASE("gstar, small regression", "[gstar][regression]"){
         REQUIRE(tree_map[a.first] - a.second < epsilon);
         REQUIRE(-(tree_map[a.first] - a.second) < epsilon);
     }
+}
+
+TEST_CASE("gstar, checking random_schedule", "[gstar][random]"){
+    std::string s1 = "((a,((b,c),k)),e);";
+    std::string s2 = "((b,((a,c),k)),e);";
+    auto trees = gstar({s1,s2}, 10);
 }
 
 TEST_CASE("dirichlet random numbers 1", "[gstar][dirichlet]"){
