@@ -44,7 +44,7 @@ void print_usage(){
 "           representing gene trees to summarize\n"<<
 "    -t, --trials [NUMBER]\n"<<
 "           Number of trials. This will induce the random schedule\n"<<
-"    -r, --required-ratio [RATIO]\n"<<
+"    -r, --rratio [RATIO]\n"<<
 "           The minimum ratio required for a tree to be output.\n"<<
 "           Trees below this threshold will be silenced. Intended to be bewteen\n"<<
 "           0 and 1\n"<<
@@ -76,18 +76,21 @@ int main(int argc, char** argv){
     while(true){
         static struct option long_options[] =
         {
-            {"silent",    no_argument, 0, 's'},
-            {"require-ratio", required_argument, 0, 'r'},
+            {"silent",      no_argument,        0,   's'},
+            {"rratio",      required_argument,  0,   'r'},
             {"filename",    required_argument,  0,   'f'},
             {"outgroup",    required_argument,  0,   'o'},
-            {"logfile",    required_argument,  0,   'l'},
-            {"trials",    required_argument,  0,   't'},
+            {"logfile",     required_argument,  0,   'l'},
+            {"trials",      required_argument,  0,   't'},
             {0,0,0,0}
         };
         int option_index = 0;
-        c = getopt_long(argc, argv, "sf:o:t:l:p:", long_options, &option_index);
+        c = getopt_long(argc, argv, "sf:o:t:l:r:", long_options, &option_index);
         if(c==-1){
             break;
+        }
+        if(c=='?'){
+            return 1;
         }
         switch(c){
             case 'f':
@@ -102,7 +105,7 @@ int main(int argc, char** argv){
             case 't':
                 trials = std::stoi(optarg);
                 break;
-            case 'p':
+            case 'r':
                 threshold = std::stod(optarg);
                 break;
             case 's':
@@ -145,6 +148,7 @@ int main(int argc, char** argv){
 
     std::sort(trees.begin(), trees.end(), pc_lambda);
 
+    std::cout<<"threshold:"<<threshold<< std::endl;
     for(const auto& kv:trees){
         if(kv.second<threshold) break;
         std::cout<<"'"<<kv.first<<"' : "<<kv.second<<std::endl;
