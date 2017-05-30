@@ -64,13 +64,13 @@ void node_t::set_weights_constant(double c){
 }
 
 void node_t::set_weights(function<double(size_t)> w_func, size_t depth,
-      double max){
+        double max){
 
     if(!_children){
         double total=0;
         for(size_t i = 0; i < depth; ++i){
-          total+= w_func(i);
-          debug_print("total: %f", total);
+            total+= w_func(i);
+            debug_print("total: %f", total);
         }
         _weight = max - total;
     }
@@ -342,7 +342,7 @@ void tree_t::make_flat_tree(const vector<node_t*>& unroot){
 
     for(auto &i:unroot){
         debug_string("updating children")
-        _unroot.push_back(node_map.at(i));
+            _unroot.push_back(node_map.at(i));
         _unroot.back()->update_children(node_map);
         debug_string(_unroot.back()->to_string().c_str());
     }
@@ -580,9 +580,9 @@ void tree_t::set_weights(function<double(size_t)> w_func, double max){
 
 void tree_t::set_weights(const vector<double>& w_vec, double max){
     set_weights([&w_vec](size_t d){
-        assert_string(d < w_vec.size(), "out of bounds for passed double vector");
-        return d==0 ? w_vec[d]/2.0 : w_vec[d];
-    }, max);
+            assert_string(d < w_vec.size(), "out of bounds for passed double vector");
+            return d==0 ? w_vec[d]/2.0 : w_vec[d];
+            }, max);
 }
 
 void tree_t::set_weights(double w, double max){

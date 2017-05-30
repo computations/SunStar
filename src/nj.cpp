@@ -57,7 +57,7 @@ void add_rowcol(d2vector_t& m){
  *  Where dists is the distance table. R is an array with the values
  *      R[i] = Sum of dists over row i
  *  and then pick the smallest value of M. Since M will simply be destroyed
- *  after this function, we 
+ *  after this function, we
  */
 std::pair<size_t, size_t> find_pair(const d2vector_t& dists){
     //calculate R
@@ -74,7 +74,7 @@ std::pair<size_t, size_t> find_pair(const d2vector_t& dists){
     for(size_t i = 0;i<row_size;++i){
         for(size_t j=i+1;j<row_size;++j){
             double tmp = (row_size-2)*dists[i][j] -R[i] - R[j];
-            debug_print("current M[%lu][%lu] = %f, lowest = %f", i, j, tmp, 
+            debug_print("current M[%lu][%lu] = %f, lowest = %f", i, j, tmp,
                     lowest);
             if(tmp <= lowest){
                 _i = i; _j = j;
@@ -92,7 +92,7 @@ std::pair<size_t, size_t> find_pair(const d2vector_t& dists){
  * then this one will will actually join the pair. Finally, the dists will need
  * to be updated.
  */
-void join_pair(d2vector_t& dists, vector<node_t*>& unroot, 
+void join_pair(d2vector_t& dists, vector<node_t*>& unroot,
         vector<node_t*>& tree){
 
     auto p = find_pair(dists);
@@ -133,7 +133,7 @@ void join_pair(d2vector_t& dists, vector<node_t*>& unroot,
     rchild->_weight = (dists[p.second][p.first] + dje - die)/2.0;
 
     //remove the two nodes from the unroot, add the new v to the root.
-    
+
     vector<node_t*> tmp_unroot;
     tmp_unroot.reserve(unroot.size()-2);
     for(size_t i=0;i<unroot.size();++i){
@@ -247,7 +247,7 @@ tree_t nj(const vector<double>& d, const vector<string>& labels){
      *              u
      *             / \
      *            1   2
-     */ 
+     */
     if(unroot.size() == 3){
         unroot[0]->_weight = (dists[0][1] + dists[0][2] - dists[1][2])/2.0;
         unroot[1]->_weight = (dists[1][0] + dists[1][2] - dists[0][2])/2.0;
