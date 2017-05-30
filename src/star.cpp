@@ -22,12 +22,18 @@ using std::unordered_map;
 #include <functional>
 using std::function;
 
+/*
+ * Simple helper funciton to clean up the code in calc_average_distances()
+ */
 inline void init_array(double* v, size_t s){
     for(size_t i =0;i<s*s;++i){
         v[i]= 0.0;
     }
 }
 
+/*
+ * Constructor, takes a vector of newick strings.
+ */
 star_t::star_t(const vector<string>& newick_trees){
     _tree_collection.reserve(newick_trees.size());
     for(auto &&s : newick_trees){
@@ -128,6 +134,13 @@ void star_t::set_outgroup(const string& outgroup){
     }
 }
 
+/*
+ * Returns the first label that can be found in the tree. This is necessary for
+ * when NJ is run on the distance table, and we need to root the tree. In order
+ * to ensure a consistent root, we can just pick one of the taxa at random to
+ * be the outgroup. Since this is how we handle it, we shouldn't take the root
+ * too seriously when looking at results.
+ */
 string star_t::get_first_label(){
     string ret;
     for(auto kv : _label_map){
