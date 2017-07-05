@@ -149,9 +149,16 @@ int main(int argc, char** argv){
     std::sort(trees.begin(), trees.end(), pc_lambda);
 
     std::cout<<"threshold:"<<threshold<< std::endl;
+    double supressed_total = 0.0;
     for(const auto& kv:trees){
-        if(kv.second<threshold) break;
-        std::cout<<"'"<<kv.first<<"' : "<<kv.second<<std::endl;
+        if(!(kv.second<threshold))
+            std::cout<<"'"<<kv.first<<"' : "<<kv.second<<std::endl;
+        else
+            supressed_total+=kv.second;
+    }
+    if(supressed_total!=0.0){
+        std::cout<<"Total probability of suppressed trees: "
+            <<supressed_total<<std::endl;
     }
     std::cout<<"Perplexity: "<<calc_perplexity(trees)<<std::endl;
 
