@@ -64,7 +64,7 @@ TEST_CASE("gstar, checking random_schedule", "[gstar][random]"){
     auto trees = gstar({s1,s2}, 10);
 }
 
-TEST_CASE("dirichlet random numbers 1, dim 3", "[gstar][dirichlet]"){
+TEST_CASE("dirichlet random numbers 1, dim 3", "[gstar][dirichlet][random]"){
     auto dv = dirichlet(3);
     double total = 0.0;
     for(auto&& v : dv){
@@ -74,7 +74,7 @@ TEST_CASE("dirichlet random numbers 1, dim 3", "[gstar][dirichlet]"){
     REQUIRE(-(total-1.0) < epsilon);
 }
 
-TEST_CASE("dirichlet random numbers 1, dim 1000", "[gstar][dirichlet]"){
+TEST_CASE("dirichlet random numbers 1, dim 1000", "[gstar][dirichlet][random]"){
     auto dv = dirichlet(1000);
     double total = 0.0;
     for(auto&& v : dv){
@@ -84,7 +84,7 @@ TEST_CASE("dirichlet random numbers 1, dim 1000", "[gstar][dirichlet]"){
     REQUIRE(-(total-1.0) < epsilon);
 }
 
-TEST_CASE("dirichlet random numbers 2, average test, dim 3", "[gstar][dirichlet]"){
+TEST_CASE("dirichlet random numbers 2, average test, dim 3", "[gstar][dirichlet][random]"){
     const size_t TRIALS = 1e5;
     const int DIM = 3;
     const double EXPECTED = 1.0/DIM;
@@ -108,7 +108,7 @@ TEST_CASE("dirichlet random numbers 2, average test, dim 3", "[gstar][dirichlet]
     }
 }
 
-TEST_CASE("dirichlet random numbers 2, average test, dim 100", "[gstar][dirichlet]"){
+TEST_CASE("dirichlet random numbers 2, average test, dim 100", "[gstar][dirichlet][random]"){
     const int TRIALS = 1e5;
     const int DIM = 100;
     const double EXPECTED = 1.0/DIM;
