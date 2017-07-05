@@ -64,7 +64,7 @@ TEST_CASE("gstar, checking random_schedule", "[gstar][random]"){
     auto trees = gstar({s1,s2}, 10);
 }
 
-TEST_CASE("dirichlet random numbers 1", "[gstar][dirichlet]"){
+TEST_CASE("dirichlet random numbers 1, dim 3", "[gstar][dirichlet]"){
     auto dv = dirichlet(3);
     double total = 0.0;
     for(auto&& v : dv){
@@ -72,4 +72,58 @@ TEST_CASE("dirichlet random numbers 1", "[gstar][dirichlet]"){
     }
     REQUIRE( (total-1.0) < epsilon);
     REQUIRE(-(total-1.0) < epsilon);
+}
+
+TEST_CASE("dirichlet random numbers 1, dim 1000", "[gstar][dirichlet]"){
+    auto dv = dirichlet(1000);
+    double total = 0.0;
+    for(auto&& v : dv){
+        total+=v;
+    }
+    REQUIRE( (total-1.0) < epsilon);
+    REQUIRE(-(total-1.0) < epsilon);
+}
+
+TEST_CASE("dirichlet random numbers 2, average test, dim 3", "[gstar][dirichlet]"){
+    const size_t TRIALS = 1e5;
+    const int DIM = 3;
+    const double EXPECTED = 1.0/DIM;
+    vector<double> avg_vec(DIM,0.0);
+    for(size_t i =  0; i <TRIALS; ++i){
+        auto dv = dirichlet(DIM);
+        for(size_t j = 0; j< dv.size(); ++j){
+            avg_vec[j]+=dv[j];
+        }
+    }
+    for(auto&& i:avg_vec){
+        i/=TRIALS;
+    }
+    //We could run the number of trials required to get to the "real" epsilon
+    //here. But random trials has a sublinear growth in accuracy, so that takes
+    //forever. We are talking 1e12 or more. Therefore, we relax the constraints
+    //for this test.
+    for(auto&& i:avg_vec){
+        REQUIRE( (i - EXPECTED) < epsilon*1e6);
+        REQUIRE(-(i - EXPECTED) < epsilon*1e6);
+    }
+}
+
+TEST_CASE("dirichlet random numbers 2, average test, dim 100", "[gstar][dirichlet]"){
+    const int TRIALS = 1e5;
+    const int DIM = 100;
+    const double EXPECTED = 1.0/DIM;
+    vector<double> avg_vec(DIM,0.0);
+    for(size_t i =  0; i <TRIALS; ++i){
+        auto dv = dirichlet(DIM);
+        for(size_t j = 0; j< dv.size(); ++j){
+            avg_vec[j]+=dv[j];
+        }
+    }
+    for(auto&& i:avg_vec){
+        i/=TRIALS;
+    }
+    for(auto&& i:avg_vec){
+        REQUIRE( (i - EXPECTED) < epsilon*1e6);
+        REQUIRE(-(i - EXPECTED) < epsilon*1e6);
+    }
 }

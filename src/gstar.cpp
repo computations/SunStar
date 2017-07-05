@@ -54,8 +54,13 @@ void write_sequence_to_file(const vector<double>& s, string newick_string,
  *  beta:   Don't use this.
  */
 vector<double> dirichlet(size_t len, double alpha, double beta=1.0){
+#ifndef DEBUG
+    std::mt19937 gen((std::random_device())());
+    std::gamma_distribution<double> gd(alpha*(beta/(len*beta)), 1.0);
+#else
     static std::mt19937 gen((std::random_device())());
     static std::gamma_distribution<double> gd(alpha*(beta/(len*beta)), 1.0);
+#endif
     vector<double> ret;
     ret.reserve(len);
     double total = 0.0;
