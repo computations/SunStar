@@ -14,6 +14,7 @@ using std::string;
 using std::ifstream;
 #include <algorithm>
 //for std::sort
+#include <exception>
 #include <cmath>
 #include <getopt.h>
 
@@ -77,6 +78,7 @@ int main(int argc, char** argv){
         static struct option long_options[] =
         {
             {"silent",      no_argument,        0,   's'},
+            {"help",        no_argument,        0,   'h'},
             {"rratio",      required_argument,  0,   'r'},
             {"filename",    required_argument,  0,   'f'},
             {"outgroup",    required_argument,  0,   'o'},
@@ -85,7 +87,7 @@ int main(int argc, char** argv){
             {0,0,0,0}
         };
         int option_index = 0;
-        c = getopt_long(argc, argv, "sf:o:t:l:r:", long_options, &option_index);
+        c = getopt_long(argc, argv, "shf:o:t:l:r:", long_options, &option_index);
         if(c==-1){
             break;
         }
@@ -103,14 +105,29 @@ int main(int argc, char** argv){
                 logfile = string(optarg);
                 break;
             case 't':
-                trials = std::stoi(optarg);
+                try{
+                    trials = std::stoi(optarg);
+                }
+                catch(const std::exception& e){
+                    std::cout<<"Could not parse the argument to -t"<<std::endl;
+                    return 1;
+                } 
                 break;
             case 'r':
-                threshold = std::stod(optarg);
+                try{
+                    threshold = std::stod(optarg);
+                }
+                catch(const std::exception& e){
+                    std::cout<<"Could not parse the argument to -r"<<std::endl;
+                    return 1;
+                } 
                 break;
             case 's':
                 turn_off_progress();
                 break;
+            case 'h':
+                print_usage();
+                return 0;
             default:
                 break;
         }
