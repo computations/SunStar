@@ -103,8 +103,8 @@ TEST_CASE("dirichlet random numbers 2, average test, dim 3", "[gstar][dirichlet]
     //forever. We are talking 1e12 or more. Therefore, we relax the constraints
     //for this test.
     for(auto&& i:avg_vec){
-        REQUIRE( (i - EXPECTED) < epsilon*1e6);
-        REQUIRE(-(i - EXPECTED) < epsilon*1e6);
+        REQUIRE( (i - EXPECTED) < epsilon*1e7);
+        REQUIRE(-(i - EXPECTED) < epsilon*1e7);
     }
 }
 
@@ -123,7 +123,7 @@ TEST_CASE("dirichlet random numbers 2, average test, dim 100", "[gstar][dirichle
         i/=TRIALS;
     }
     for(auto&& i:avg_vec){
-        REQUIRE( (i - EXPECTED) < epsilon*1e6);
-        REQUIRE(-(i - EXPECTED) < epsilon*1e6);
+        REQUIRE( (i - EXPECTED) < epsilon*1e7);
+        REQUIRE(-(i - EXPECTED) < epsilon*1e7);
     }
 }

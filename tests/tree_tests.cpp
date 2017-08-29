@@ -256,12 +256,26 @@ TEST_CASE("tree, testing setting root by outgroup string 1", "[tree][outgroup]")
     tree_t t(tree_strings[1]);
     t.set_outgroup("a");
     REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,(c,d)));");
+    t.set_outgroup("b");
+    REQUIRE(t.sort().clear_weights().to_string() == "((a,(c,d)),b);");
+    t.set_outgroup("c");
+    REQUIRE(t.sort().clear_weights().to_string() == "(((a,b),d),c);");
+    t.set_outgroup("d");
+    REQUIRE(t.sort().clear_weights().to_string() == "(((a,b),c),d);");
 }
 
 TEST_CASE("tree, testing setting root by outgroup string 2", "[tree][outgroup]"){
     tree_t t(tree_strings[2]);
     t.set_outgroup("a");
     REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,(c,(d,e))));");
+    t.set_outgroup("b");
+    REQUIRE(t.sort().clear_weights().to_string() == "((a,(c,(d,e))),b);");
+    t.set_outgroup("c");
+    REQUIRE(t.sort().clear_weights().to_string() == "(((a,b),(d,e)),c);");
+    t.set_outgroup("d");
+    REQUIRE(t.sort().clear_weights().to_string() == "((((a,b),c),e),d);");
+    t.set_outgroup("e");
+    REQUIRE(t.sort().clear_weights().to_string() == "((((a,b),c),d),e);");
 }
 
 TEST_CASE("tree, testing setting root by outgroup string 3", "[tree][outgroup]"){
