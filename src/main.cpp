@@ -37,7 +37,7 @@ double calc_perplexity(std::vector<std::pair<std::string, double>> trees){
 
 void print_usage(){
     std::cout<<
-"Usage: gstar [options]\n"<<
+"Usage: sunstar [options]\n"<<
 "Version: "<<GIT_REV_STRING<<"\n"<<
 "Application Options:\n"<<
 "    -f, --filename [FILE]\n"<<
