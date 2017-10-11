@@ -26,7 +26,7 @@ vector<std::pair<string, double>> make_return_vector(
 
 void write_sequence_to_file(const vector<double>& s, string newick_string,
         ofstream& outfile){
-    
+
     outfile<<"{\"tree\":\""<<newick_string<<"\",\"weights\": [";
     for(size_t i = 0; i < s.size(); ++i){
         outfile<<s[i];
