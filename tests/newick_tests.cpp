@@ -131,3 +131,10 @@ TEST_CASE("newick parser edge case 2", "[newick][tree]"){
     t.clear_weights().sort();
     REQUIRE(expected == t.to_string());
 }
+
+TEST_CASE("newick parser unrooted test 1", "[newick][tree]"){
+	string t_string = "(a,b,c);";
+	string expected = "(a,b,c);";
+	tree_t t(t_string);
+	REQUIRE(t.clear_weights().sort().to_string() == expected);
+}

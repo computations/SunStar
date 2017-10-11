@@ -9,6 +9,12 @@ std::vector<std::string> tree_strings {
     "(((a,b),(c,d)),(((e,f),g),h));"
 };
 
+std::vector<std::string> unrooted_tree_strings{
+	"(a,b,c);",
+	"((a,b),c,d);",
+	"((a,b),(c,d),(e,f));",
+};
+
 std::vector<std::string> result_strings {
     "(a:1.0,b:1.0);",
     "((a:1.0,b:1.0):1.0,(c:1.0,d:1.0):1.0);",
@@ -302,6 +308,44 @@ TEST_CASE("tree, testing setting root by outgroup string 4", "[tree][outgroup]")
     REQUIRE(t.sort().clear_weights().to_string() == "(((((a,b),(c,d)),h),(e,f)),g);");
 	t.set_outgroup("h");
     REQUIRE(t.sort().clear_weights().to_string() == "((((a,b),(c,d)),((e,f),g)),h);");
+}
+
+TEST_CASE("tree, testing setting root on unrooted string 0", "[tree][outgroup]"){
+	tree_t t(unrooted_tree_strings[0]);
+	t.set_outgroup("a");
+    REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,c));");
+	t.set_outgroup("b");
+    REQUIRE(t.sort().clear_weights().to_string() == "((a,c),b);");
+	t.set_outgroup("c");
+    REQUIRE(t.sort().clear_weights().to_string() == "((a,b),c);");
+}
+
+TEST_CASE("tree, testing setting root on unrooted string 1", "[tree][outgroup]"){
+	tree_t t(unrooted_tree_strings[1]);
+	t.set_outgroup("a");
+    REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,(c,d)));");
+	t.set_outgroup("b");
+    REQUIRE(t.sort().clear_weights().to_string() == "((a,(c,d)),b);");
+	t.set_outgroup("c");
+    REQUIRE(t.sort().clear_weights().to_string() == "(((a,b),d),c);");
+	t.set_outgroup("d");
+    REQUIRE(t.sort().clear_weights().to_string() == "(((a,b),c),d);");
+}
+
+TEST_CASE("tree, testing setting root on unrooted string 2", "[tree][outgroup]"){
+	tree_t t(unrooted_tree_strings[2]);
+	t.set_outgroup("a");
+    REQUIRE(t.sort().clear_weights().to_string() == "(a,(b,((c,d),(e,f))));");
+	t.set_outgroup("b");
+    REQUIRE(t.sort().clear_weights().to_string() == "((a,((c,d),(e,f))),b);");
+	t.set_outgroup("c");
+    REQUIRE(t.sort().clear_weights().to_string() == "((((a,b),(e,f)),d),c);");
+	t.set_outgroup("d");
+    REQUIRE(t.sort().clear_weights().to_string() == "((((a,b),(e,f)),c),d);");
+	t.set_outgroup("e");
+    REQUIRE(t.sort().clear_weights().to_string() == "((((a,b),(c,d)),f),e);");
+	t.set_outgroup("f");
+    REQUIRE(t.sort().clear_weights().to_string() == "((((a,b),(c,d)),e),f);");
 }
 
 TEST_CASE("tree, testing setting root by outgroup string 3, different taxa", "[tree][outgroup]"){
