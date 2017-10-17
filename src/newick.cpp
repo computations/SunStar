@@ -11,6 +11,7 @@ using std::stack;
 #include <cctype>
 using std::isdigit;
 using std::isalpha;
+using std::isprint;
 #include <string>
 using std::string;
 #include <memory>
@@ -20,6 +21,10 @@ using std::shared_ptr;
 
 
 std::set<string> label_set;
+
+inline bool is_not_label_char(char cur){
+	return cur == ':' || cur == ',' || cur == ')' || cur == '(' || cur==' ';
+}
 
 void skip_whitespace(const string& s, size_t& idx){
     while(isspace(s[idx])!=0 && idx < s.size()) idx++;
@@ -53,11 +58,9 @@ string parse_label(const string& newick_string, size_t& idx){
     skip_whitespace(newick_string, idx);
     size_t start, end;
     start = end = idx;
-    while(start<newick_string.size()){
+    while(end<newick_string.size()){
         char cur = newick_string[end];
-        if(cur<'0' || (cur >= '9'  && cur < 'A') 
-                || (cur >'Z' && cur < 'a' && cur!='_') 
-                || cur > 'z') break;
+        if(is_not_label_char(cur)) break;
         end++;
     }
     idx = end;

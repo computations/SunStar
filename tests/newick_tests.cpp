@@ -7,6 +7,8 @@ TEST_CASE("newick label parser, simple", "[newick]"){
     auto ret = parse_label(l, idx);
     REQUIRE(ret == l);
     REQUIRE(idx == l.size());
+	
+	label_set.clear();
 }
 
 TEST_CASE("newick label parser, number","[newick]"){
@@ -15,6 +17,8 @@ TEST_CASE("newick label parser, number","[newick]"){
     auto ret = parse_label(l, idx);
     REQUIRE(ret == l);
     REQUIRE(idx == l.size());
+
+	label_set.clear();
 }
 
 TEST_CASE("newick label parser, with colon at end", "[newick]"){
@@ -23,7 +27,102 @@ TEST_CASE("newick label parser, with colon at end", "[newick]"){
     auto ret = parse_label(l, idx);
     REQUIRE(ret == l.substr(0,4));
     REQUIRE(idx == l.size()-1);
+
+	label_set.clear();
 }
+
+TEST_CASE("weird characters in taxa labels, pipe", "[newick][labels]"){
+	size_t idx = 0;
+	string l = "abcd|def";
+
+	label_set.clear();
+	auto ret = parse_label(l, idx);
+    REQUIRE(ret == l);
+    REQUIRE(idx == l.size());
+
+}
+
+TEST_CASE("weird characters in taxa labels, curly brace", "[newick][labels]"){
+	size_t idx = 0;
+	string l = "abcd{def}";
+
+	label_set.clear();
+	auto ret = parse_label(l, idx);
+    REQUIRE(ret == l);
+    REQUIRE(idx == l.size());
+
+}
+
+TEST_CASE("weird characters in taxa labels, square brackets", "[newick][labels]"){
+	size_t idx = 0;
+	string l = "abcd[def]";
+
+	label_set.clear();
+	auto ret = parse_label(l, idx);
+    REQUIRE(ret == l);
+    REQUIRE(idx == l.size());
+}
+
+TEST_CASE("weird characters in taxa labels, tilde", "[newick][labels]"){
+	size_t idx = 0;
+	string l = "abcd~def";
+
+	label_set.clear();
+	auto ret = parse_label(l, idx);
+    REQUIRE(ret == l);
+    REQUIRE(idx == l.size());
+}
+
+TEST_CASE("weird characters in taxa labels, period", "[newick][labels]"){
+	size_t idx = 0;
+	string l = "abcd.def";
+
+	label_set.clear();
+	auto ret = parse_label(l, idx);
+    REQUIRE(ret == l);
+    REQUIRE(idx == l.size());
+}
+
+TEST_CASE("weird characters in taxa labels, comma", "[newick][labels]"){
+	size_t idx = 0;
+	string l = "abcd,def";
+
+	label_set.clear();
+	auto ret = parse_label(l, idx);
+    REQUIRE(ret == l.substr(0,4));
+    REQUIRE(idx == l.size()-4);
+}
+
+TEST_CASE("weird characters in taxa labels, colon", "[newick][labels]"){
+	size_t idx = 0;
+	string l = "abcd:def";
+
+	label_set.clear();
+	auto ret = parse_label(l, idx);
+    REQUIRE(ret == l.substr(0,4));
+    REQUIRE(idx == l.size()-4);
+}
+
+TEST_CASE("weird characters in taxa labels, open paren", "[newick][labels]"){
+	size_t idx = 0;
+	string l = "abcd(def";
+
+	label_set.clear();
+	auto ret = parse_label(l, idx);
+    REQUIRE(ret == l.substr(0,4));
+    REQUIRE(idx == l.size()-4);
+}
+
+TEST_CASE("weird characters in taxa labels, assorted punctuation", "[newick][labels]"){
+	size_t idx = 0;
+	string l = "!!@#@$";
+
+	label_set.clear();
+	auto ret = parse_label(l, idx);
+    REQUIRE(ret == l);
+    REQUIRE(idx == l.size());
+}
+
 
 TEST_CASE("newick label parser, label in newick", "[newick]"){
     size_t idx = 1;
@@ -138,3 +237,4 @@ TEST_CASE("newick parser unrooted test 1", "[newick][tree]"){
 	tree_t t(t_string);
 	REQUIRE(t.clear_weights().sort().to_string() == expected);
 }
+
